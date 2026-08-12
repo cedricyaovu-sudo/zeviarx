@@ -178,10 +178,11 @@ nav{position:sticky;top:0;z-index:50;background:rgba(245,241,234,.85);backdrop-f
 .bnpl .providers .logos{display:flex;justify-content:center;gap:34px;margin-top:16px;font-family:'DM Serif Display';font-size:22px;opacity:.6}
 
 /* ===== TESTIMONIALS ===== */
-.t-carousel{overflow:hidden;margin-top:54px;position:relative}
-.t-carousel::before,.t-carousel::after{content:"";position:absolute;top:0;bottom:0;width:7%;z-index:2;pointer-events:none}
-.t-carousel::before{left:0;background:linear-gradient(90deg,var(--cream),rgba(245,241,234,0))}
-.t-carousel::after{right:0;background:linear-gradient(270deg,var(--cream),rgba(245,241,234,0))}
+.t-fadewrap{position:relative;margin-top:54px}
+.t-fadewrap::before,.t-fadewrap::after{content:"";position:absolute;top:0;bottom:0;width:7%;z-index:2;pointer-events:none}
+.t-fadewrap::before{left:0;background:linear-gradient(90deg,var(--cream),rgba(245,241,234,0))}
+.t-fadewrap::after{right:0;background:linear-gradient(270deg,var(--cream),rgba(245,241,234,0))}
+.t-carousel{overflow:hidden;position:relative}
 .t-track{display:flex;gap:18px;width:max-content}
 .t-item{width:225px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;flex:none;box-shadow:0 10px 26px rgba(28,27,24,.12);position:relative}
 .t-item img,.t-item video{width:100%;height:100%;object-fit:cover;display:block}
@@ -532,7 +533,7 @@ footer .logo{color:#fff;margin-bottom:14px}
   <div class="wrap center">
     <p class="eyebrow">Member Stories</p>
     <h2>Results our members talk about.</h2>
-    <div class="t-carousel"><div class="t-track" id="tTrack">
+    <div class="t-fadewrap"><div class="t-carousel"><div class="t-track" id="tTrack">
       <div class="t-item"><img src="member-1.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 10 lbs in 1 month</span></div>
       <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-1-poster.jpg"><source src="member-vid-1.mp4" type="video/mp4"><source src="member-vid-1.webm" type="video/webm"></video><span class="result-tag">↓ 4 lbs in 1 week</span><span class="vid-dot"></span></div>
       <div class="t-item"><img src="member-2.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 10 lbs in 2 weeks</span></div>
@@ -542,7 +543,7 @@ footer .logo{color:#fff;margin-bottom:14px}
       <div class="t-item"><img src="member-5.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 25 lbs in 4 months</span></div>
       <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-3-poster.jpg"><source src="member-vid-3.mp4" type="video/mp4"><source src="member-vid-3.webm" type="video/webm"></video><span class="result-tag">↓ 12 lbs in 6 weeks</span><span class="vid-dot"></span></div>
       <div class="t-item"><img src="member-6.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 15 lbs in 2 months</span></div>
-    </div></div>
+    </div></div></div>
     <div class="t-grid">
       <div class="t-card"><div class="stars">★★★★★</div><p>"The food noise just stopped. I'm three months in and down 19 lbs without feeling like I'm white-knuckling every meal. Whenever I message my provider, I hear back within a day."</p><div class="who">Sarah M.<small>Verified member · Austin, TX</small></div></div>
       <div class="t-card"><div class="stars">★★★★★</div><p>"I was skeptical of the $125 first month, but there were no surprise fees — my price has stayed exactly what they promised. Shipping was fast and everything arrived cold and sealed."</p><div class="who">Marcus D.<small>Verified member · Atlanta, GA</small></div></div>
