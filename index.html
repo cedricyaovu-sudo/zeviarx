@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zevia Rx — Doctor-Prescribed GLP-1 Weight Loss | $125 First Month</title>
+<meta name="description" content="Doctor-prescribed GLP-1 weight loss medication delivered to your door. $125 your first month, then $299/mo. Price-locked. No insurance required.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5F1EA;
+  --cream-deep:#EDE6DA;
+  --ink:#1C1B18;
+  --ink-soft:#55524B;
+  --teal:#1E4F53;
+  --teal-deep:#14393C;
+  --teal-soft:#DCE7E5;
+  --gold:#C8A96A;
+  --white:#FFFFFF;
+  --radius:20px;
+  --shadow:0 18px 50px rgba(28,27,24,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.serif{font-family:'DM Serif Display',Georgia,serif;font-weight:400;line-height:1.12}
+img,video{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--teal);color:#fff;border:none;cursor:pointer;
+  font:600 16px/1 'Inter',sans-serif;padding:18px 34px;border-radius:999px;transition:.25s;box-shadow:0 10px 24px rgba(30,79,83,.28)}
+.btn:hover{background:var(--teal-deep);transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--teal);border:1.5px solid var(--teal);box-shadow:none}
+.btn.ghost:hover{background:var(--teal);color:#fff}
+.eyebrow{font:600 12px/1 'Inter';letter-spacing:.22em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
+.center{text-align:center}
+section{padding:96px 0}
+.sub{color:var(--ink-soft);font-size:18px;max-width:640px}
+
+/* ===== NAV ===== */
+nav{position:sticky;top:0;z-index:50;background:rgba(245,241,234,.85);backdrop-filter:blur(14px);border-bottom:1px solid rgba(28,27,24,.07)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:74px}
+.logo{font-family:'DM Serif Display',serif;font-size:26px;letter-spacing:.01em}
+.logo em{font-style:normal;color:var(--teal)}
+.logo .rx{font-size:15px;vertical-align:super;color:var(--gold)}
+.nav-links{display:flex;gap:34px;font:500 15px 'Inter'}
+.nav-links a{color:var(--ink-soft);transition:.2s}
+.nav-links a:hover{color:var(--teal)}
+.nav-cta{padding:13px 24px;font-size:14px}
+.announce{background:var(--teal);color:#EDE6DA;text-align:center;font:600 13px/1 'Inter';padding:11px 16px;letter-spacing:.04em}
+.announce b{color:#fff}
+
+/* ===== HERO ===== */
+.hero{padding:84px 0 70px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.hero h1{font-size:clamp(42px,5.4vw,68px);margin-bottom:22px}
+.hero h1 .tealic{color:var(--teal);font-style:italic}
+.hero .price-line{display:flex;align-items:baseline;gap:14px;margin:26px 0 8px}
+.hero .big-price{font-family:'DM Serif Display';font-size:56px;color:var(--teal)}
+.hero .price-note{color:var(--ink-soft);font-size:16px}
+.hero .locks{display:flex;gap:22px;margin:18px 0 34px;flex-wrap:wrap}
+.hero .locks span{display:flex;align-items:center;gap:8px;font:600 14px 'Inter';color:var(--ink-soft)}
+.hero .locks svg{flex:none}
+.hero-ctas{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.hero .tiny{font-size:13px;color:var(--ink-soft);margin-top:16px}
+.pill-stage{position:relative;border-radius:32px;overflow:hidden;box-shadow:var(--shadow);background:var(--cream-deep)}
+.pill-stage video,.pill-stage img{width:100%;aspect-ratio:1/1;object-fit:cover}
+.pill-stage .float-tag{position:absolute;left:22px;bottom:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);
+  border-radius:14px;padding:12px 18px;font:600 13px 'Inter';color:var(--teal);box-shadow:0 8px 20px rgba(28,27,24,.12)}
+
+/* ===== SMILES STRIP ===== */
+.smiles{padding:26px 0 64px}
+.smiles-row{display:flex;justify-content:center;gap:22px}
+.smiles-row .s-item{width:200px;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 16px 34px rgba(28,27,24,.14);flex:none}
+.smiles-row .s-item img{width:100%;height:100%;object-fit:cover}
+.smiles-row .s-item:nth-child(odd){transform:translateY(16px) rotate(-1.5deg)}
+.smiles-row .s-item:nth-child(even){transform:translateY(-8px) rotate(1.5deg)}
+.smiles-row .s-item:nth-child(3){transform:translateY(4px) rotate(0deg)}
+@media(max-width:900px){.smiles-row{overflow-x:auto;justify-content:flex-start;padding:16px 24px;scrollbar-width:none}.smiles-row::-webkit-scrollbar{display:none}.smiles-row .s-item{width:160px}}
+
+/* ===== PRESS ===== */
+.press{padding:34px 0;border-top:1px solid rgba(28,27,24,.08);border-bottom:1px solid rgba(28,27,24,.08)}
+.press .row{display:flex;justify-content:space-between;align-items:center;gap:28px;flex-wrap:wrap;opacity:.45;
+  font-family:'DM Serif Display';font-size:21px;filter:grayscale(1)}
+.press small{display:block;text-align:center;font:600 11px 'Inter';letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:18px}
+
+/* ===== CALCULATOR ===== */
+.calc{background:var(--white);border-radius:28px;box-shadow:var(--shadow);padding:56px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.calc h2{font-size:36px;margin-bottom:12px}
+.calc input[type=range]{width:100%;accent-color:var(--teal);height:6px;margin:26px 0 10px}
+.calc .readout{font:600 15px 'Inter';color:var(--ink-soft)}
+.calc .result{background:var(--teal-soft);border-radius:18px;padding:34px;text-align:center}
+.calc .result .num{font-family:'DM Serif Display';font-size:64px;color:var(--teal)}
+.calc .result p{color:var(--ink-soft);font-size:15px}
+
+/* ===== MEDS ===== */
+.meds{background:var(--teal-deep);color:var(--cream)}
+.meds .eyebrow{color:var(--gold)}
+.meds h2{font-size:clamp(34px,4vw,48px);color:#fff}
+.meds .sub{color:#B9C6C2;margin:14px auto 54px}
+.med-grid{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 48px)/3);gap:24px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-left:4px;padding:22px 4px 26px;scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+.med-grid::-webkit-scrollbar{height:8px}
+.med-grid::-webkit-scrollbar-track{background:rgba(255,255,255,.12);border-radius:99px}
+.med-grid::-webkit-scrollbar-thumb{background:var(--gold);border-radius:99px}
+.med-card{scroll-snap-align:start}
+.scroll-hint{margin-top:18px;text-align:center;font:600 12.5px 'Inter';letter-spacing:.08em;text-transform:uppercase;color:#B9C6C2}
+.med-card{background:#fff;color:var(--ink);border-radius:var(--radius);padding:36px 30px;display:flex;flex-direction:column;position:relative}
+.med-card.featured{outline:3px solid var(--gold);box-shadow:0 22px 46px rgba(28,27,24,.16)}
+.med-card .flag{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;
+  font:700 11px/1 'Inter';letter-spacing:.12em;text-transform:uppercase;padding:8px 16px;border-radius:999px;white-space:nowrap}
+.med-card .prod{height:200px;width:auto;object-fit:contain;margin:0 auto 18px;filter:drop-shadow(0 14px 22px rgba(28,27,24,.14))}
+.med-card h3{font-size:26px;margin-bottom:4px}
+.med-card .kind{font:600 12px 'Inter';letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:18px}
+.med-card .m-price{font-family:'DM Serif Display';font-size:44px;color:var(--teal)}
+.med-card .m-price small{font:500 14px 'Inter';color:var(--ink-soft)}
+.med-card .after{font-size:13px;color:var(--ink-soft);margin-bottom:20px}
+.med-card ul{list-style:none;margin:0 0 26px;flex:1}
+.med-card li{padding:8px 0;font-size:14.5px;color:var(--ink-soft);display:flex;gap:10px;align-items:flex-start}
+.med-card li::before{content:"✓";color:var(--teal);font-weight:700}
+.med-card .btn{width:100%;justify-content:center}
+.lock-strip{margin-top:44px;text-align:center;font:600 14px 'Inter';color:#B9C6C2}
+.lock-strip b{color:var(--gold)}
+
+/* ===== PEN RING (Hers-style) ===== */
+.pen-section{overflow:hidden}
+.pen-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.pen-stage{position:relative;width:min(520px,100%);aspect-ratio:1/1;margin:0 auto}
+.ring{position:absolute;inset:0;animation:spin 26s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring text{font:600 15.5px 'Inter';letter-spacing:.34em;text-transform:uppercase;fill:var(--teal)}
+.pen-img{position:absolute;inset:13%;animation:bob 5.5s ease-in-out infinite;filter:drop-shadow(0 30px 40px rgba(28,27,24,.22))}
+@keyframes bob{0%,100%{transform:translateY(-10px) rotate(-2deg)}50%{transform:translateY(12px) rotate(2deg)}}
+.pen-copy h2{font-size:clamp(34px,4vw,48px);margin-bottom:18px}
+.pen-copy .feature{display:flex;gap:18px;margin-top:28px}
+.pen-copy .feature .ic{flex:none;width:46px;height:46px;border-radius:14px;background:var(--teal-soft);display:grid;place-items:center;color:var(--teal);font-size:20px}
+.pen-copy .feature h4{font:600 16px 'Inter';margin-bottom:2px}
+.pen-copy .feature p{font-size:14.5px;color:var(--ink-soft)}
+
+/* ===== DISSOLVE ===== */
+.dissolve{background:var(--white)}
+.dissolve .grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.dissolve .stage{border-radius:32px;overflow:hidden;box-shadow:var(--shadow)}
+.dissolve h2{font-size:clamp(34px,4vw,48px);margin-bottom:18px}
+.stat-row{display:flex;gap:40px;margin-top:36px}
+.stat .n{font-family:'DM Serif Display';font-size:46px;color:var(--teal)}
+.stat p{font-size:13.5px;color:var(--ink-soft);max-width:150px}
+
+/* ===== EXPERTS ===== */
+.experts .e-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:54px}
+.e-card{background:var(--white);border-radius:24px;box-shadow:var(--shadow);padding:26px 26px 34px;text-align:center}
+.e-photo{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:999px 999px 20px 20px;margin-bottom:24px}
+.e-card h3{font-size:25px;margin-bottom:2px}
+.e-card .e-title{font:600 12px 'Inter';letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.e-card .e-cred{font:500 14px 'Inter';color:var(--ink-soft);padding:9px 0;border-top:1px solid var(--cream-deep)}
+.e-card .e-cred:first-of-type{border-top:none}
+.e-card .e-cred b{color:var(--ink);font-weight:600}
+
+/* ===== STEPS ===== */
+.steps h2{font-size:clamp(34px,4vw,48px)}
+.step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:54px}
+.step{background:var(--white);border-radius:var(--radius);padding:40px 32px;box-shadow:var(--shadow)}
+.step .num{font-family:'DM Serif Display';font-size:52px;color:var(--gold)}
+.step h3{font-size:23px;margin:10px 0 8px}
+.step p{font-size:15px;color:var(--ink-soft)}
+
+/* ===== BNPL ===== */
+.bnpl{background:var(--teal-soft)}
+.bnpl h2{font-size:clamp(34px,4vw,48px)}
+.bnpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:54px}
+.plan{background:#fff;border-radius:var(--radius);padding:38px 32px;text-align:center;box-shadow:var(--shadow)}
+.plan h3{font-size:22px;color:var(--teal)}
+.plan .total{font-family:'DM Serif Display';font-size:42px;margin:10px 0 2px}
+.plan .per{font-size:13.5px;color:var(--ink-soft);margin-bottom:18px}
+.plan .save{display:inline-block;background:var(--teal-soft);color:var(--teal);font:700 12px 'Inter';padding:7px 14px;border-radius:999px}
+.bnpl .providers{margin-top:44px;text-align:center;font:600 14px 'Inter';color:var(--ink-soft)}
+.bnpl .providers .logos{display:flex;justify-content:center;gap:34px;margin-top:16px;font-family:'DM Serif Display';font-size:22px;opacity:.6}
+
+/* ===== TESTIMONIALS ===== */
+.t-carousel{overflow:hidden;margin-top:54px;position:relative}
+.t-carousel::before,.t-carousel::after{content:"";position:absolute;top:0;bottom:0;width:7%;z-index:2;pointer-events:none}
+.t-carousel::before{left:0;background:linear-gradient(90deg,var(--cream),rgba(245,241,234,0))}
+.t-carousel::after{right:0;background:linear-gradient(270deg,var(--cream),rgba(245,241,234,0))}
+.t-track{display:flex;gap:18px;width:max-content}
+.t-item{width:225px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;flex:none;box-shadow:0 10px 26px rgba(28,27,24,.12);position:relative}
+.t-item img,.t-item video{width:100%;height:100%;object-fit:cover;display:block}
+.t-item .result-tag{position:absolute;top:10px;left:10px;background:var(--teal-soft);color:var(--teal);font:700 12px 'Inter';padding:7px 12px;border-radius:999px;white-space:nowrap;box-shadow:0 4px 12px rgba(28,27,24,.12)}
+.t-item .vid-dot{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.85);display:grid;place-items:center}
+.t-item .vid-dot::after{content:"";display:block;width:0;height:0;border-left:8px solid var(--teal);border-top:5px solid transparent;border-bottom:5px solid transparent;margin-left:2px}
+.testis .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:26px}
+.t-card{background:var(--white);border-radius:var(--radius);padding:34px 30px;box-shadow:var(--shadow)}
+.t-card .stars{color:var(--gold);letter-spacing:3px;margin-bottom:14px}
+.t-card p{font-size:15px;color:var(--ink-soft);font-style:italic}
+.t-card .who{margin-top:18px;font:600 14px 'Inter'}
+.t-card .who small{display:block;font:500 12px 'Inter';color:var(--ink-soft)}
+.placeholder-note{margin-top:20px;text-align:center;font:500 12px 'Inter';color:#A39E93}
+
+/* ===== FAQ ===== */
+.faq{background:var(--white)}
+.faq h2{font-size:clamp(34px,4vw,48px)}
+.faq-list{max-width:760px;margin:48px auto 0}
+details{border-bottom:1px solid rgba(28,27,24,.1);padding:22px 0}
+summary{cursor:pointer;font:600 17px 'Inter';list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary::after{content:"+";font-family:'DM Serif Display';font-size:26px;color:var(--teal);transition:.25s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:14px;color:var(--ink-soft);font-size:15.5px;max-width:660px}
+
+/* ===== FINAL CTA ===== */
+.final{background:var(--teal-deep);color:#fff;text-align:center}
+.final h2{font-size:clamp(36px,4.6vw,56px);color:#fff}
+.final .sub{margin:18px auto 36px;color:#B9C6C2}
+
+/* ===== FOOTER ===== */
+footer{background:#11292B;color:#8FA6A2;padding:64px 0 40px;font-size:13px}
+footer .cols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:44px}
+footer h5{color:#EDE6DA;font:600 13px 'Inter';letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+footer a{display:block;padding:5px 0;color:#8FA6A2}
+footer a:hover{color:#fff}
+footer .legal{border-top:1px solid rgba(255,255,255,.1);padding-top:28px;font-size:11.5px;line-height:1.7}
+footer .logo{color:#fff;margin-bottom:14px}
+
+@media(max-width:900px){
+  .hero-grid,.pen-grid,.dissolve .grid,.calc{grid-template-columns:1fr}
+  .step-grid,.bnpl-grid,.testis .t-grid{grid-template-columns:1fr}
+  .med-grid{grid-auto-columns:86%}
+  .med-card.featured{transform:none}
+  footer .cols{grid-template-columns:1fr 1fr}
+  section{padding:64px 0}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="announce">Limited intro offer — <b>$125 your first month</b> of doctor-prescribed GLP-1s. No insurance needed.</div>
+
+<nav>
+  <div class="wrap nav-inner">
+    <a class="logo" href="#">Zevia<em>&nbsp;Rx</em><span class="rx">®</span></a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#meds">Medications</a>
+      <a href="#experts">Experts</a>
+      <a href="#plans">Plans</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <a class="btn nav-cta" href="quiz.html">Am I Eligible?</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">Doctor-Prescribed GLP-1 Weight Loss</p>
+      <h1>Lose the weight.<br><span class="tealic">Keep the price.</span></h1>
+      <p class="sub">Compounded GLP-1 medication prescribed by licensed US providers and shipped cold-chain to your door — for a fraction of the retail brand price.</p>
+      <div class="price-line">
+        <span class="big-price">$125</span>
+        <span class="price-note">your first month · then $299/mo<br><b>price-locked. No hikes. Ever.</b></span>
+      </div>
+      <div class="locks">
+        <span>✓ No insurance required</span>
+        <span>✓ No hidden fees</span>
+        <span>✓ Cancel anytime</span>
+      </div>
+      <div class="hero-ctas">
+        <a class="btn" href="quiz.html">Check My Eligibility →</a>
+        <a class="btn ghost" href="#meds">View Medications</a>
+      </div>
+      <p class="tiny">2-minute online quiz · Reviewed by a licensed provider · Ships in days if approved</p>
+    </div>
+    <div class="pill-stage">
+      <video class="pv" autoplay muted loop playsinline preload="auto" poster="pill-poster.jpg" aria-label="Zevia Rx capsule dissolving and recomposing"><source src="pill-dissolve.mp4" type="video/mp4"><source src="pill-dissolve.webm" type="video/webm"></video>
+      <div class="float-tag">One daily dose. Less food noise.</div>
+    </div>
+  </div>
+</header>
+
+<!-- SMILES STRIP -->
+<div class="smiles">
+  <div class="wrap smiles-row">
+    <div class="s-item"><img src="smile-1.jpg" alt="Smiling Zevia Rx community member at home"></div>
+    <div class="s-item"><img src="smile-2.jpg" alt="Smiling Zevia Rx community member on a morning walk"></div>
+    <div class="s-item"><img src="smile-3.jpg" alt="Smiling Zevia Rx community member tying running shoes"></div>
+    <div class="s-item"><img src="smile-4.jpg" alt="Smiling Zevia Rx community member carrying groceries"></div>
+    <div class="s-item"><img src="smile-5.jpg" alt="Smiling Zevia Rx community member in a park"></div>
+  </div>
+</div>
+
+<!-- PRESS -->
+<div class="press">
+  <div class="wrap">
+    <small>As seen in — placeholder logos</small>
+    <div class="row"><span>The Daily Ledger</span><span>WellnessWeek</span><span>Metro Health</span><span>The Morning Post</span><span>VitalityMag</span><span>HealthWire</span></div>
+  </div>
+</div>
+
+<!-- CALCULATOR -->
+<section>
+  <div class="wrap calc">
+    <div>
+      <p class="eyebrow">Your Projection</p>
+      <h2>How much could you lose?</h2>
+      <p class="sub" style="font-size:16px">Drag the slider to your current weight. Estimate based on published clinical results for GLP-1 medications (up to ~20% body weight over 68–72 weeks).</p>
+      <input type="range" id="wt" min="140" max="400" value="220" oninput="calc()">
+      <div class="readout">Current weight: <b id="wtOut">220</b> lbs</div>
+    </div>
+    <div class="result">
+      <div class="num" id="lossOut">44</div>
+      <p><b>pounds</b> — your estimated potential loss with a GLP-1 program.<br><br><a class="btn" href="quiz.html" style="padding:15px 28px;font-size:14px">See If I Qualify</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- MEDS -->
+<section class="meds" id="meds">
+  <div class="wrap center">
+    <p class="eyebrow">Medications</p>
+    <h2>Real medication. Honest pricing.</h2>
+    <p class="sub" style="margin-left:auto;margin-right:auto">Every plan includes your provider consultation, prescription (if approved), cold-chain shipping, and ongoing check-ins. One price. Nothing bolted on.</p>
+    <div class="med-grid">
+      <div class="med-card">
+        <img class="prod" src="vial-cutout.webp" alt="Zevia Rx prescription GLP-1 injection vial">
+        <h3>Semaglutide</h3>
+        <div class="kind">Compounded · Weekly Injection</div>
+        <div class="m-price">$125<small> first month</small></div>
+        <div class="after">then $299/mo · price-locked</div>
+        <ul>
+          <li>Same active ingredient class as Wegovy®</li>
+          <li>Provider consult &amp; ongoing care included</li>
+          <li>Free cold-chain express shipping</li>
+        </ul>
+        <a class="btn" href="quiz.html">Get Started</a>
+      </div>
+      <div class="med-card featured">
+        <div class="flag">Most Popular</div>
+        <img class="prod" src="vial-cutout.webp" alt="Zevia Rx prescription GLP-1 injection vial">
+        <h3>Tirzepatide</h3>
+        <div class="kind">Compounded · Weekly Injection</div>
+        <div class="m-price">$166<small> first month</small></div>
+        <div class="after">then $349/mo · price-locked</div>
+        <ul>
+          <li>Dual-agonist (GIP + GLP-1) — the new gold standard</li>
+          <li>Same active ingredient class as Zepbound®</li>
+          <li>Provider consult &amp; ongoing care included</li>
+          <li>Free cold-chain express shipping</li>
+        </ul>
+        <a class="btn" href="quiz.html">Get Started</a>
+      </div>
+      <div class="med-card">
+        <img class="prod" src="tablets-cutout.webp" alt="Zevia Rx prescription GLP-1 oral dissolving tablets bottle">
+        <h3>Oral Tablets</h3>
+        <div class="kind">Compounded · Daily Sublingual</div>
+        <div class="m-price">$99<small> first month</small></div>
+        <div class="after">then $249/mo · price-locked</div>
+        <ul>
+          <li>Needle-free daily option</li>
+          <li>No refrigeration required — travel friendly</li>
+          <li>Provider consult &amp; ongoing care included</li>
+        </ul>
+        <a class="btn" href="quiz.html">Get Started</a>
+      </div>
+      <div class="med-card">
+        <img class="prod" src="brand-bottle-cutout.webp" alt="Brand-name daily GLP-1 tablet bottle">
+        <h3>Wegovy® Pill</h3>
+        <div class="kind">Brand-Name · Daily Tablet</div>
+        <div class="m-price">$99<small>/mo membership</small></div>
+        <div class="after">+ medication cost · one pill per day</div>
+        <ul>
+          <li>FDA-approved brand-name medication</li>
+          <li>Dispensed through licensed US pharmacies</li>
+          <li>Provider consult &amp; ongoing care included</li>
+        </ul>
+        <a class="btn" href="quiz.html">Get Started</a>
+      </div>
+      <div class="med-card">
+        <img class="prod" src="brand-bluepens-cutout.webp" alt="Brand-name weekly GLP-1 injection pens">
+        <h3>Wegovy® Injection</h3>
+        <div class="kind">Brand-Name · Weekly Injection</div>
+        <div class="m-price">$99<small>/mo membership</small></div>
+        <div class="after">+ medication cost · availability subject to change</div>
+        <ul>
+          <li>FDA-approved brand-name medication</li>
+          <li>Dispensed through licensed US pharmacies</li>
+          <li>Provider consult &amp; ongoing care included</li>
+        </ul>
+        <a class="btn" href="quiz.html">Get Started</a>
+      </div>
+      <div class="med-card">
+        <img class="prod" src="brand-purplepens-cutout.webp" alt="Brand-name weekly dual-agonist injection pens">
+        <h3>Zepbound® Injection</h3>
+        <div class="kind">Brand-Name · Weekly Injection</div>
+        <div class="m-price">$99<small>/mo membership</small></div>
+        <div class="after">+ medication cost · availability subject to change</div>
+        <ul>
+          <li>FDA-approved brand-name medication</li>
+          <li>Dispensed through licensed US pharmacies</li>
+          <li>Provider consult &amp; ongoing care included</li>
+        </ul>
+        <a class="btn" href="quiz.html">Get Started</a>
+      </div>
+    </div>
+    <div class="scroll-hint">Scroll for brand-name options →</div>
+    <div class="lock-strip"><b>The Zevia Price-Lock:</b> the price you start at is the price you keep — for as long as you're a member.</div>
+  </div>
+</section>
+
+<!-- PEN + ROTATING RING -->
+<section class="pen-section">
+  <div class="wrap pen-grid">
+    <div class="pen-stage">
+      <svg class="ring" viewBox="0 0 520 520">
+        <defs><path id="circlePath" d="M 260,260 m -238,0 a 238,238 0 1,1 476,0 a 238,238 0 1,1 -476,0"/></defs>
+        <text><textPath href="#circlePath">Doctor Prescribed · Delivered Monthly · US Licensed Pharmacies · No Insurance Needed ·&nbsp;</textPath></text>
+      </svg>
+      <img class="pen-img" src="pen-cutout.webp" alt="Zevia Rx GLP-1 injection pen">
+    </div>
+    <div class="pen-copy">
+      <p class="eyebrow">Delivered To Your Door</p>
+      <h2>Prescription care, without the waiting room.</h2>
+      <p class="sub">Your medication ships directly from a state-licensed US compounding pharmacy in temperature-controlled packaging — with everything you need for the month.</p>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M4 6l16 12M20 6L4 18"/></svg></div><div><h4>Cold-chain shipped</h4><p>Insulated, temperature-monitored packaging keeps your medication stable door to door.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></div><div><h4>Licensed US providers</h4><p>Every prescription is reviewed and issued by a licensed clinician in your state.</p></div></div>
+      <div class="feature"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 8A8.5 8.5 0 1 0 21 12"/><path d="M21 3v5h-5"/></svg></div><div><h4>Refills on autopilot</h4><p>Your next month ships automatically — pause or cancel anytime from your portal.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DISSOLVE / SCIENCE -->
+<section class="dissolve">
+  <div class="wrap grid">
+    <div>
+      <p class="eyebrow">The Science</p>
+      <h2>Built to quiet the food noise.</h2>
+      <p class="sub">GLP-1 medications work with your biology — slowing digestion, steadying blood sugar, and turning down the constant background chatter of cravings so a smaller portion actually satisfies.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="n">~20%</div><p>average body weight lost in clinical trials of tirzepatide*</p></div>
+        <div class="stat"><div class="n">1×</div><p>weekly dose — no daily pills to remember on injection plans</p></div>
+        <div class="stat"><div class="n">50</div><p>states served through our licensed pharmacy network</p></div>
+      </div>
+      <p style="font-size:11.5px;color:#A39E93;margin-top:26px">*Published clinical results for FDA-approved tirzepatide at highest dose over 72 weeks. Individual results vary. Compounded medications are not FDA-approved.</p>
+    </div>
+    <div class="stage">
+      <video class="pv" autoplay muted loop playsinline preload="auto" poster="pill-poster.jpg" aria-label="Zevia Rx capsule dissolving and recomposing"><source src="pill-dissolve.mp4" type="video/mp4"><source src="pill-dissolve.webm" type="video/webm"></video>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERTS -->
+<section class="experts" id="experts">
+  <div class="wrap center">
+    <p class="eyebrow">Our Medical Experts</p>
+    <h2 style="font-size:clamp(34px,4vw,48px)">Care designed by leading physicians.</h2>
+    <p class="sub" style="margin:14px auto 0">Every Zevia Rx protocol is shaped and reviewed by experienced, board-certified clinicians.</p>
+    <div class="e-grid">
+      <div class="e-card">
+        <img class="e-photo" src="expert-1.webp" alt="Portrait of Dr. Ludwig Dagraft">
+        <h3>Dr. Ludwig Dagraft, MD</h3>
+        <div class="e-title">Medical Advisor</div>
+        <div class="e-cred"><b>Board-certified</b> in Cardiothoracic Surgery, Vascular Surgery &amp; Critical Care Medicine</div>
+        <div class="e-cred">Harvard Medical School</div>
+        <div class="e-cred">Cleveland Clinic Foundation Board of Governors</div>
+      </div>
+      <div class="e-card">
+        <img class="e-photo" src="expert-2.webp" alt="Portrait of Dr. Vanessa Ray">
+        <h3>Dr. Vanessa Ray, MD</h3>
+        <div class="e-title">Medical Advisor</div>
+        <div class="e-cred"><b>Double board-certified</b> in Mohs Micrographic Surgery &amp; Nutrition</div>
+        <div class="e-cred">Harvard Medical School</div>
+        <div class="e-cred">Mayo Clinic Board of Trustees</div>
+      </div>
+      <div class="e-card">
+        <img class="e-photo" src="expert-3.webp" alt="Portrait of Dr. Arjun Mehta">
+        <h3>Dr. Arjun Mehta, MD, MBA</h3>
+        <div class="e-title">Medical Advisor</div>
+        <div class="e-cred"><b>Board-certified</b> in Interventional Cardiology, Cardiovascular Disease &amp; Internal Medicine</div>
+        <div class="e-cred">Johns Hopkins University School of Medicine</div>
+        <div class="e-cred">American Heart Association National Board of Directors</div>
+      </div>
+    </div>
+    <p class="placeholder-note">Illustrative profiles for design preview — Zevia Rx's licensed care team will be announced and verified prior to launch.</p>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="steps" id="how">
+  <div class="wrap center">
+    <p class="eyebrow">How It Works</p>
+    <h2>From quiz to doorstep in 3 steps.</h2>
+    <div class="step-grid">
+      <div class="step"><div class="num">1</div><h3>Take the 2-minute quiz</h3><p>Answer a few questions about your health, goals, and history. No appointment, no waiting room.</p></div>
+      <div class="step"><div class="num">2</div><h3>Provider review</h3><p>A licensed clinician in your state reviews your intake and, if appropriate, writes your prescription.</p></div>
+      <div class="step"><div class="num">3</div><h3>Delivered cold to your door</h3><p>Your first month ships from a licensed US pharmacy in days — refills arrive automatically.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- BNPL PLANS -->
+<section class="bnpl" id="plans">
+  <div class="wrap center">
+    <p class="eyebrow">Commit &amp; Save</p>
+    <h2>Lock your plan. Pay over time.</h2>
+    <p class="sub" style="margin:14px auto 0">Choose a multi-month program and split the cost into easy installments at checkout — often with 0% APR for qualified buyers. Prefer flexibility? Month-to-month is always available.</p>
+    <div class="bnpl-grid">
+      <div class="plan">
+        <h3>3-Month Kickstart</h3>
+        <div class="total">$723</div>
+        <div class="per">as low as $60.25/mo with BNPL financing</div>
+        <span class="save">Save vs. month-to-month</span>
+      </div>
+      <div class="plan">
+        <h3>6-Month Reset</h3>
+        <div class="total">$1,370</div>
+        <div class="per">as low as $57.08/mo with BNPL financing</div>
+        <span class="save">Most popular commitment</span>
+      </div>
+      <div class="plan">
+        <h3>12-Month Transformation</h3>
+        <div class="total">$2,314</div>
+        <div class="per">as low as $48.21/mo with BNPL financing</div>
+        <span class="save">Best value — biggest savings</span>
+      </div>
+    </div>
+    <div class="providers">Flexible payments powered by<div class="logos"><span>Klarna.</span><span>affirm</span><span>afterpay</span><span>cherry</span></div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS (placeholder) -->
+<section class="testis">
+  <div class="wrap center">
+    <p class="eyebrow">Member Stories</p>
+    <h2>Results our members talk about.</h2>
+    <div class="t-carousel"><div class="t-track" id="tTrack">
+      <div class="t-item"><img src="member-1.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 10 lbs in 1 month</span></div>
+      <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-1-poster.jpg"><source src="member-vid-1.mp4" type="video/mp4"><source src="member-vid-1.webm" type="video/webm"></video><span class="result-tag">↓ 4 lbs in 1 week</span><span class="vid-dot"></span></div>
+      <div class="t-item"><img src="member-2.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 10 lbs in 2 weeks</span></div>
+      <div class="t-item"><img src="member-3.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 18 lbs in 3 months</span></div>
+      <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-2-poster.jpg"><source src="member-vid-2.mp4" type="video/mp4"><source src="member-vid-2.webm" type="video/webm"></video><span class="result-tag">↓ 2 lbs in 1 month</span><span class="vid-dot"></span></div>
+      <div class="t-item"><img src="member-4.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 7 lbs in 3 weeks</span></div>
+      <div class="t-item"><img src="member-5.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 25 lbs in 4 months</span></div>
+      <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-3-poster.jpg"><source src="member-vid-3.mp4" type="video/mp4"><source src="member-vid-3.webm" type="video/webm"></video><span class="result-tag">↓ 12 lbs in 6 weeks</span><span class="vid-dot"></span></div>
+      <div class="t-item"><img src="member-6.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 15 lbs in 2 months</span></div>
+    </div></div>
+    <div class="t-grid">
+      <div class="t-card"><div class="stars">★★★★★</div><p>"The food noise just stopped. I'm three months in and down 19 lbs without feeling like I'm white-knuckling every meal. Whenever I message my provider, I hear back within a day."</p><div class="who">Sarah M.<small>Verified member · Austin, TX</small></div></div>
+      <div class="t-card"><div class="stars">★★★★★</div><p>"I was skeptical of the $125 first month, but there were no surprise fees — my price has stayed exactly what they promised. Shipping was fast and everything arrived cold and sealed."</p><div class="who">Marcus D.<small>Verified member · Atlanta, GA</small></div></div>
+      <div class="t-card"><div class="stars">★★★★★</div><p>"The 2-minute quiz really was 2 minutes. I was reviewed the next morning and my first month arrived that week. The monthly check-ins make it feel like actual care, not just a subscription."</p><div class="who">Elena R.<small>Verified member · Phoenix, AZ</small></div></div>
+    </div>
+    <p class="placeholder-note">Illustrative sample reviews and member media for design preview — replace with real, verified member reviews and consented customer content before launch.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="center"><p class="eyebrow">Questions</p><h2>Everything you're wondering.</h2></div>
+    <div class="faq-list">
+      <details open><summary>What exactly is compounded GLP-1 medication?</summary><p>Compounded semaglutide and tirzepatide are prepared by state-licensed US compounding pharmacies using the same active ingredient class as brand-name GLP-1s. Compounded medications are not FDA-approved, but the pharmacies that prepare them are state-regulated. Your provider will determine whether a compounded option is appropriate for you.</p></details>
+      <details><summary>Do I need insurance?</summary><p>No. Zevia Rx is priced for cash pay — $125 for your first month, then a price-locked $299/mo. No insurance paperwork, no prior authorizations, no surprise bills.</p></details>
+      <details><summary>How fast will I get my medication?</summary><p>Most members complete the quiz in about 2 minutes. If a licensed provider approves your prescription, your first shipment typically arrives within days in cold-chain packaging.</p></details>
+      <details><summary>What if I'm declined for a payment plan?</summary><p>No problem — you can always start month-to-month with a standard credit or debit card at $125 for your first month. You'll see every option at checkout.</p></details>
+      <details><summary>Can I cancel?</summary><p>Yes. Month-to-month plans can be paused or cancelled anytime from your member portal. Multi-month programs run for their committed term, which is how we keep the pricing low.</p></details>
+      <details><summary>Is this safe?</summary><p>GLP-1 medications are prescription-only for a reason. That's why every Zevia Rx plan starts with a health intake reviewed by a licensed clinician in your state, who determines eligibility and appropriate dosing, with ongoing check-ins included.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final" id="final">
+  <div class="wrap">
+    <h2>Your first month is $125.<br>Your price never goes up.</h2>
+    <p class="sub">Take the 2-minute quiz to see if you're eligible for doctor-prescribed GLP-1 weight loss.</p>
+    <a class="btn" style="background:var(--gold);box-shadow:0 10px 24px rgba(200,169,106,.35)" href="quiz.html">Start My 2-Minute Quiz →</a>
+    <p style="font-size:12.5px;color:#8FA6A2;margin-top:18px">No insurance required · Licensed US providers · Cancel anytime on monthly plans</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <div class="logo serif" style="font-size:24px">Zevia&nbsp;Rx<span style="color:var(--gold);font-size:13px;vertical-align:super">®</span></div>
+        <p>Doctor-prescribed GLP-1 weight loss, delivered. Transparent pricing, licensed US providers, and pharmacy-direct shipping.</p>
+      </div>
+      <div><h5>Program</h5><a href="#how">How it works</a><a href="#meds">Medications</a><a href="#plans">Plans &amp; pricing</a><a href="#faq">FAQ</a></div>
+      <div><h5>Company</h5><a href="#">About</a><a href="#">Contact</a><a href="#">Support</a></div>
+      <div><h5>Legal</h5><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Telehealth Consent</a><a href="#">CA Notice</a></div>
+    </div>
+    <div class="legal">
+      <p><b>Important safety &amp; regulatory information:</b> Zevia Rx is a telehealth platform that connects patients with independent, licensed healthcare providers. A prescription is never guaranteed — all medication decisions are made solely by a licensed provider based on your individual health profile. Compounded semaglutide and compounded tirzepatide are prepared by state-licensed compounding pharmacies and are <b>not approved by the FDA</b>; the FDA does not review compounded drugs for safety, effectiveness, or quality. Wegovy® and Zepbound® are registered trademarks of their respective owners, which are not affiliated with Zevia Rx. Weight loss results vary; published clinical results refer to FDA-approved versions of these medications studied alongside diet and exercise. GLP-1 medications carry risks, including a boxed warning regarding thyroid C-cell tumors; do not use if you or your family have a history of medullary thyroid carcinoma or MEN 2. Speak with your provider about all risks and side effects. Financing options subject to eligibility and provided by third-party partners (Klarna, Affirm, Afterpay, Cherry); 0% APR offers are subject to credit approval.</p>
+      <p style="margin-top:14px">© 2026 Zevia Rx, Inc. All rights reserved. · This site is a pre-launch design build; statistics, press mentions, testimonials, and medical expert profiles shown are illustrative placeholders pending verification of the final licensed care team.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// seamless testimonial carousel: duplicate track once so -50% translate loops cleanly.
+// Clones keep REAL videos on the hosted site. Only when videos are embedded as data URLs
+// (the single-file preview) do clones fall back to poster stills — 12 decoding
+// data-URL videos overload Safari/WebKit's compositor and paint black.
+const tTrack = document.getElementById('tTrack');
+if(tTrack){
+  const isEmbedded = !!tTrack.querySelector('video source[src^="data:"]');
+  [...tTrack.children].forEach(item => {
+    const clone = item.cloneNode(true);
+    const v = clone.querySelector('video');
+    if(v && isEmbedded){
+      const img = document.createElement('img');
+      img.src = v.getAttribute('poster') || '';
+      img.alt = 'Zevia Rx member video still';
+      v.replaceWith(img);
+    }
+    tTrack.appendChild(clone);
+  });
+  tTrack.querySelectorAll('video').forEach(v => { v.muted = true; v.play().catch(()=>{}); });
+
+  // JS-driven marquee: scroll the container instead of CSS-transforming the track.
+  // WebKit fails to repaint <video> inside a transform-animated ancestor (the clip
+  // "plays" but the frame only refreshes at the clipped edges); native scrolling
+  // repaints correctly every frame.
+  const carousel = document.querySelector('.t-carousel');
+  if(carousel){
+    let pos = 0, last = null, hold = false;
+    const SPEED = 46; // px per second
+    // wrap exactly at the layout position of the first cloned item — pixel-precise seam
+    const wrapAt = () => tTrack.children.length > 9 ? tTrack.children[9].offsetLeft : (tTrack.scrollWidth + 18) / 2;
+    function stepScroll(ts){
+      if(last !== null && !hold){
+        pos += SPEED * (ts - last) / 1000;
+        const w = wrapAt();
+        if(w > 0 && pos >= w) pos -= w;
+        carousel.scrollLeft = Math.round(pos);
+      }
+      last = ts;
+      requestAnimationFrame(stepScroll);
+    }
+    requestAnimationFrame(stepScroll);
+    carousel.addEventListener('mouseenter', () => hold = true);
+    carousel.addEventListener('mouseleave', () => hold = false);
+    carousel.addEventListener('touchstart', () => hold = true, { passive:true });
+    carousel.addEventListener('touchend', () => setTimeout(() => hold = false, 1200), { passive:true });
+  }
+}
+
+// stall rescue: some webviews suspend the media clock — the video reports "playing"
+// but frames never advance. Detect a frozen currentTime and take over frame delivery
+// by stepping currentTime manually (forces decode + repaint regardless of policy).
+(function(){
+  const tracked = new Map(); // video -> {lastT, strikes, manual, t0, offset}
+  setInterval(() => {
+    document.querySelectorAll('video').forEach(v => {
+      if(!tracked.has(v)) tracked.set(v, {lastT:-1, strikes:0, manual:false});
+      const s = tracked.get(v);
+      if(s.manual) return;
+      const r = v.getBoundingClientRect();
+      const visible = r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+      if(visible && !v.paused && v.readyState >= 2){
+        if(v.currentTime === s.lastT){
+          if(++s.strikes >= 2 && v.duration > 0 && isFinite(v.duration)){
+            s.manual = true; s.t0 = performance.now(); s.offset = v.currentTime;
+            const drive = () => {
+              if(!document.contains(v)) return;
+              const rr = v.getBoundingClientRect();
+              if(rr.bottom > -100 && rr.top < innerHeight + 100){
+                try { v.currentTime = (s.offset + (performance.now() - s.t0) / 1000) % v.duration; } catch(e){}
+              }
+              setTimeout(drive, 50); // ~20fps manual stepping
+            };
+            drive();
+          }
+        } else { s.strikes = 0; }
+        s.lastT = v.currentTime;
+      }
+    });
+  }, 700);
+})();
+function calc(){
+  const w = document.getElementById('wt').value;
+  document.getElementById('wtOut').textContent = w;
+  document.getElementById('lossOut').textContent = Math.round(w * 0.20);
+}
+calc();
+
+// keep the medication row anchored to the first card on load (Safari scroll-snap can jump)
+(function(){
+  const grid = document.querySelector('.med-grid');
+  if(grid){
+    const reset = () => grid.scrollLeft = 0;
+    reset(); requestAnimationFrame(reset); setTimeout(reset, 60); setTimeout(reset, 300);
+  }
+})();
+
+// bulletproof autoplay: Safari rejects play() for off-screen videos, and the moving
+// carousel confuses its visibility tracking. So: (1) an IntersectionObserver plays each
+// video the moment it enters the viewport, and (2) a permanent lightweight watchdog
+// retries any paused, visible video every second. Gestures also re-kick (not one-shot).
+(function(){
+  const start = v => { v.muted = true; const p = v.play(); if(p) p.catch(()=>{}); };
+  const all = () => [...document.querySelectorAll('video')];
+  const inView = v => {
+    const r = v.getBoundingClientRect();
+    return r.bottom > -60 && r.top < innerHeight + 60 && r.right > -60 && r.left < innerWidth + 60;
+  };
+  all().forEach(v => {
+    v.setAttribute('preload','auto');
+    ['loadeddata','canplay','canplaythrough'].forEach(ev => v.addEventListener(ev, () => start(v)));
+    start(v);
+  });
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting && e.target.paused) start(e.target); });
+    }, { threshold: 0.01 });
+    all().forEach(v => io.observe(v));
+  }
+  window.addEventListener('load', () => all().forEach(start));
+  setInterval(() => {
+    all().forEach(v => { if(v.paused && inView(v)) start(v); });
+  }, 1000);
+  ['touchstart','pointerdown','click','scroll','keydown','wheel'].forEach(ev =>
+    window.addEventListener(ev, () => all().forEach(v => { if(v.paused) start(v); }), { passive:true }));
+})();
+</script>
+</body>
+</html>
