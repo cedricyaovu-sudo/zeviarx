@@ -234,6 +234,12 @@ footer .logo{color:#fff;margin-bottom:14px}
   footer .cols{grid-template-columns:1fr 1fr}
   section{padding:64px 0}
   .nav-links{display:none}
+  body{overflow-x:hidden}
+  .experts .e-grid{display:flex;overflow-x:auto;gap:16px;padding:4px 4px 18px;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .experts .e-grid::-webkit-scrollbar{display:none}
+  .e-card{flex:0 0 300px;scroll-snap-align:center}
+  .stat-row{flex-wrap:wrap;gap:26px 30px}
+  .stat p{max-width:none}
 }
 </style>
 </head>
