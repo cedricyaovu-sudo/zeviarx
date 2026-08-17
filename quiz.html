@@ -458,7 +458,7 @@ function show(step){
   window.scrollTo({top:0});
   current = step;
 }
-function next(step){ history.push(current); show(step); window.history.pushState({step:step}, '', ''); }
+function next(step){ history.push(current); show(step); try{ window.history.pushState({step:step}, ''); }catch(e){} }
 /* Browser back/forward navigates between quiz screens instead of leaving the page.
    Going back past the first screen exits to the referring page as normal. */
 window.addEventListener('popstate', e => {
@@ -521,8 +521,8 @@ document.getElementById('seeResults').addEventListener('click',()=>{
   document.getElementById('rLoss').innerHTML = '<span class="minus">–</span>'+Math.round((S.answers.weight||220)*0.20)+' lbs';
   document.getElementById('rBmi').textContent = S.bmi;
   document.getElementById('rState').textContent = S.answers.state||'your state';
-  next('results');
   applyPreMed();
+  next('results');
 });
 
 /* ---------- medication selection ---------- */
@@ -558,8 +558,10 @@ document.querySelectorAll('#medGrid .med-opt').forEach(btn=>{
 
 /* Preselected medication (?med= from the landing page's per-medication Get Started buttons):
    skip the chooser and show a compact confirmation with a Change option. */
-const preMed = new URLSearchParams(location.search).get('med');
+let preMed = new URLSearchParams(location.search).get('med');
+if(!(preMed && MEDS[preMed])){ try{ preMed = sessionStorage.getItem('zx_med'); }catch(e){} }
 S.preMed = (preMed && MEDS[preMed]) ? preMed : null;
+try{ sessionStorage.removeItem('zx_med'); }catch(e){}
 function applyPreMed(){
   if(!S.preMed) return;
   const m = MEDS[S.preMed];
@@ -752,7 +754,7 @@ function finish(planLabel, payLabel){
 }
 
 show('goal');
-window.history.replaceState({step:'goal'}, '', '');
+try{ window.history.replaceState({step:'goal'}, ''); }catch(e){}
 </script>
 </body>
 </html>

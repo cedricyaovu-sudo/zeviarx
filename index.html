@@ -705,6 +705,11 @@ function calc(){
 }
 calc();
 
+// relay the chosen medication to the quiz even if a redirect drops the query string
+document.querySelectorAll('.med-card .btn').forEach(a=>a.addEventListener('click',()=>{
+  try{ const m = new URL(a.getAttribute('href'), location.href).searchParams.get('med'); if(m) sessionStorage.setItem('zx_med', m); }catch(e){}
+}));
+
 // keep the medication row anchored to the first card on load (Safari scroll-snap can jump)
 (function(){
   const grid = document.querySelector('.med-grid');
