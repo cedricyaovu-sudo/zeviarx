@@ -352,6 +352,10 @@ svg.ic{display:inline-block;vertical-align:-2px}
         <div><div class="name">Prefer month-to-month?</div><div class="meta"><span id="mtmFirst">$125</span> for your first month, then <span id="mtmAfter">$249</span>/mo · cancel anytime</div></div>
         <div class="price" id="mtmPrice">$125</div>
       </button>
+      <button class="mtm-opt" id="directOpt" style="display:none">
+        <div><div class="name">Prefer paying directly?</div><div class="meta">You'll pay this month's full total of <span id="directTotal">$1,448</span> by card — renews monthly · cancel anytime</div></div>
+        <div class="price" id="directPrice">$1,448</div>
+      </button>
     </div>
 
     <div class="divider" id="cardDivider">pay by card</div>
@@ -582,8 +586,8 @@ function setupCheckout(pivoted){
   document.getElementById('pivotBanner').classList.toggle('show', pivoted);
   // once a BNPL option has been rejected, stop offering BNPL entirely
   document.getElementById('bnplBlock').style.display = pivoted ? 'none' : 'block';
-  // card checkout stays hidden until the user chooses month-to-month or every BNPL partner declines
-  const showCard = pivoted || S.payMode==='mtm';
+  // card checkout stays hidden until the user opts into card payment or every BNPL partner declines
+  const showCard = pivoted || S.payMode==='mtm' || S.payMode==='direct';
   document.getElementById('cardDivider').style.display = showCard ? '' : 'none';
   document.getElementById('cardForm').style.display = showCard ? '' : 'none';
 
@@ -601,6 +605,10 @@ function setupCheckout(pivoted){
     document.getElementById('bnplIntro').innerHTML = `Finance this month's total (<b style="color:var(--teal)">${fmt(total)}</b>) in installments — often 0% APR:`;
     document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(total/12*100)/100)+'/mo');
     document.getElementById('mtmOpt').style.display='none';
+    document.getElementById('directOpt').style.display='flex';
+    document.getElementById('directTotal').textContent = fmt(total);
+    document.getElementById('directPrice').textContent = fmt(total);
+    document.getElementById('directOpt').classList.toggle('selected', S.payMode==='direct');
     return;
   }
 
@@ -608,6 +616,7 @@ function setupCheckout(pivoted){
   const mtm = S.payMode==='mtm';
   document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(m.first)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
   document.getElementById('mtmOpt').style.display='flex';
+  document.getElementById('directOpt').style.display='none';
   document.getElementById('mtmFirst').textContent = fmt(m.first);
   document.getElementById('mtmAfter').textContent = '$'+p.rate;
   document.getElementById('mtmPrice').textContent = fmt(m.first);
@@ -634,6 +643,14 @@ function goBackToPlans(){ S.payMode='bnpl'; show('results'); }
 /* ---------- month-to-month option ---------- */
 document.getElementById('mtmOpt').addEventListener('click',()=>{
   S.payMode='mtm';
+  setupCheckout(document.getElementById('pivotBanner').classList.contains('show'));
+  document.getElementById('cardForm').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('ccName').focus();
+});
+
+/* ---------- direct card payment option (brand-name monthly) ---------- */
+document.getElementById('directOpt').addEventListener('click',()=>{
+  S.payMode='direct';
   setupCheckout(document.getElementById('pivotBanner').classList.contains('show'));
   document.getElementById('cardForm').scrollIntoView({behavior:'smooth',block:'center'});
   document.getElementById('ccName').focus();
