@@ -445,7 +445,7 @@ const calcStr = (m,p) => `${fmt(m.first)} + $${p.rate} × ${p.months-1} = ${fmt(
 
 /* ---------- backend (Supabase) + Stripe ---------- */
 const BACKEND = 'https://zdvbhfykxjbgfdclfmcu.supabase.co/functions/v1';
-const STRIPE_PK = ''; // paste your Stripe publishable key (pk_test_... / pk_live_...) to switch checkout from demo to live
+const STRIPE_PK = 'pk_test_51SSh0pDSUBVlqIfSsUjTUZYi4uFl2ghkFtTbDqlv2PyViz8ppstQzpJNCpYhPeAvdptKe6d411gcz1wTmtyrkaMc00hVud74Z8'; // test mode — swap to pk_live_ at launch
 let stripe = null, elements = null, payElReady = false;
 const dueCents = () => { const m = MEDS[S.med]; return Math.round((m.brand ? brandMonthly(m) : m.first) * 100); };
 function loadStripeJs(){
