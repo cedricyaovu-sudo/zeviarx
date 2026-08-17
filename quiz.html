@@ -361,14 +361,18 @@ svg.ic{display:inline-block;vertical-align:-2px}
     <div class="divider" id="cardDivider">pay by card</div>
 
     <form id="cardForm" onsubmit="return payCard(event)">
+      <div id="payElement" style="display:none;margin-bottom:16px"></div>
+      <div id="payError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-bottom:12px"></div>
+      <div id="demoCardFields">
       <div class="field"><label>Name on card</label><input type="text" id="ccName" placeholder="Alex Morgan" autocomplete="cc-name"></div>
       <div class="field" id="ccField"><label>Card number</label><input type="text" id="ccNum" placeholder="4242 4242 4242 4242" inputmode="numeric" autocomplete="cc-number" maxlength="19"><div class="err">Please enter a valid card number.</div></div>
       <div class="row2">
         <div class="field"><label>Expiry</label><input type="text" id="ccExp" placeholder="MM / YY" inputmode="numeric" autocomplete="cc-exp" maxlength="7"></div>
         <div class="field"><label>CVC</label><input type="text" id="ccCvc" placeholder="123" inputmode="numeric" autocomplete="cc-csc" maxlength="4"></div>
       </div>
+      </div>
       <button class="btn gold wide" id="cardPayBtn" type="submit">Pay <span id="cardPayAmt">$1,320</span> Securely</button>
-      <p style="font:500 11px 'Inter';color:#A39E93;margin-top:12px;text-align:center">Demo build — no real payment is processed. Payment processing (Stripe + BNPL APIs) is wired in the next phase.</p>
+      <p id="demoNote" style="font:500 11px 'Inter';color:#A39E93;margin-top:12px;text-align:center">Demo build — no real payment is processed. Add your Stripe publishable key to enable live payments.</p>
     </form>
     <div class="btn-row"><button class="back" onclick="goBackToPlans()">← Change plan</button></div>
   </section>
@@ -438,6 +442,68 @@ const MEDS = {
 const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:(n%1?2:0),maximumFractionDigits:2});
 const brandMonthly = m => m.member + m.med;
 const calcStr = (m,p) => `${fmt(m.first)} + $${p.rate} × ${p.months-1} = ${fmt(p.price)}`;
+
+/* ---------- backend (Supabase) + Stripe ---------- */
+const BACKEND = 'https://zdvbhfykxjbgfdclfmcu.supabase.co/functions/v1';
+const STRIPE_PK = ''; // paste your Stripe publishable key (pk_test_... / pk_live_...) to switch checkout from demo to live
+let stripe = null, elements = null, payElReady = false;
+const dueCents = () => { const m = MEDS[S.med]; return Math.round((m.brand ? brandMonthly(m) : m.first) * 100); };
+function loadStripeJs(){
+  return new Promise((res, rej) => {
+    if (window.Stripe) return res();
+    const s = document.createElement('script');
+    s.src = 'https://js.stripe.com/v3/';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+async function setupPayElement(){
+  if (!STRIPE_PK || !S.med) return; // demo mode — keep the mock card fields
+  try {
+    await loadStripeJs();
+    if (!stripe) stripe = Stripe(STRIPE_PK);
+    document.getElementById('demoCardFields').style.display = 'none';
+    document.getElementById('demoNote').style.display = 'none';
+    const amount = dueCents();
+    if (!elements) {
+      elements = stripe.elements({ mode: 'payment', amount, currency: 'usd',
+        appearance: { theme: 'stripe', variables: { colorPrimary: '#1E4F53', colorText: '#1C1B18', fontFamily: 'Inter, sans-serif', borderRadius: '14px' } } });
+      elements.create('payment').mount('#payElement');
+    } else {
+      elements.update({ amount });
+    }
+    document.getElementById('payElement').style.display = 'block';
+    payElReady = true;
+  } catch (e) { console.error('stripe init', e); }
+}
+async function payWithStripe(){
+  const errEl = document.getElementById('payError'); errEl.style.display = 'none';
+  const btn = document.getElementById('cardPayBtn'); btn.disabled = true;
+  const ov = document.getElementById('overlay');
+  document.getElementById('ovTitle').textContent = 'Processing payment…';
+  document.getElementById('ovText').textContent = 'Securely contacting our payment processor.';
+  ov.classList.add('show');
+  try {
+    const { error: subErr } = await elements.submit();
+    if (subErr) throw subErr;
+    const r = await fetch(BACKEND + '/create-payment-intent', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ med: S.med, plan: S.plan, payMode: S.payMode, email: S.answers.email, name: S.answers.name, leadId: S.leadId || null, tracking: S.tracking }) });
+    const d = await r.json();
+    if (!r.ok || !d.clientSecret) throw new Error(d.message || (d.error === 'stripe_not_configured' ? 'Payments are not enabled yet.' : 'Payment could not be started.'));
+    const { error, paymentIntent } = await stripe.confirmPayment({ elements, clientSecret: d.clientSecret, redirect: 'if_required' });
+    if (error) throw error;
+    ov.classList.remove('show'); btn.disabled = false;
+    const m = MEDS[S.med];
+    let label;
+    if (m.brand) { label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`; }
+    else { const p = m.plans[S.plan]; label = S.payMode === 'mtm' ? `Month-to-Month — ${fmt(m.first)} first month, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first)} today, then $${p.rate}/mo`; }
+    finish(label, 'Card payment via Stripe' + (paymentIntent && paymentIntent.id ? ' · ' + paymentIntent.id : ''));
+  } catch (ex) {
+    ov.classList.remove('show'); btn.disabled = false;
+    errEl.textContent = ex.message || 'Payment failed — please try again.';
+    errEl.style.display = 'block';
+  }
+}
 
 const FLOW = ['goal','body','diabetes','thyroid','current','previous','pregnancy','organs','state','contact','results','checkout','success'];
 const QCOUNT = 10;
@@ -517,8 +583,10 @@ document.getElementById('seeResults').addEventListener('click',()=>{
   if(!email || !/.+@.+\..+/.test(email)){ document.getElementById('emField').classList.add('error'); return; }
   document.getElementById('emField').classList.remove('error');
   S.answers.name=name; S.answers.email=email; S.answers.phone=document.getElementById('phone').value.trim();
-  // lead payload would fire to backend here (Supabase + n8n abandoned-quiz automation)
   console.log('LEAD_CAPTURED', {...S.answers, bmi:S.bmi, tracking:S.tracking});
+  fetch(BACKEND + '/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+    body: JSON.stringify({ name, email, phone: S.answers.phone, state: S.answers.state, bmi: S.bmi, med: S.preMed || S.med || null, answers: S.answers, tracking: S.tracking }) })
+    .then(r => r.json()).then(d => { if (d && d.id) S.leadId = d.id; }).catch(() => {});
 
   document.getElementById('rName').textContent = name||'friend';
   document.getElementById('rLoss').innerHTML = '<span class="minus">–</span>'+Math.round((S.answers.weight||220)*0.20)+' lbs';
@@ -600,6 +668,7 @@ function setupCheckout(pivoted){
   const showCard = pivoted || S.payMode==='mtm' || S.payMode==='direct';
   document.getElementById('cardDivider').style.display = showCard ? '' : 'none';
   document.getElementById('cardForm').style.display = showCard ? '' : 'none';
+  if (showCard) setupPayElement();
 
   if(m.brand){
     const total = brandMonthly(m);
@@ -723,6 +792,7 @@ document.querySelectorAll('.bnpl-btn').forEach(btn=>{
 /* ---------- card payment (demo) ---------- */
 function payCard(e){
   e.preventDefault();
+  if (STRIPE_PK && payElReady) { payWithStripe(); return false; }
   const num=document.getElementById('ccNum');
   if(num.value.replace(/\s/g,'').length<15){ document.getElementById('ccField').classList.add('error'); return false; }
   document.getElementById('ccField').classList.remove('error');
