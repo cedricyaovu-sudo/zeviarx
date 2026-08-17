@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="telephone=no,date=no,address=no,email=no">
 <title>Am I Eligible? — Zevia Rx 2-Minute Quiz</title>
 <meta name="description" content="See if you qualify for doctor-prescribed GLP-1 weight loss in about 2 minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +19,7 @@
 body{font-family:'Inter',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
 h1,h2,h3,.serif{font-family:'DM Serif Display',Georgia,serif;font-weight:400;line-height:1.15}
 a{color:inherit;text-decoration:none}
-button{font-family:'Inter',sans-serif;cursor:pointer}
+button{font-family:'Inter',sans-serif;cursor:pointer;color:var(--ink)}
 svg.ic{display:inline-block;vertical-align:-2px}
 
 /* top bar */
@@ -581,6 +582,10 @@ function setupCheckout(pivoted){
   document.getElementById('pivotBanner').classList.toggle('show', pivoted);
   // once a BNPL option has been rejected, stop offering BNPL entirely
   document.getElementById('bnplBlock').style.display = pivoted ? 'none' : 'block';
+  // card checkout stays hidden until the user chooses month-to-month or every BNPL partner declines
+  const showCard = pivoted || S.payMode==='mtm';
+  document.getElementById('cardDivider').style.display = showCard ? '' : 'none';
+  document.getElementById('cardForm').style.display = showCard ? '' : 'none';
 
   if(m.brand){
     const total = brandMonthly(m);
