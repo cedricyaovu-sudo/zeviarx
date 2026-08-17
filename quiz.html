@@ -458,7 +458,12 @@ function show(step){
   window.scrollTo({top:0});
   current = step;
 }
-function next(step){ history.push(current); show(step); }
+function next(step){ history.push(current); show(step); window.history.pushState({step:step}, '', ''); }
+/* Browser back/forward navigates between quiz screens instead of leaving the page.
+   Going back past the first screen exits to the referring page as normal. */
+window.addEventListener('popstate', e => {
+  if(e.state && e.state.step){ show(e.state.step); }
+});
 
 /* ---------- option buttons (auto-advance) ---------- */
 document.querySelectorAll('.screen .opts:not(#medGrid)').forEach(group=>{
@@ -638,7 +643,7 @@ function setupCheckout(pivoted){
   document.getElementById('sumTotal').textContent = fmt(m.first);
   document.getElementById('cardPayAmt').textContent = fmt(m.first);
 }
-function goBackToPlans(){ S.payMode='bnpl'; show('results'); }
+function goBackToPlans(){ S.payMode='bnpl'; window.history.back(); }
 
 /* ---------- month-to-month option ---------- */
 document.getElementById('mtmOpt').addEventListener('click',()=>{
@@ -747,6 +752,7 @@ function finish(planLabel, payLabel){
 }
 
 show('goal');
+window.history.replaceState({step:'goal'}, '', '');
 </script>
 </body>
 </html>
