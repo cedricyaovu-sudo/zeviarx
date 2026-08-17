@@ -387,6 +387,26 @@ svg.ic{display:inline-block;vertical-align:-2px}
       <div class="line"><span>Payment</span><span id="sPay">—</span></div>
       <div class="line total"><span>Status</span><span style="color:var(--teal)">Awaiting provider review</span></div>
     </div>
+    <div class="pay-summary" id="shipBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
+      <h3 style="font:700 16px 'Inter';margin-bottom:4px">Delivery address</h3>
+      <p class="hint" style="margin-bottom:14px">Tell us where to ship your medication so your first order isn't delayed.</p>
+      <form id="shipForm" onsubmit="return saveShipping(event)">
+        <div class="field"><label>Full name</label><input id="shName" type="text" autocomplete="name" placeholder="Alex Morgan"></div>
+        <div class="field" id="shL1Field"><label>Street address</label><input id="shLine1" type="text" autocomplete="address-line1" placeholder="123 Main St"><div class="err">Please enter your street address.</div></div>
+        <div class="field"><label>Apt / suite / unit <span style="font-weight:500;color:#A39E93">(optional)</span></label><input id="shLine2" type="text" autocomplete="address-line2"></div>
+        <div class="row2">
+          <div class="field" id="shCityField"><label>City</label><input id="shCity" type="text" autocomplete="address-level2"><div class="err">Please enter your city.</div></div>
+          <div class="field"><label>State</label><select id="shState"></select></div>
+        </div>
+        <div class="field" id="shZipField"><label>ZIP code</label><input id="shZip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="33101"><div class="err">Please enter a valid ZIP code.</div></div>
+        <div id="shipError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-bottom:12px"></div>
+        <button class="btn gold wide" id="shipSaveBtn" type="submit">Save Delivery Address</button>
+      </form>
+      <div id="shipSaved" style="display:none">
+        <p style="font:700 15px 'Inter';color:var(--teal)">✓ Delivery address saved</p>
+        <p class="hint" id="shipSavedAddr" style="margin-top:6px"></p>
+      </div>
+    </div>
     <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html">Return Home</a></div>
   </section>
 
@@ -490,9 +510,12 @@ async function payWithStripe(){
       body: JSON.stringify({ med: S.med, plan: S.plan, payMode: S.payMode, email: S.answers.email, name: S.answers.name, leadId: S.leadId || null, tracking: S.tracking }) });
     const d = await r.json();
     if (!r.ok || !d.clientSecret) throw new Error(d.message || (d.error === 'stripe_not_configured' ? 'Payments are not enabled yet.' : 'Payment could not be started.'));
+    S.lastPI = null;
+    try{ sessionStorage.setItem('zx_checkout', JSON.stringify({ med:S.med, plan:S.plan, payMode:S.payMode, name:S.answers.name||'', email:S.answers.email||'', state:S.answers.state||'', leadId:S.leadId||null })); }catch(e){}
     const { error, paymentIntent } = await stripe.confirmPayment({ elements, clientSecret: d.clientSecret, redirect: 'if_required',
       confirmParams: { return_url: location.origin + location.pathname } });
     if (error) throw error;
+    if (paymentIntent && paymentIntent.id) S.lastPI = paymentIntent.id;
     ov.classList.remove('show'); btn.disabled = false;
     const m = MEDS[S.med];
     let label;
@@ -824,11 +847,82 @@ function finish(planLabel, payLabel){
   document.getElementById('sVia').textContent = payLabel.includes('plan') ? ' via '+payLabel : '';
   // conversion event would fire here (pixel + CAPI + affiliate S2S postback via n8n)
   console.log('CONVERSION', {med:S.med, plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
+  prefillShipping();
   next('success');
 }
 
-if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
-show('goal');
+/* ---------- delivery address (success screen) ---------- */
+const shSel = document.getElementById('shState');
+STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;shSel.appendChild(o);});
+function prefillShipping(){
+  document.getElementById('shipForm').style.display='';
+  document.getElementById('shipSaved').style.display='none';
+  const n=document.getElementById('shName'); if(!n.value) n.value=S.answers.name||'';
+  if(S.answers.state) shSel.value=S.answers.state;
+}
+function saveShipping(e){
+  e.preventDefault();
+  const line1=document.getElementById('shLine1'), city=document.getElementById('shCity'), zip=document.getElementById('shZip');
+  let ok=true;
+  const bad=(id,cond)=>{document.getElementById(id).classList.toggle('error',cond); if(cond) ok=false;};
+  bad('shL1Field', !line1.value.trim());
+  bad('shCityField', !city.value.trim());
+  bad('shZipField', !/^\d{5}(-\d{4})?$/.test(zip.value.trim()));
+  if(!ok) return false;
+  const btn=document.getElementById('shipSaveBtn'); btn.disabled=true; btn.textContent='Saving…';
+  const errEl=document.getElementById('shipError'); errEl.style.display='none';
+  const shipping={ name:(document.getElementById('shName').value.trim()||S.answers.name||'Customer'), line1:line1.value.trim(), line2:document.getElementById('shLine2').value.trim(), city:city.value.trim(), state:shSel.value, zip:zip.value.trim() };
+  fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ paymentIntent:S.lastPI||null, leadId:S.leadId||null, shipping }) })
+    .then(r=>r.json().then(d=>({good:r.ok && d && d.ok})))
+    .then(({good})=>{
+      if(!good) throw new Error('save');
+      document.getElementById('shipForm').style.display='none';
+      document.getElementById('shipSaved').style.display='block';
+      document.getElementById('shipSavedAddr').textContent = `Shipping to ${shipping.line1}${shipping.line2?', '+shipping.line2:''}, ${shipping.city}, ${shipping.state} ${shipping.zip}`;
+    })
+    .catch(()=>{ errEl.textContent="We couldn't save your address — please try again."; errEl.style.display='block'; })
+    .finally(()=>{ btn.disabled=false; btn.textContent='Save Delivery Address'; });
+  return false;
+}
+
+/* ---------- Stripe redirect-method return (Klarna / Affirm / Cash App tabs) ---------- */
+async function handleRedirectReturn(clientSecret){
+  try{ window.history.replaceState(null, '', location.pathname); }catch(e){}
+  let ctx=null; try{ ctx=JSON.parse(sessionStorage.getItem('zx_checkout')||'null'); }catch(e){}
+  if(ctx){ S.med=ctx.med||S.med; S.plan=ctx.plan||S.plan; S.payMode=ctx.payMode||S.payMode; S.leadId=ctx.leadId||null; S.answers.name=ctx.name||S.answers.name; S.answers.email=ctx.email||S.answers.email; S.answers.state=ctx.state||S.answers.state; }
+  try{
+    await loadStripeJs();
+    if(!stripe) stripe = Stripe(STRIPE_PK, { locale:'en' });
+    const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+    const st = paymentIntent && paymentIntent.status;
+    if(st==='succeeded' || st==='processing' || st==='requires_capture'){
+      S.lastPI = paymentIntent.id;
+      const m = S.med && MEDS[S.med];
+      let label='Your plan';
+      if(m){
+        if(m.brand) label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`;
+        else if(m.plans[S.plan]) label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first)} first month, then $${m.plans[S.plan].rate}/mo` : `${m.plans[S.plan].name} — ${fmt(m.first)} today, then $${m.plans[S.plan].rate}/mo`;
+      }
+      finish(label, 'Payment via Stripe' + (st==='processing' ? ' — processing' : '') + ' · ' + paymentIntent.id);
+      return;
+    }
+    if(S.med && MEDS[S.med] && (MEDS[S.med].brand || MEDS[S.med].plans[S.plan])){
+      setupCheckout(false); show('checkout');
+      const errEl=document.getElementById('payError');
+      errEl.textContent = "Your payment wasn't completed — please try again or choose a different payment method.";
+      errEl.style.display='block';
+      return;
+    }
+  }catch(e){ console.error('redirect return', e); }
+  show('goal');
+}
+const bootSecret = new URLSearchParams(location.search).get('payment_intent_client_secret');
+if (bootSecret && STRIPE_PK){
+  handleRedirectReturn(bootSecret);
+} else {
+  if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
+  show('goal');
+}
 </script>
 </body>
 </html>
