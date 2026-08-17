@@ -264,23 +264,45 @@ svg.ic{display:inline-block;vertical-align:-2px}
       <p>estimated potential weight loss with a GLP-1 program<br>based on your BMI of <b id="rBmi" style="color:#fff">32.5</b></p>
       <div class="badges"><span>✓ Provider review included</span><span>✓ Ships to <span id="rState">your state</span></span><span>✓ Cancel anytime monthly</span></div>
     </div>
-    <h1 style="font-size:28px">Choose your plan.</h1>
-    <p class="hint">Commit longer, pay less per month. Every plan includes provider care, your prescription if approved, and cold-chain shipping.</p>
-    <div class="plan-grid">
-      <button class="plan-opt" data-plan="3mo">
-        <div><div class="name">3-Month Kickstart</div><div class="meta">$125 for your first month</div></div>
-        <div class="price">$299<small>/mo</small></div>
-      </button>
-      <button class="plan-opt" data-plan="6mo">
-        <span class="tag">Most Popular</span>
-        <div><div class="name">6-Month Reset</div><div class="meta">$125 for your first month</div></div>
-        <div class="price">$249<small>/mo</small></div>
-      </button>
-      <button class="plan-opt" data-plan="12mo">
-        <span class="tag">Best Value</span>
-        <div><div class="name">12-Month Transformation</div><div class="meta">$125 for your first month</div></div>
-        <div class="price">$199<small>/mo</small></div>
-      </button>
+    <h1 style="font-size:28px">Choose your medication.</h1>
+    <p class="hint">Select the treatment you'd like to be considered for — your provider makes the final call on your prescription.</p>
+    <div class="opts" id="medGrid">
+      <button class="opt med-opt" data-med="sema"><div>Semaglutide<small>Compounded · Weekly Injection · $125 first month, then $299/mo</small></div></button>
+      <button class="opt med-opt" data-med="tirz"><div>Tirzepatide<small>Compounded · Weekly Injection · $166 first month, then $349/mo</small></div></button>
+      <button class="opt med-opt" data-med="oral"><div>Oral Tablets<small>Compounded · Daily Sublingual · $99 first month, then $249/mo</small></div></button>
+      <button class="opt med-opt" data-med="wpill"><div>Wegovy® Pill<small>Brand-Name · Daily Tablet · $99/mo membership + $1,638.99/mo medication</small></div></button>
+      <button class="opt med-opt" data-med="winj"><div>Wegovy® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,349/mo medication</small></div></button>
+      <button class="opt med-opt" data-med="zep"><div>Zepbound® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,086/mo medication</small></div></button>
+    </div>
+    <div id="planSection" style="display:none;margin-top:34px">
+      <h1 style="font-size:28px">Choose your plan.</h1>
+      <p class="hint">Commit longer, pay less per month. Every plan includes provider care, your prescription if approved, and cold-chain shipping.</p>
+      <div class="plan-grid">
+        <button class="plan-opt" data-plan="3mo">
+          <div><div class="name">3-Month Kickstart</div><div class="meta"><span class="pFirst">$125</span> for your first month</div></div>
+          <div class="price"><span class="pRate">$299</span><small>/mo</small></div>
+        </button>
+        <button class="plan-opt" data-plan="6mo">
+          <span class="tag">Most Popular</span>
+          <div><div class="name">6-Month Reset</div><div class="meta"><span class="pFirst">$125</span> for your first month</div></div>
+          <div class="price"><span class="pRate">$249</span><small>/mo</small></div>
+        </button>
+        <button class="plan-opt" data-plan="12mo">
+          <span class="tag">Best Value</span>
+          <div><div class="name">12-Month Transformation</div><div class="meta"><span class="pFirst">$125</span> for your first month</div></div>
+          <div class="price"><span class="pRate">$199</span><small>/mo</small></div>
+        </button>
+      </div>
+    </div>
+    <div id="brandSection" style="display:none;margin-top:34px">
+      <h1 style="font-size:28px">Your monthly plan.</h1>
+      <p class="hint">Brand-name medication is billed monthly — membership plus the medication, dispensed through licensed US pharmacies. Cancel anytime.</p>
+      <div class="plan-grid">
+        <div class="plan-opt selected" id="brandPlanCard" style="cursor:default">
+          <div><div class="name" id="brandPlanName">Monthly</div><div class="meta" id="brandPlanMeta">$99/mo membership + medication</div></div>
+          <div class="price" id="brandPlanPrice">$1,448<small>/mo</small></div>
+        </div>
+      </div>
     </div>
     <div class="btn-row"><button class="btn wide" id="toCheckout" disabled>Continue to Secure Checkout →</button></div>
   </section>
@@ -292,7 +314,7 @@ svg.ic{display:inline-block;vertical-align:-2px}
 
     <div class="pivot" id="pivotBanner">
       <b>No problem — you're still approved to start today.</b>
-      <p>Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>$125 for your first month</b>, then <span id="pivotAfter">$299</span>/mo. Cancel anytime.</p>
+      <p id="pivotText">Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility.</p>
     </div>
 
     <div class="pay-summary">
@@ -304,7 +326,7 @@ svg.ic{display:inline-block;vertical-align:-2px}
     </div>
 
     <div id="bnplBlock">
-      <p style="font:600 13px 'Inter';color:var(--ink-soft);margin-bottom:12px">Finance your full plan total (<b id="bnplTotal" style="color:var(--teal)">$1,370</b>) in installments — often 0% APR:</p>
+      <p style="font:600 13px 'Inter';color:var(--ink-soft);margin-bottom:12px" id="bnplIntro">Finance your full plan total (<b style="color:var(--teal)">$1,370</b>) in installments — often 0% APR:</p>
       <div class="bnpl-btns">
         <button class="bnpl-btn" data-provider="Klarna"><span class="brand">Klarna.</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
         <button class="bnpl-btn" data-provider="Affirm"><span class="brand">affirm</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
@@ -313,8 +335,8 @@ svg.ic{display:inline-block;vertical-align:-2px}
       </div>
       <p style="font:500 11px 'Inter';color:#A39E93;margin-top:12px;text-align:center">By choosing a payment plan you authorize Zevia Rx to securely check your eligibility with our financing partners. If one partner can't approve your plan, we automatically check the others for you — highest approval odds first. These are soft checks and never affect your credit score.</p>
       <button class="mtm-opt" id="mtmOpt">
-        <div><div class="name">Prefer month-to-month?</div><div class="meta">$125 for your first month, then <span id="mtmAfter">$249</span>/mo · cancel anytime</div></div>
-        <div class="price">$125</div>
+        <div><div class="name">Prefer month-to-month?</div><div class="meta"><span id="mtmFirst">$125</span> for your first month, then <span id="mtmAfter">$249</span>/mo · cancel anytime</div></div>
+        <div class="price" id="mtmPrice">$125</div>
       </button>
     </div>
 
@@ -368,19 +390,36 @@ svg.ic{display:inline-block;vertical-align:-2px}
 
 <script>
 /* ---------- state ---------- */
-const S = { answers:{}, bmi:null, plan:null, payMode:'bnpl', demoOutcome:'approve', tracking:{} };
+const S = { answers:{}, bmi:null, med:null, plan:null, payMode:'bnpl', demoOutcome:'approve', tracking:{} };
 // capture affiliate/click tracking params for the future postback layer
 new URLSearchParams(location.search).forEach((v,k)=>{
   if(/^(click_id|aff_id|affid|af_source|uid|oid|sub\d|gclid|fbclid|utm_)/i.test(k)) S.tracking[k]=v;
 });
 
-const PLANS = {
-  '3mo':  {name:'3-Month Kickstart',       months:3,  rate:299, price:723,  asLow:'$60.25/mo'},
-  '6mo':  {name:'6-Month Reset',           months:6,  rate:249, price:1370, asLow:'$57.08/mo'},
-  '12mo': {name:'12-Month Transformation', months:12, rate:199, price:2314, asLow:'$48.21/mo'}
+/* Per-medication pricing.
+   Compounded: scaled ladder — 3-mo = base rate, 6-mo = base−$50, 12-mo = base−$100.
+   Total = first month + rate × (months − 1). Month-to-month continuation = the plan's rate.
+   Brand-name: month-to-month only — $99/mo membership + medication cost/mo. */
+const MEDS = {
+  sema:{label:'Semaglutide', kind:'Compounded · Weekly Injection', first:125, plans:{
+    '3mo':{name:'3-Month Kickstart',months:3,rate:299,price:723,asLow:'$60.25/mo'},
+    '6mo':{name:'6-Month Reset',months:6,rate:249,price:1370,asLow:'$57.08/mo'},
+    '12mo':{name:'12-Month Transformation',months:12,rate:199,price:2314,asLow:'$48.21/mo'}}},
+  tirz:{label:'Tirzepatide', kind:'Compounded · Weekly Injection', first:166, plans:{
+    '3mo':{name:'3-Month Kickstart',months:3,rate:349,price:864,asLow:'$72.00/mo'},
+    '6mo':{name:'6-Month Reset',months:6,rate:299,price:1661,asLow:'$69.21/mo'},
+    '12mo':{name:'12-Month Transformation',months:12,rate:249,price:2905,asLow:'$60.52/mo'}}},
+  oral:{label:'Oral Tablets', kind:'Compounded · Daily Sublingual', first:99, plans:{
+    '3mo':{name:'3-Month Kickstart',months:3,rate:249,price:597,asLow:'$49.75/mo'},
+    '6mo':{name:'6-Month Reset',months:6,rate:199,price:1094,asLow:'$45.58/mo'},
+    '12mo':{name:'12-Month Transformation',months:12,rate:149,price:1738,asLow:'$36.21/mo'}}},
+  wpill:{label:'Wegovy® Pill', kind:'Brand-Name · Daily Tablet', brand:true, member:99, med:1638.99},
+  winj:{label:'Wegovy® Injection', kind:'Brand-Name · Weekly Injection', brand:true, member:99, med:1349},
+  zep:{label:'Zepbound® Injection', kind:'Brand-Name · Weekly Injection', brand:true, member:99, med:1086}
 };
-// Total = $125 first month + rate × (months − 1). Month-to-month continuation = the plan's rate.
-const calcStr = p => `$125 + $${p.rate} × ${p.months-1} = $${p.price.toLocaleString()}`;
+const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:(n%1?2:0),maximumFractionDigits:2});
+const brandMonthly = m => m.member + m.med;
+const calcStr = (m,p) => `${fmt(m.first)} + $${p.rate} × ${p.months-1} = ${fmt(p.price)}`;
 
 const FLOW = ['goal','body','diabetes','thyroid','current','previous','pregnancy','organs','state','contact','results','checkout','success'];
 const QCOUNT = 10;
@@ -404,7 +443,7 @@ function show(step){
 function next(step){ history.push(current); show(step); }
 
 /* ---------- option buttons (auto-advance) ---------- */
-document.querySelectorAll('.screen .opts').forEach(group=>{
+document.querySelectorAll('.screen .opts:not(#medGrid)').forEach(group=>{
   group.querySelectorAll('.opt').forEach(btn=>{
     btn.addEventListener('click',()=>{
       group.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
@@ -462,10 +501,40 @@ document.getElementById('seeResults').addEventListener('click',()=>{
   next('results');
 });
 
-/* ---------- plan selection ---------- */
-document.querySelectorAll('.plan-opt').forEach(btn=>{
+/* ---------- medication selection ---------- */
+document.querySelectorAll('#medGrid .med-opt').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    document.querySelectorAll('.plan-opt').forEach(b=>b.classList.remove('selected'));
+    document.querySelectorAll('#medGrid .med-opt').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    S.med = btn.dataset.med;
+    const m = MEDS[S.med];
+    S.plan = null;
+    document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>b.classList.remove('selected'));
+    if(m.brand){
+      S.plan = 'brand';
+      document.getElementById('planSection').style.display='none';
+      document.getElementById('brandSection').style.display='block';
+      document.getElementById('brandPlanName').textContent = m.label + ' — Monthly';
+      document.getElementById('brandPlanMeta').textContent = '$' + m.member + '/mo membership + ' + fmt(m.med) + '/mo medication · cancel anytime';
+      document.getElementById('brandPlanPrice').innerHTML = fmt(brandMonthly(m)) + '<small>/mo</small>';
+      document.getElementById('toCheckout').disabled = false;
+    } else {
+      document.getElementById('brandSection').style.display='none';
+      document.getElementById('planSection').style.display='block';
+      document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>{
+        const p = m.plans[b.dataset.plan];
+        b.querySelector('.pFirst').textContent = fmt(m.first);
+        b.querySelector('.pRate').textContent = '$'+p.rate;
+      });
+      document.getElementById('toCheckout').disabled = true;
+    }
+  });
+});
+
+/* ---------- plan selection (compounded) ---------- */
+document.querySelectorAll('.plan-opt[data-plan]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>b.classList.remove('selected'));
     btn.classList.add('selected');
     S.plan = btn.dataset.plan;
     document.getElementById('toCheckout').disabled=false;
@@ -474,29 +543,52 @@ document.querySelectorAll('.plan-opt').forEach(btn=>{
 document.getElementById('toCheckout').addEventListener('click',()=>{ S.payMode='bnpl'; setupCheckout(false); next('checkout'); });
 
 function setupCheckout(pivoted){
-  const p = PLANS[S.plan];
-  const mtm = S.payMode==='mtm';
+  const m = MEDS[S.med];
   document.getElementById('pivotBanner').classList.toggle('show', pivoted);
   // once a BNPL option has been rejected, stop offering BNPL entirely
   document.getElementById('bnplBlock').style.display = pivoted ? 'none' : 'block';
-  document.getElementById('pivotAfter').textContent = '$'+p.rate;
+
+  if(m.brand){
+    const total = brandMonthly(m);
+    document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. You can still start today by card: <b>${fmt(total)}/mo</b> — membership plus medication. Cancel anytime.`;
+    document.getElementById('sumPlanName').textContent = m.label + ' — Monthly';
+    document.getElementById('sumPlanPrice').textContent = `$${m.member} + ${fmt(m.med)} = ${fmt(total)}/mo`;
+    document.querySelector('#sumAfterLine span').textContent = 'Renews monthly at';
+    document.getElementById('sumAfterLine').style.display='flex';
+    document.getElementById('sumAfter').textContent = fmt(total)+'/mo';
+    document.getElementById('sumDueLabel').textContent = 'Due today';
+    document.getElementById('sumTotal').textContent = fmt(total);
+    document.getElementById('cardPayAmt').textContent = fmt(total);
+    document.getElementById('bnplIntro').innerHTML = `Finance this month's total (<b style="color:var(--teal)">${fmt(total)}</b>) in installments — often 0% APR:`;
+    document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(total/12*100)/100)+'/mo');
+    document.getElementById('mtmOpt').style.display='none';
+    return;
+  }
+
+  const p = m.plans[S.plan];
+  const mtm = S.payMode==='mtm';
+  document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(m.first)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
+  document.getElementById('mtmOpt').style.display='flex';
+  document.getElementById('mtmFirst').textContent = fmt(m.first);
   document.getElementById('mtmAfter').textContent = '$'+p.rate;
+  document.getElementById('mtmPrice').textContent = fmt(m.first);
   document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent=p.asLow);
-  document.getElementById('bnplTotal').textContent = '$'+p.price.toLocaleString();
+  document.getElementById('bnplIntro').innerHTML = `Finance your full plan total (<b style="color:var(--teal)">${fmt(p.price)}</b>) in installments — often 0% APR:`;
   document.getElementById('mtmOpt').classList.toggle('selected', mtm);
 
   if(mtm){
     document.getElementById('sumPlanName').textContent = 'Month-to-Month (first month)';
-    document.getElementById('sumPlanPrice').textContent = '$125';
+    document.getElementById('sumPlanPrice').textContent = fmt(m.first);
   } else {
     document.getElementById('sumPlanName').textContent = p.name;
-    document.getElementById('sumPlanPrice').textContent = calcStr(p);
+    document.getElementById('sumPlanPrice').textContent = calcStr(m,p);
   }
+  document.querySelector('#sumAfterLine span').textContent = 'After your first month';
   document.getElementById('sumAfterLine').style.display='flex';
   document.getElementById('sumAfter').textContent = '$'+p.rate+'/mo';
   document.getElementById('sumDueLabel').textContent = 'Due today';
-  document.getElementById('sumTotal').textContent = '$125';
-  document.getElementById('cardPayAmt').textContent = '$125';
+  document.getElementById('sumTotal').textContent = fmt(m.first);
+  document.getElementById('cardPayAmt').textContent = fmt(m.first);
 }
 function goBackToPlans(){ S.payMode='bnpl'; show('results'); }
 
@@ -522,10 +614,11 @@ function setDemo(mode){
 
 function runCascade(queue, attempt){
   const provider = queue[0];
-  const p = PLANS[S.plan];
+  const m = MEDS[S.med];
+  const financed = m.brand ? brandMonthly(m) : m.plans[S.plan].price;
   const ov = document.getElementById('overlay');
   document.getElementById('ovTitle').textContent = `Checking with ${provider}…`;
-  document.getElementById('ovText').textContent = `Securely verifying your eligibility to finance your full $${p.price.toLocaleString()} plan. Soft check — no impact on your credit score.`;
+  document.getElementById('ovText').textContent = `Securely verifying your eligibility to finance ${fmt(financed)}${m.brand ? " — this month's membership plus medication" : " — your full plan total"}. Soft check — no impact on your credit score.`;
   ov.classList.add('show');
   setTimeout(()=>{
     const approved = S.demoOutcome==='approve' ? true
@@ -533,7 +626,7 @@ function runCascade(queue, attempt){
                    : false;
     if(approved){
       ov.classList.remove('show');
-      finish(p.name, `${provider} payment plan — $${p.price.toLocaleString()} financed`);
+      finish(m.brand ? `${m.label} — Monthly` : m.plans[S.plan].name, `${provider} payment plan — ${fmt(financed)} financed`);
       return;
     }
     const rest = queue.slice(1);
@@ -573,8 +666,14 @@ function payCard(e){
   ov.classList.add('show');
   setTimeout(()=>{
     ov.classList.remove('show');
-    const p=PLANS[S.plan];
-    const label = S.payMode==='mtm' ? `Month-to-Month — $125 first month, then $${p.rate}/mo` : `${p.name} — $125 today, then $${p.rate}/mo`;
+    const m=MEDS[S.med];
+    let label;
+    if(m.brand){
+      label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`;
+    } else {
+      const p=m.plans[S.plan];
+      label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first)} first month, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first)} today, then $${p.rate}/mo`;
+    }
     finish(label, 'Card ending '+num.value.replace(/\s/g,'').slice(-4));
   },1800);
   return false;
@@ -587,7 +686,7 @@ function finish(planLabel, payLabel){
   document.getElementById('sPay').textContent = payLabel;
   document.getElementById('sVia').textContent = payLabel.includes('plan') ? ' via '+payLabel : '';
   // conversion event would fire here (pixel + CAPI + affiliate S2S postback via n8n)
-  console.log('CONVERSION', {plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
+  console.log('CONVERSION', {med:S.med, plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
   next('success');
 }
 
