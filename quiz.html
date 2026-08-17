@@ -458,11 +458,14 @@ function show(step){
   window.scrollTo({top:0});
   current = step;
 }
-function next(step){ history.push(current); show(step); try{ window.history.pushState({step:step}, ''); }catch(e){} }
+function next(step){ history.push(current); show(step); if(('#'+step) !== location.hash) location.hash = step; }
 /* Browser back/forward navigates between quiz screens instead of leaving the page.
+   Hash changes create native history entries — reliable on every engine, including iOS Safari.
    Going back past the first screen exits to the referring page as normal. */
-window.addEventListener('popstate', e => {
-  if(e.state && e.state.step){ show(e.state.step); }
+window.addEventListener('hashchange', () => {
+  const step = location.hash.replace('#','') || 'goal';
+  const scr = document.querySelector(`[data-step="${step}"]`);
+  if(scr && step !== current) show(step);
 });
 
 /* ---------- option buttons (auto-advance) ---------- */
@@ -753,8 +756,8 @@ function finish(planLabel, payLabel){
   next('success');
 }
 
+if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
 show('goal');
-try{ window.history.replaceState({step:'goal'}, ''); }catch(e){}
 </script>
 </body>
 </html>
