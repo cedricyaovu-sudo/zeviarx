@@ -51,6 +51,12 @@ svg.ic{display:inline-block;vertical-align:-2px}
 .opt:hover{border-color:var(--teal);transform:translateY(-1px)}
 .opt.selected{border-color:var(--teal);background:var(--teal-soft)}
 .opt small{display:block;font:500 13px 'Inter';color:var(--ink-soft)}
+.med-opt img{height:52px;width:52px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(28,27,24,.14))}
+.chosen-med{display:flex;align-items:center;gap:14px;background:#fff;border:2px solid var(--teal);border-radius:16px;padding:16px 20px;box-shadow:0 6px 18px rgba(28,27,24,.06)}
+.chosen-med img{height:44px;width:44px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(28,27,24,.14))}
+.chosen-med .name{font:700 15px 'Inter'}
+.chosen-med .meta{font:500 12.5px 'Inter';color:var(--ink-soft)}
+.chosen-med .back{margin-left:auto;flex:none}
 
 /* inputs */
 .field{margin-bottom:16px}
@@ -264,15 +270,22 @@ svg.ic{display:inline-block;vertical-align:-2px}
       <p>estimated potential weight loss with a GLP-1 program<br>based on your BMI of <b id="rBmi" style="color:#fff">32.5</b></p>
       <div class="badges"><span>✓ Provider review included</span><span>✓ Ships to <span id="rState">your state</span></span><span>✓ Cancel anytime monthly</span></div>
     </div>
-    <h1 style="font-size:28px">Choose your medication.</h1>
-    <p class="hint">Select the treatment you'd like to be considered for — your provider makes the final call on your prescription.</p>
-    <div class="opts" id="medGrid">
-      <button class="opt med-opt" data-med="sema"><div>Semaglutide<small>Compounded · Weekly Injection · $125 first month, then $299/mo</small></div></button>
-      <button class="opt med-opt" data-med="tirz"><div>Tirzepatide<small>Compounded · Weekly Injection · $166 first month, then $349/mo</small></div></button>
-      <button class="opt med-opt" data-med="oral"><div>Oral Tablets<small>Compounded · Daily Sublingual · $99 first month, then $249/mo</small></div></button>
-      <button class="opt med-opt" data-med="wpill"><div>Wegovy® Pill<small>Brand-Name · Daily Tablet · $99/mo membership + $1,638.99/mo medication</small></div></button>
-      <button class="opt med-opt" data-med="winj"><div>Wegovy® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,349/mo medication</small></div></button>
-      <button class="opt med-opt" data-med="zep"><div>Zepbound® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,086/mo medication</small></div></button>
+    <div id="medChooser">
+      <h1 style="font-size:28px">Choose your medication.</h1>
+      <p class="hint">Select the treatment you'd like to be considered for — your provider makes the final call on your prescription.</p>
+      <div class="opts" id="medGrid">
+        <button class="opt med-opt" data-med="sema"><img src="vial-cutout.webp" alt="Semaglutide vial"><div>Semaglutide<small>Compounded · Weekly Injection · $125 first month, then $299/mo</small></div></button>
+        <button class="opt med-opt" data-med="tirz"><img src="vial-cutout.webp" alt="Tirzepatide vial"><div>Tirzepatide<small>Compounded · Weekly Injection · $166 first month, then $349/mo</small></div></button>
+        <button class="opt med-opt" data-med="oral"><img src="tablets-cutout.webp" alt="Oral dissolving tablets bottle"><div>Oral Tablets<small>Compounded · Daily Sublingual · $99 first month, then $249/mo</small></div></button>
+        <button class="opt med-opt" data-med="wpill"><img src="brand-bottle-cutout.webp" alt="Wegovy daily tablet bottle"><div>Wegovy® Pill<small>Brand-Name · Daily Tablet · $99/mo membership + $1,638.99/mo medication</small></div></button>
+        <button class="opt med-opt" data-med="winj"><img src="brand-bluepens-cutout.webp" alt="Wegovy injection pens"><div>Wegovy® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,349/mo medication</small></div></button>
+        <button class="opt med-opt" data-med="zep"><img src="brand-purplepens-cutout.webp" alt="Zepbound injection pens"><div>Zepbound® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,086/mo medication</small></div></button>
+      </div>
+    </div>
+    <div class="chosen-med" id="medChosen" style="display:none">
+      <img id="chosenImg" src="vial-cutout.webp" alt="">
+      <div><div class="name" id="chosenName">Semaglutide</div><div class="meta" id="chosenMeta">Compounded · Weekly Injection</div></div>
+      <button class="back" id="changeMed">Change ↺</button>
     </div>
     <div id="planSection" style="display:none;margin-top:34px">
       <h1 style="font-size:28px">Choose your plan.</h1>
@@ -499,36 +512,57 @@ document.getElementById('seeResults').addEventListener('click',()=>{
   document.getElementById('rBmi').textContent = S.bmi;
   document.getElementById('rState').textContent = S.answers.state||'your state';
   next('results');
+  applyPreMed();
 });
 
 /* ---------- medication selection ---------- */
+const MED_IMGS = {sema:'vial-cutout.webp', tirz:'vial-cutout.webp', oral:'tablets-cutout.webp', wpill:'brand-bottle-cutout.webp', winj:'brand-bluepens-cutout.webp', zep:'brand-purplepens-cutout.webp'};
+function applyMed(key){
+  S.med = key;
+  const m = MEDS[key];
+  S.plan = null;
+  document.querySelectorAll('#medGrid .med-opt').forEach(b=>b.classList.toggle('selected', b.dataset.med===key));
+  document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>b.classList.remove('selected'));
+  if(m.brand){
+    S.plan = 'brand';
+    document.getElementById('planSection').style.display='none';
+    document.getElementById('brandSection').style.display='block';
+    document.getElementById('brandPlanName').textContent = m.label + ' — Monthly';
+    document.getElementById('brandPlanMeta').textContent = '$' + m.member + '/mo membership + ' + fmt(m.med) + '/mo medication · cancel anytime';
+    document.getElementById('brandPlanPrice').innerHTML = fmt(brandMonthly(m)) + '<small>/mo</small>';
+    document.getElementById('toCheckout').disabled = false;
+  } else {
+    document.getElementById('brandSection').style.display='none';
+    document.getElementById('planSection').style.display='block';
+    document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>{
+      const p = m.plans[b.dataset.plan];
+      b.querySelector('.pFirst').textContent = fmt(m.first);
+      b.querySelector('.pRate').textContent = '$'+p.rate;
+    });
+    document.getElementById('toCheckout').disabled = true;
+  }
+}
 document.querySelectorAll('#medGrid .med-opt').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('#medGrid .med-opt').forEach(b=>b.classList.remove('selected'));
-    btn.classList.add('selected');
-    S.med = btn.dataset.med;
-    const m = MEDS[S.med];
-    S.plan = null;
-    document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>b.classList.remove('selected'));
-    if(m.brand){
-      S.plan = 'brand';
-      document.getElementById('planSection').style.display='none';
-      document.getElementById('brandSection').style.display='block';
-      document.getElementById('brandPlanName').textContent = m.label + ' — Monthly';
-      document.getElementById('brandPlanMeta').textContent = '$' + m.member + '/mo membership + ' + fmt(m.med) + '/mo medication · cancel anytime';
-      document.getElementById('brandPlanPrice').innerHTML = fmt(brandMonthly(m)) + '<small>/mo</small>';
-      document.getElementById('toCheckout').disabled = false;
-    } else {
-      document.getElementById('brandSection').style.display='none';
-      document.getElementById('planSection').style.display='block';
-      document.querySelectorAll('.plan-opt[data-plan]').forEach(b=>{
-        const p = m.plans[b.dataset.plan];
-        b.querySelector('.pFirst').textContent = fmt(m.first);
-        b.querySelector('.pRate').textContent = '$'+p.rate;
-      });
-      document.getElementById('toCheckout').disabled = true;
-    }
-  });
+  btn.addEventListener('click',()=>applyMed(btn.dataset.med));
+});
+
+/* Preselected medication (?med= from the landing page's per-medication Get Started buttons):
+   skip the chooser and show a compact confirmation with a Change option. */
+const preMed = new URLSearchParams(location.search).get('med');
+S.preMed = (preMed && MEDS[preMed]) ? preMed : null;
+function applyPreMed(){
+  if(!S.preMed) return;
+  const m = MEDS[S.preMed];
+  applyMed(S.preMed);
+  document.getElementById('medChooser').style.display='none';
+  document.getElementById('medChosen').style.display='flex';
+  document.getElementById('chosenImg').src = MED_IMGS[S.preMed];
+  document.getElementById('chosenName').textContent = m.label;
+  document.getElementById('chosenMeta').textContent = m.kind;
+}
+document.getElementById('changeMed').addEventListener('click',()=>{
+  document.getElementById('medChosen').style.display='none';
+  document.getElementById('medChooser').style.display='block';
 });
 
 /* ---------- plan selection (compounded) ---------- */
