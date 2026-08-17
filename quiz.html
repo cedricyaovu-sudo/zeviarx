@@ -461,7 +461,7 @@ async function setupPayElement(){
   if (!STRIPE_PK || !S.med) return; // demo mode — keep the mock card fields
   try {
     await loadStripeJs();
-    if (!stripe) stripe = Stripe(STRIPE_PK);
+    if (!stripe) stripe = Stripe(STRIPE_PK, { locale: 'en' });
     document.getElementById('demoCardFields').style.display = 'none';
     document.getElementById('demoNote').style.display = 'none';
     const amount = dueCents();
@@ -490,7 +490,8 @@ async function payWithStripe(){
       body: JSON.stringify({ med: S.med, plan: S.plan, payMode: S.payMode, email: S.answers.email, name: S.answers.name, leadId: S.leadId || null, tracking: S.tracking }) });
     const d = await r.json();
     if (!r.ok || !d.clientSecret) throw new Error(d.message || (d.error === 'stripe_not_configured' ? 'Payments are not enabled yet.' : 'Payment could not be started.'));
-    const { error, paymentIntent } = await stripe.confirmPayment({ elements, clientSecret: d.clientSecret, redirect: 'if_required' });
+    const { error, paymentIntent } = await stripe.confirmPayment({ elements, clientSecret: d.clientSecret, redirect: 'if_required',
+      confirmParams: { return_url: location.origin + location.pathname } });
     if (error) throw error;
     ov.classList.remove('show'); btn.disabled = false;
     const m = MEDS[S.med];
