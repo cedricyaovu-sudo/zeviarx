@@ -109,6 +109,7 @@ svg.ic{display:inline-block;vertical-align:-2px}
 .bnpl-btn .brand{font-family:'DM Serif Display';font-size:22px;display:block}
 .bnpl-btn .aslow{font:600 12px 'Inter';color:var(--ink-soft);display:block;margin-top:3px}
 .bnpl-btn:hover{border-color:var(--teal);transform:translateY(-1px)}
+.bnpl-btns .bnpl-btn:last-child:nth-child(odd){grid-column:1/-1}
 .bnpl-btn.declined,.bnpl-btn.unavail{opacity:.45;cursor:default}
 .bnpl-btn.declined:hover,.bnpl-btn.unavail:hover{border-color:var(--cream-deep);transform:none}
 .mtm-opt{width:100%;background:#fff;border:2px solid var(--cream-deep);border-radius:16px;padding:20px 22px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:left;transition:.18s}
@@ -347,7 +348,6 @@ svg.ic{display:inline-block;vertical-align:-2px}
         <button class="bnpl-btn" data-provider="Klarna"><span class="brand">Klarna.</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
         <button class="bnpl-btn" data-provider="Affirm"><span class="brand">affirm</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
         <button class="bnpl-btn" data-provider="Afterpay"><span class="brand">afterpay</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
-        <button class="bnpl-btn" data-provider="Cherry"><span class="brand">cherry</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
       </div>
       <div id="bnplError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-top:12px"></div>
       <div id="bnplAddr" style="display:none;background:#fff;border:2px solid var(--cream-deep);border-radius:16px;padding:20px 22px;margin-top:14px;text-align:left">
@@ -781,8 +781,7 @@ const BNPL = [
   { name:'Klarna',   key:'klarna' },
   { name:'Affirm',   key:'affirm' },
   { name:'Afterpay', key:'afterpay_clearpay' },
-  { name:'Cherry',   key:null },
-];
+]; /* Cherry hidden until merchant onboarding — re-add { name:'Cherry', key:'<real key>' } when approved */
 const AFTERPAY_MAX = 2000; // dollars
 let pendingBnpl = null;
 
