@@ -109,6 +109,8 @@ svg.ic{display:inline-block;vertical-align:-2px}
 .bnpl-btn .brand{font-family:'DM Serif Display';font-size:22px;display:block}
 .bnpl-btn .aslow{font:600 12px 'Inter';color:var(--ink-soft);display:block;margin-top:3px}
 .bnpl-btn:hover{border-color:var(--teal);transform:translateY(-1px)}
+.bnpl-btn.declined,.bnpl-btn.unavail{opacity:.45;cursor:default}
+.bnpl-btn.declined:hover,.bnpl-btn.unavail:hover{border-color:var(--cream-deep);transform:none}
 .mtm-opt{width:100%;background:#fff;border:2px solid var(--cream-deep);border-radius:16px;padding:20px 22px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;gap:14px;text-align:left;transition:.18s}
 .mtm-opt:hover{border-color:var(--teal)}
 .mtm-opt.selected{border-color:var(--teal);background:var(--teal-soft)}
@@ -347,7 +349,20 @@ svg.ic{display:inline-block;vertical-align:-2px}
         <button class="bnpl-btn" data-provider="Afterpay"><span class="brand">afterpay</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
         <button class="bnpl-btn" data-provider="Cherry"><span class="brand">cherry</span><span class="aslow">as low as <b class="aslowAmt">$55/mo</b></span></button>
       </div>
-      <p style="font:500 11px 'Inter';color:#A39E93;margin-top:12px;text-align:center">By choosing a payment plan you authorize Zevia Rx to securely check your eligibility with our financing partners. If one partner can't approve your plan, we automatically check the others for you — highest approval odds first. These are soft checks and never affect your credit score.</p>
+      <div id="bnplError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-top:12px"></div>
+      <div id="bnplAddr" style="display:none;background:#fff;border:2px solid var(--cream-deep);border-radius:16px;padding:20px 22px;margin-top:14px;text-align:left">
+        <p id="bnplAddrWhy" style="font:600 13px 'Inter';color:var(--ink-soft);margin-bottom:14px">Your financing partner requires your delivery address to check eligibility.</p>
+        <div class="field"><label>Full name</label><input id="bnName" type="text" autocomplete="name"></div>
+        <div class="field" id="bnL1Field"><label>Street address</label><input id="bnLine1" type="text" autocomplete="address-line1" placeholder="123 Main St"><div class="err">Please enter your street address.</div></div>
+        <div class="field"><label>Apt / suite / unit <span style="font-weight:500;color:#A39E93">(optional)</span></label><input id="bnLine2" type="text" autocomplete="address-line2"></div>
+        <div class="row2">
+          <div class="field" id="bnCityField"><label>City</label><input id="bnCity" type="text" autocomplete="address-level2"><div class="err">Please enter your city.</div></div>
+          <div class="field"><label>State</label><select id="bnState"></select></div>
+        </div>
+        <div class="field" id="bnZipField"><label>ZIP code</label><input id="bnZip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="33101"><div class="err">Please enter a valid ZIP code.</div></div>
+        <button class="btn gold wide" id="bnplAddrBtn" type="button">Continue →</button>
+      </div>
+      <p style="font:500 11px 'Inter';color:#A39E93;margin-top:12px;text-align:center">By choosing a payment plan you authorize Zevia Rx to securely check your eligibility with our financing partners. If a partner can't approve your plan, you can instantly try another — highest approval odds first. These are soft checks and never affect your credit score.</p>
       <button class="mtm-opt" id="mtmOpt">
         <div><div class="name">Prefer month-to-month?</div><div class="meta"><span id="mtmFirst">$125</span> for your first month, then <span id="mtmAfter">$249</span>/mo · cancel anytime</div></div>
         <div class="price" id="mtmPrice">$125</div>
@@ -421,18 +436,11 @@ svg.ic{display:inline-block;vertical-align:-2px}
   </div>
 </div>
 
-<!-- demo controls (remove in production) -->
-<div class="demo-bar">DEMO · BNPL cascade:
-  <button id="dApprove" class="on" onclick="setDemo('approve')">1st approves</button>
-  <button id="dApprove3" onclick="setDemo('approve3')">3rd approves</button>
-  <button id="dDecline" onclick="setDemo('decline')">All decline</button>
-</div>
-
 <p class="disclaim">Zevia Rx connects patients with independent licensed providers; a prescription is never guaranteed and all medical decisions are made solely by your provider. Compounded medications are not FDA-approved. Estimated weight loss is based on published clinical results for FDA-approved GLP-1 medications and varies by individual. Financing subject to eligibility via third-party partners.</p>
 
 <script>
 /* ---------- state ---------- */
-const S = { answers:{}, bmi:null, med:null, plan:null, payMode:'bnpl', demoOutcome:'approve', tracking:{} };
+const S = { answers:{}, bmi:null, med:null, plan:null, payMode:'bnpl', tracking:{}, shipAddr:null, bnplTried:[] };
 // capture affiliate/click tracking params for the future postback layer
 new URLSearchParams(location.search).forEach((v,k)=>{
   if(/^(click_id|aff_id|affid|af_source|uid|oid|sub\d|gclid|fbclid|utm_)/i.test(k)) S.tracking[k]=v;
@@ -511,7 +519,7 @@ async function payWithStripe(){
     const d = await r.json();
     if (!r.ok || !d.clientSecret) throw new Error(d.message || (d.error === 'stripe_not_configured' ? 'Payments are not enabled yet.' : 'Payment could not be started.'));
     S.lastPI = null;
-    try{ sessionStorage.setItem('zx_checkout', JSON.stringify({ med:S.med, plan:S.plan, payMode:S.payMode, name:S.answers.name||'', email:S.answers.email||'', state:S.answers.state||'', leadId:S.leadId||null })); }catch(e){}
+    saveCtx();
     const { error, paymentIntent } = await stripe.confirmPayment({ elements, clientSecret: d.clientSecret, redirect: 'if_required',
       confirmParams: { return_url: location.origin + location.pathname } });
     if (error) throw error;
@@ -685,6 +693,13 @@ document.getElementById('toCheckout').addEventListener('click',()=>{ S.payMode='
 
 function setupCheckout(pivoted){
   const m = MEDS[S.med];
+  /* BNPL availability + prior-attempt state */
+  const finTot = m.brand ? brandMonthly(m) : m.plans[S.plan].price;
+  const apBtn = document.querySelector('.bnpl-btn[data-provider="Afterpay"]');
+  if(apBtn) apBtn.classList.toggle('unavail', finTot > AFTERPAY_MAX && !apBtn.classList.contains('declined'));
+  restoreBnplUI();
+  document.getElementById('bnplError').style.display='none';
+  document.getElementById('bnplAddr').style.display='none';
   document.getElementById('pivotBanner').classList.toggle('show', pivoted);
   // once a BNPL option has been rejected, stop offering BNPL entirely
   document.getElementById('bnplBlock').style.display = pivoted ? 'none' : 'block';
@@ -759,58 +774,142 @@ document.getElementById('directOpt').addEventListener('click',()=>{
   document.getElementById('ccName').focus();
 });
 
-/* ---------- BNPL auto-cascade + soft pivot ---------- */
-/* Cascade priority: highest approval odds first.
-   Cherry (healthcare soft-pull, ~90% approvals) > Afterpay > Klarna > Affirm (prime, strictest). */
-const CASCADE_ORDER = ['Cherry','Afterpay','Klarna','Affirm'];
+/* ---------- BNPL — real financing via Stripe (Klarna / Affirm / Afterpay) + soft pivot ---------- */
+/* Order: Klarna and Affirm cover the largest plan totals; Afterpay caps near $2,000.
+   Cherry has no merchant account yet — it simulates a decline and cascades onward. */
+const BNPL = [
+  { name:'Klarna',   key:'klarna' },
+  { name:'Affirm',   key:'affirm' },
+  { name:'Afterpay', key:'afterpay_clearpay' },
+  { name:'Cherry',   key:null },
+];
+const AFTERPAY_MAX = 2000; // dollars
+let pendingBnpl = null;
 
-function setDemo(mode){
-  S.demoOutcome=mode;
-  document.getElementById('dApprove').classList.toggle('on',mode==='approve');
-  document.getElementById('dApprove3').classList.toggle('on',mode==='approve3');
-  document.getElementById('dDecline').classList.toggle('on',mode==='decline');
+function financedTotal(){ const m=MEDS[S.med]; return m.brand ? brandMonthly(m) : m.plans[S.plan].price; }
+function bnplBtn(name){ return document.querySelector(`.bnpl-btn[data-provider="${name}"]`); }
+function bnplError(msg){ const el=document.getElementById('bnplError'); if(!msg){ el.style.display='none'; return; } el.textContent=msg; el.style.display='block'; }
+function saveCtx(extra){
+  try{ sessionStorage.setItem('zx_checkout', JSON.stringify(Object.assign({
+    med:S.med, plan:S.plan, payMode:S.payMode, name:S.answers.name||'', email:S.answers.email||'', state:S.answers.state||'',
+    leadId:S.leadId||null, shipAddr:S.shipAddr||null, bnplTried:S.bnplTried||[]
+  }, extra||{}))); }catch(e){}
 }
-
-function runCascade(queue, attempt){
-  const provider = queue[0];
+function restoreBnplUI(){
+  (S.bnplTried||[]).forEach(n=>{
+    const b=bnplBtn(n);
+    if(b && !b.classList.contains('declined')){ b.classList.add('declined'); const a=b.querySelector('.aslow'); if(a) a.textContent="Couldn't approve this plan"; }
+  });
+}
+function nextBnpl(){
+  return BNPL.map(p=>p.name).filter(n=>{
+    if((S.bnplTried||[]).includes(n)) return false;
+    const b=bnplBtn(n);
+    return !(b && b.classList.contains('unavail'));
+  })[0] || null;
+}
+function markDeclined(name){
+  S.bnplTried = S.bnplTried||[];
+  if(!S.bnplTried.includes(name)) S.bnplTried.push(name);
+  saveCtx(); restoreBnplUI();
+  const nxt = nextBnpl();
+  if(nxt){
+    bnplError(`${name} couldn't approve this plan — no impact on your credit. Try ${nxt} next, or start month-to-month below.`);
+  } else {
+    /* every partner declined → soft pivot to card checkout */
+    bnplError('');
+    S.payMode='mtm';
+    setupCheckout(true);
+    document.getElementById('cardForm').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+function showBnplAddr(name){
+  pendingBnpl = name;
+  const f = document.getElementById('bnplAddr');
+  f.style.display='block';
+  document.getElementById('bnplAddrWhy').textContent = `${name} requires your delivery address to check eligibility — you enter it once and we use it for shipping too.`;
+  document.getElementById('bnplAddrBtn').textContent = `Continue to ${name} →`;
+  if(!document.getElementById('bnName').value) document.getElementById('bnName').value = S.answers.name||'';
+  if(S.answers.state) document.getElementById('bnState').value = S.answers.state;
+  f.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function collectBnplAddr(){
+  const g=id=>document.getElementById(id);
+  let ok=true;
+  const bad=(id,cond)=>{ g(id).classList.toggle('error',cond); if(cond) ok=false; };
+  bad('bnL1Field', !g('bnLine1').value.trim());
+  bad('bnCityField', !g('bnCity').value.trim());
+  bad('bnZipField', !/^\d{5}(-\d{4})?$/.test(g('bnZip').value.trim()));
+  if(!ok) return null;
+  return { name:(g('bnName').value.trim()||S.answers.name||'Customer'), line1:g('bnLine1').value.trim(), line2:g('bnLine2').value.trim(), city:g('bnCity').value.trim(), state:g('bnState').value, zip:g('bnZip').value.trim() };
+}
+async function payBnpl(name){
+  const p = BNPL.find(x=>x.name===name);
+  bnplError('');
   const m = MEDS[S.med];
-  const financed = m.brand ? brandMonthly(m) : m.plans[S.plan].price;
+  const total = financedTotal();
   const ov = document.getElementById('overlay');
-  document.getElementById('ovTitle').textContent = `Checking with ${provider}…`;
-  document.getElementById('ovText').textContent = `Securely verifying your eligibility to finance ${fmt(financed)}${m.brand ? " — this month's membership plus medication" : " — your full plan total"}. Soft check — no impact on your credit score.`;
+  document.getElementById('ovTitle').textContent = `Connecting to ${name}…`;
+  document.getElementById('ovText').textContent = `Securely checking your eligibility to finance ${fmt(total)}${m.brand ? " — this month's membership plus medication" : " — your full plan total"}. Soft check — no impact on your credit score.`;
   ov.classList.add('show');
-  setTimeout(()=>{
-    const approved = S.demoOutcome==='approve' ? true
-                   : S.demoOutcome==='approve3' ? attempt>=3
-                   : false;
-    if(approved){
+  if(!p || !p.key){
+    /* Cherry — merchant onboarding pending: simulate a decline and cascade onward */
+    setTimeout(()=>{ ov.classList.remove('show'); markDeclined(name); }, 1800);
+    return;
+  }
+  try{
+    S.lastPI = null;
+    saveCtx({ bnplAttempt:name });
+    const r = await fetch(BACKEND + '/create-payment-intent', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ med:S.med, plan:m.brand?'brand':S.plan, payMode:'bnpl', provider:p.key, email:S.answers.email, name:S.answers.name, leadId:S.leadId||null, tracking:S.tracking, shipping:S.shipAddr }) });
+    const d = await r.json();
+    if(!r.ok || !d.clientSecret){
       ov.classList.remove('show');
-      finish(m.brand ? `${m.label} — Monthly` : m.plans[S.plan].name, `${provider} payment plan — ${fmt(financed)} financed`);
-      return;
+      if(d.error==='afterpay_limit'){
+        const b=bnplBtn('Afterpay'); if(b) b.classList.add('unavail');
+        markDeclined('Afterpay');
+        return;
+      }
+      throw new Error(d.message || 'Financing could not be started.');
     }
-    const rest = queue.slice(1);
-    if(rest.length){
-      /* automatic cascade — no manual re-application by the customer */
-      document.getElementById('ovTitle').textContent = `${provider} couldn't approve this plan`;
-      document.getElementById('ovText').textContent = `No problem — automatically checking with ${rest[0]} next…`;
-      setTimeout(()=>runCascade(rest, attempt+1), 1400);
-    } else {
-      /* every partner declined → soft pivot to $125 month-to-month card checkout */
+    await loadStripeJs();
+    if(!stripe) stripe = Stripe(STRIPE_PK, { locale:'en' });
+    const ret = location.origin + location.pathname;
+    const bd = { name:S.answers.name||'', email:S.answers.email||'' };
+    const addr = S.shipAddr ? { line1:S.shipAddr.line1, city:S.shipAddr.city, state:S.shipAddr.state, postal_code:S.shipAddr.zip, country:'US' } : { country:'US' };
+    if(S.shipAddr && S.shipAddr.line2) addr.line2 = S.shipAddr.line2;
+    let res;
+    if(p.key==='klarna') res = await stripe.confirmKlarnaPayment(d.clientSecret, { payment_method:{ billing_details:{ email:bd.email, address:{ country:'US' } } }, return_url:ret });
+    else if(p.key==='affirm') res = await stripe.confirmAffirmPayment(d.clientSecret, { payment_method:{ billing_details:bd }, return_url:ret });
+    else res = await stripe.confirmAfterpayClearpayPayment(d.clientSecret, { payment_method:{ billing_details:Object.assign({}, bd, { address:addr }) }, return_url:ret });
+    if(res && res.error) throw res.error;
+    /* BNPL normally redirects; handle a same-page success just in case */
+    if(res && res.paymentIntent && (res.paymentIntent.status==='succeeded' || res.paymentIntent.status==='processing')){
       ov.classList.remove('show');
-      S.payMode='mtm';
-      setupCheckout(true);
-      document.getElementById('cardForm').scrollIntoView({behavior:'smooth',block:'center'});
-      document.getElementById('ccName').focus();
+      S.lastPI = res.paymentIntent.id;
+      finish(m.brand ? `${m.label} — Monthly` : m.plans[S.plan].name, `${name} payment plan — ${fmt(total)} financed · ${res.paymentIntent.id}`);
     }
-  }, 1800);
+  }catch(err){
+    ov.classList.remove('show');
+    bnplError(err && err.message ? err.message : 'Financing could not be started — please try another option.');
+  }
 }
-
 document.querySelectorAll('.bnpl-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    const provider=btn.dataset.provider;
-    const queue=[provider, ...CASCADE_ORDER.filter(x=>x!==provider)];
-    runCascade(queue, 1);
+    const name=btn.dataset.provider;
+    if(btn.classList.contains('declined')) return;
+    if(btn.classList.contains('unavail')){ bnplError(`Afterpay isn't available for plan totals over $${AFTERPAY_MAX.toLocaleString()} — try Klarna or Affirm instead.`); return; }
+    const p=BNPL.find(x=>x.name===name);
+    if(p && p.key && !S.shipAddr){ showBnplAddr(name); return; }
+    document.getElementById('bnplAddr').style.display='none';
+    payBnpl(name);
   });
+});
+document.getElementById('bnplAddrBtn').addEventListener('click',()=>{
+  const a=collectBnplAddr(); if(!a) return;
+  S.shipAddr=a; saveCtx();
+  document.getElementById('bnplAddr').style.display='none';
+  payBnpl(pendingBnpl);
 });
 
 /* ---------- card payment (demo) ---------- */
@@ -848,17 +947,43 @@ function finish(planLabel, payLabel){
   // conversion event would fire here (pixel + CAPI + affiliate S2S postback via n8n)
   console.log('CONVERSION', {med:S.med, plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
   prefillShipping();
+  autoSaveShipping();
   next('success');
 }
 
 /* ---------- delivery address (success screen) ---------- */
 const shSel = document.getElementById('shState');
 STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;shSel.appendChild(o);});
+const bnSel = document.getElementById('bnState');
+STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;bnSel.appendChild(o);});
 function prefillShipping(){
   document.getElementById('shipForm').style.display='';
   document.getElementById('shipSaved').style.display='none';
-  const n=document.getElementById('shName'); if(!n.value) n.value=S.answers.name||'';
+  const g=id=>document.getElementById(id);
+  if(S.shipAddr){
+    if(!g('shName').value) g('shName').value=S.shipAddr.name||S.answers.name||'';
+    if(!g('shLine1').value) g('shLine1').value=S.shipAddr.line1||'';
+    if(!g('shLine2').value) g('shLine2').value=S.shipAddr.line2||'';
+    if(!g('shCity').value) g('shCity').value=S.shipAddr.city||'';
+    if(!g('shZip').value) g('shZip').value=S.shipAddr.zip||'';
+    shSel.value=S.shipAddr.state||S.answers.state||shSel.value;
+    return;
+  }
+  if(!g('shName').value) g('shName').value=S.answers.name||'';
   if(S.answers.state) shSel.value=S.answers.state;
+}
+function autoSaveShipping(){
+  if(!S.shipAddr || !S.lastPI) return;
+  const a=S.shipAddr;
+  fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ paymentIntent:S.lastPI, leadId:S.leadId||null, shipping:a }) })
+    .then(r=>r.json()).then(d=>{
+      if(d && d.ok){
+        document.getElementById('shipForm').style.display='none';
+        document.getElementById('shipSaved').style.display='block';
+        document.getElementById('shipSavedAddr').textContent = `Shipping to ${a.line1}${a.line2?', '+a.line2:''}, ${a.city}, ${a.state} ${a.zip}`;
+      }
+    }).catch(()=>{});
 }
 function saveShipping(e){
   e.preventDefault();
@@ -889,7 +1014,9 @@ function saveShipping(e){
 async function handleRedirectReturn(clientSecret){
   try{ window.history.replaceState(null, '', location.pathname); }catch(e){}
   let ctx=null; try{ ctx=JSON.parse(sessionStorage.getItem('zx_checkout')||'null'); }catch(e){}
-  if(ctx){ S.med=ctx.med||S.med; S.plan=ctx.plan||S.plan; S.payMode=ctx.payMode||S.payMode; S.leadId=ctx.leadId||null; S.answers.name=ctx.name||S.answers.name; S.answers.email=ctx.email||S.answers.email; S.answers.state=ctx.state||S.answers.state; }
+  if(ctx){ S.med=ctx.med||S.med; S.plan=ctx.plan||S.plan; S.payMode=ctx.payMode||S.payMode; S.leadId=ctx.leadId||null; S.answers.name=ctx.name||S.answers.name; S.answers.email=ctx.email||S.answers.email; S.answers.state=ctx.state||S.answers.state; S.shipAddr=ctx.shipAddr||null; S.bnplTried=ctx.bnplTried||[]; }
+  const isBnpl = !!(ctx && ctx.payMode==='bnpl');
+  const attempted = (ctx && ctx.bnplAttempt) || null;
   try{
     await loadStripeJs();
     if(!stripe) stripe = Stripe(STRIPE_PK, { locale:'en' });
@@ -898,6 +1025,12 @@ async function handleRedirectReturn(clientSecret){
     if(st==='succeeded' || st==='processing' || st==='requires_capture'){
       S.lastPI = paymentIntent.id;
       const m = S.med && MEDS[S.med];
+      if(m && isBnpl){
+        const total = m.brand ? brandMonthly(m) : (m.plans[S.plan] ? m.plans[S.plan].price : null);
+        finish(m.brand ? `${m.label} — Monthly` : (m.plans[S.plan] ? m.plans[S.plan].name : 'Your plan'),
+               `${attempted||'Financing'} payment plan — ${total?fmt(total)+' financed':'financed'}${st==='processing' ? ' (processing)' : ''} · ${paymentIntent.id}`);
+        return;
+      }
       let label='Your plan';
       if(m){
         if(m.brand) label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`;
@@ -908,9 +1041,13 @@ async function handleRedirectReturn(clientSecret){
     }
     if(S.med && MEDS[S.med] && (MEDS[S.med].brand || MEDS[S.med].plans[S.plan])){
       setupCheckout(false); show('checkout');
-      const errEl=document.getElementById('payError');
-      errEl.textContent = "Your payment wasn't completed — please try again or choose a different payment method.";
-      errEl.style.display='block';
+      if(isBnpl && attempted){
+        markDeclined(attempted);
+      } else {
+        const errEl=document.getElementById('payError');
+        errEl.textContent = "Your payment wasn't completed — please try again or choose a different payment method.";
+        errEl.style.display='block';
+      }
       return;
     }
   }catch(e){ console.error('redirect return', e); }
