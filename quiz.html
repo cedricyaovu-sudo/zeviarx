@@ -357,8 +357,8 @@ try{
     <div class="pay-summary">
       <div class="line"><span id="sumPlanName">6-Month Reset</span><span id="sumPlanPrice">$125 + $249 × 5 = $1,370</span></div>
       <div class="line" id="sumAfterLine"><span>After your first month</span><span id="sumAfter">$249/mo</span></div>
-      <div class="line"><span>Provider consult &amp; ongoing care</span><span>Included</span></div>
-      <div class="line"><span>Cold-chain express shipping</span><span>Free</span></div>
+      <div class="line"><span>Provider consult &amp; ongoing care</span><span>$20</span></div>
+      <div class="line"><span>Cold-chain express shipping</span><span>$63.75</span></div>
       <div class="line total"><span id="sumDueLabel">Due today</span><span id="sumTotal">$125</span></div>
     </div>
 
@@ -520,6 +520,9 @@ const MEDS = {
   zep:{label:'Zepbound® Injection', kind:'Brand-Name · Weekly Injection', brand:true, member:99, med:1086}
 };
 const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:(n%1?2:0),maximumFractionDigits:2});
+/* Checkout-only fees (charged once at checkout on top of the plan; renewals unaffected).
+   Must stay in sync with FEES_CENTS in the create-payment-intent edge function. */
+const FEE_SHIPPING = 63.75, FEE_CONSULT = 20, FEES = FEE_SHIPPING + FEE_CONSULT; // 83.75
 const brandMonthly = m => m.member + m.med;
 const calcStr = (m,p) => `${fmt(m.first)} + $${p.rate} × ${p.months-1} = ${fmt(p.price)}`;
 
@@ -527,7 +530,7 @@ const calcStr = (m,p) => `${fmt(m.first)} + $${p.rate} × ${p.months-1} = ${fmt(
 const BACKEND = 'https://zdvbhfykxjbgfdclfmcu.supabase.co/functions/v1';
 const STRIPE_PK = 'pk_test_51SSh0pDSUBVlqIfSsUjTUZYi4uFl2ghkFtTbDqlv2PyViz8ppstQzpJNCpYhPeAvdptKe6d411gcz1wTmtyrkaMc00hVud74Z8'; // test mode — swap to pk_live_ at launch
 let stripe = null, elements = null, payElReady = false;
-const dueCents = () => { const m = MEDS[S.med]; return Math.round((m.brand ? brandMonthly(m) : m.first) * 100); };
+const dueCents = () => { const m = MEDS[S.med]; return Math.round(((m.brand ? brandMonthly(m) : m.first) + FEES) * 100); };
 function loadStripeJs(){
   return new Promise((res, rej) => {
     if (window.Stripe) return res();
@@ -753,7 +756,7 @@ document.getElementById('toCheckout').addEventListener('click',()=>{ S.payMode='
 function setupCheckout(pivoted){
   const m = MEDS[S.med];
   /* BNPL availability + prior-attempt state */
-  const finTot = m.brand ? brandMonthly(m) : m.plans[S.plan].price;
+  const finTot = (m.brand ? brandMonthly(m) : m.plans[S.plan].price) + FEES;
   const apBtn = document.querySelector('.bnpl-btn[data-provider="Afterpay"]');
   if(apBtn) apBtn.classList.toggle('unavail', finTot > AFTERPAY_MAX && !apBtn.classList.contains('declined'));
   restoreBnplUI();
@@ -770,6 +773,7 @@ function setupCheckout(pivoted){
 
   if(m.brand){
     const total = brandMonthly(m);
+    const due = total + FEES; // one-time checkout fees on top (shipping + consult)
     document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. You can still start today by card: <b>${fmt(total)}/mo</b> — membership plus medication. Cancel anytime.`;
     document.getElementById('sumPlanName').textContent = m.label + ' — Monthly';
     document.getElementById('sumPlanPrice').textContent = `$${m.member} + ${fmt(m.med)} = ${fmt(total)}/mo`;
@@ -777,28 +781,30 @@ function setupCheckout(pivoted){
     document.getElementById('sumAfterLine').style.display='flex';
     document.getElementById('sumAfter').textContent = fmt(total)+'/mo';
     document.getElementById('sumDueLabel').textContent = 'Due today';
-    document.getElementById('sumTotal').textContent = fmt(total);
-    document.getElementById('cardPayAmt').textContent = fmt(total);
-    document.getElementById('bnplIntro').innerHTML = `Finance this month's total (<b style="color:var(--teal)">${fmt(total)}</b>) in installments — often 0% APR:`;
-    document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(total/12*100)/100)+'/mo');
+    document.getElementById('sumTotal').textContent = fmt(due);
+    document.getElementById('cardPayAmt').textContent = fmt(due);
+    document.getElementById('bnplIntro').innerHTML = `Finance this month's total (<b style="color:var(--teal)">${fmt(due)}</b>) in installments — often 0% APR:`;
+    document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(due/12*100)/100)+'/mo');
     document.getElementById('mtmOpt').style.display='none';
     document.getElementById('directOpt').style.display='flex';
-    document.getElementById('directTotal').textContent = fmt(total);
-    document.getElementById('directPrice').textContent = fmt(total);
+    document.getElementById('directTotal').textContent = fmt(due);
+    document.getElementById('directPrice').textContent = fmt(due);
     document.getElementById('directOpt').classList.toggle('selected', S.payMode==='direct');
     return;
   }
 
   const p = m.plans[S.plan];
   const mtm = S.payMode==='mtm';
+  const due = m.first + FEES;          // card "Due today" incl. one-time checkout fees
+  const finPlan = p.price + FEES;      // BNPL financed total incl. one-time checkout fees
   document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(m.first)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
   document.getElementById('mtmOpt').style.display='flex';
   document.getElementById('directOpt').style.display='none';
   document.getElementById('mtmFirst').textContent = fmt(m.first);
   document.getElementById('mtmAfter').textContent = '$'+p.rate;
   document.getElementById('mtmPrice').textContent = fmt(m.first);
-  document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent=p.asLow);
-  document.getElementById('bnplIntro').innerHTML = `Finance your full plan total (<b style="color:var(--teal)">${fmt(p.price)}</b>) in installments — often 0% APR:`;
+  document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(finPlan/(p.months*4)*100)/100)+'/mo');
+  document.getElementById('bnplIntro').innerHTML = `Finance your full plan total (<b style="color:var(--teal)">${fmt(finPlan)}</b>) in installments — often 0% APR:`;
   document.getElementById('mtmOpt').classList.toggle('selected', mtm);
 
   if(mtm){
@@ -812,8 +818,8 @@ function setupCheckout(pivoted){
   document.getElementById('sumAfterLine').style.display='flex';
   document.getElementById('sumAfter').textContent = '$'+p.rate+'/mo';
   document.getElementById('sumDueLabel').textContent = 'Due today';
-  document.getElementById('sumTotal').textContent = fmt(m.first);
-  document.getElementById('cardPayAmt').textContent = fmt(m.first);
+  document.getElementById('sumTotal').textContent = fmt(due);
+  document.getElementById('cardPayAmt').textContent = fmt(due);
 }
 function goBackToPlans(){ S.payMode='bnpl'; window.history.back(); }
 
@@ -844,7 +850,7 @@ const BNPL = [
 const AFTERPAY_MAX = 2000; // dollars
 let pendingBnpl = null;
 
-function financedTotal(){ const m=MEDS[S.med]; return m.brand ? brandMonthly(m) : m.plans[S.plan].price; }
+function financedTotal(){ const m=MEDS[S.med]; return (m.brand ? brandMonthly(m) : m.plans[S.plan].price) + FEES; }
 function bnplBtn(name){ return document.querySelector(`.bnpl-btn[data-provider="${name}"]`); }
 function bnplError(msg){ const el=document.getElementById('bnplError'); if(!msg){ el.style.display='none'; return; } el.textContent=msg; el.style.display='block'; }
 function saveCtx(extra){
