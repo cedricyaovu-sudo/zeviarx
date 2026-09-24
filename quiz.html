@@ -62,8 +62,9 @@ svg.ic{display:inline-block;vertical-align:-2px}
 /* inputs */
 .field{margin-bottom:16px}
 .field label{display:block;font:600 13px 'Inter';margin-bottom:7px;color:var(--ink-soft)}
-.field input,.field select{width:100%;padding:16px 18px;border:2px solid var(--cream-deep);border-radius:14px;font:500 16px 'Inter';background:#fff;outline:none;transition:.18s}
-.field input:focus,.field select:focus{border-color:var(--teal)}
+.field input,.field select,.field textarea{width:100%;padding:16px 18px;border:2px solid var(--cream-deep);border-radius:14px;font:500 16px 'Inter';background:#fff;outline:none;transition:.18s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal)}
+.field textarea{resize:vertical;min-height:74px;line-height:1.5}
 .field.error input,.field.error select{border-color:var(--red)}
 .field .err{display:none;font:600 12px 'Inter';color:var(--red);margin-top:6px}
 .field.error .err{display:block}
@@ -454,6 +455,14 @@ try{
         <p style="font:700 15px 'Inter';color:var(--teal)">✓ Delivery address saved</p>
         <p class="hint" id="shipSavedAddr" style="margin-top:6px"></p>
       </div>
+    </div>
+    <div class="pay-summary" id="healthBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
+      <h3 style="font:700 16px 'Inter';margin-bottom:4px">Health information</h3>
+      <p class="hint" style="margin-bottom:14px">Your provider reviews this alongside your intake to prescribe safely.</p>
+      <div class="field"><label>List any allergies you have — to medications, foods, or anything else (if any)</label><textarea id="hAllergies" rows="2" placeholder="e.g., penicillin, peanuts"></textarea></div>
+      <div class="field"><label>List any medications you currently take (if any)</label><textarea id="hMeds" rows="2" placeholder="e.g., lisinopril 10mg daily"></textarea></div>
+      <div class="field"><label>List any medical conditions you have (if any)</label><textarea id="hConds" rows="2" placeholder="e.g., high blood pressure"></textarea></div>
+      <div id="healthError" style="display:none;font:600 13px 'Inter';color:var(--red)"></div>
     </div>
     <div class="pay-summary" id="verifyBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
       <h3 style="font:700 16px 'Inter';margin-bottom:4px">Identity verification</h3>
@@ -1145,6 +1154,33 @@ async function saveAddressIfNeeded(){
     return false;
   }
 }
+/* Health information (allergies / medications / conditions) — collected on the success
+   screen; not required to Submit (fields are optional by design, labeled only "if any").
+   If the customer DID enter something, it must reach the backend before Submit succeeds —
+   provided allergy/medication info is clinically important and is never silently dropped. */
+function collectHealth(){
+  const v=id=>document.getElementById(id).value.trim().slice(0,2000);
+  const h={ allergies:v('hAllergies'), medications:v('hMeds'), conditions:v('hConds') };
+  return (h.allergies||h.medications||h.conditions) ? h : null;
+}
+async function saveHealthIfAny(){
+  const errEl=document.getElementById('healthError'); errEl.style.display='none';
+  const health=collectHealth();
+  if(!health) return true; // nothing entered — fine
+  try{
+    const r = await fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ paymentIntent:S.lastPI||null, leadId:S.leadId||null, health }) });
+    const d = await r.json();
+    if(!(r.ok && d && d.ok)) throw new Error('save');
+    S.health = health;
+    saveState();
+    return true;
+  }catch(e){
+    errEl.textContent="We couldn't save your health information — please check your connection and press Submit again.";
+    errEl.style.display='block';
+    return false;
+  }
+}
 async function submitAll(){
   const btn=document.getElementById('submitAll');
   const err=document.getElementById('submitError'); err.style.display='none';
@@ -1152,6 +1188,8 @@ async function submitAll(){
   try{
     const addrOk = await saveAddressIfNeeded();
     if(!addrOk){ err.textContent='Please complete your delivery address above.'; err.style.display='block'; return; }
+    const healthOk = await saveHealthIfAny();
+    if(!healthOk){ err.textContent='Please see the note under Health information above.'; err.style.display='block'; return; }
     if(!S.idDone){ err.textContent="Please upload your driver's license or photo ID."; err.style.display='block'; return; }
     if(videoRequired() && !S.videoDone){ err.textContent='Please upload your verification video — it is required in your state.'; err.style.display='block'; return; }
     S.submitted = true;
@@ -1304,7 +1342,7 @@ async function handleRedirectReturn(clientSecret){
    hand a reload an EMPTY sessionStorage (purged/restored tabs, webview relaunches), so the
    localStorage mirror is the fallback that keeps mobile reloads on the same screen.
    Cleared on fresh ?med= entries and when the customer leaves via Return Home. */
-const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip'];
+const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip','hAllergies','hMeds','hConds'];
 const ZX_PROGRESS_TTL = 24*60*60*1000; // localStorage fallback valid for 24h
 function clearProgress(){
   try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
@@ -1317,7 +1355,7 @@ function saveState(){
     const snap = JSON.stringify({ t: Date.now(), step: current, S: {
       answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
       leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
-      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted,
+      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted, health:S.health||null,
       bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
     }, fields });
     try{ sessionStorage.setItem('zx_progress', snap); }catch(e){}
