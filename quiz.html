@@ -582,8 +582,8 @@ async function payWithStripe(){
     ov.classList.remove('show'); btn.disabled = false;
     const m = MEDS[S.med];
     let label;
-    if (m.brand) { label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`; }
-    else { const p = m.plans[S.plan]; label = S.payMode === 'mtm' ? `Month-to-Month — ${fmt(m.first)} first month, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first)} today, then $${p.rate}/mo`; }
+    if (m.brand) { label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`; }
+    else { const p = m.plans[S.plan]; label = S.payMode === 'mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today, then $${p.rate}/mo`; }
     finish(label, 'Card payment via Stripe' + (paymentIntent && paymentIntent.id ? ' · ' + paymentIntent.id : ''));
   } catch (ex) {
     ov.classList.remove('show'); btn.disabled = false;
@@ -802,10 +802,12 @@ function setupCheckout(pivoted){
   const mtm = S.payMode==='mtm';
   const due = m.first + FEES;          // card "Due today" incl. one-time checkout fees
   const finPlan = p.price + FEES;      // BNPL financed total incl. one-time checkout fees
-  document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(due)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
+  /* mtm option: descriptive TEXT shows the medication cost ($125 first month, then $rate/mo);
+     the bold PRICE badge shows the fees-inclusive amount actually charged today (user directive). */
+  document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(m.first)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
   document.getElementById('mtmOpt').style.display='flex';
   document.getElementById('directOpt').style.display='none';
-  document.getElementById('mtmFirst').textContent = fmt(due);
+  document.getElementById('mtmFirst').textContent = fmt(m.first);
   document.getElementById('mtmAfter').textContent = '$'+p.rate;
   document.getElementById('mtmPrice').textContent = fmt(due);
   document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(finPlan/(p.months*4)*100)/100)+'/mo');
@@ -997,10 +999,10 @@ function payCard(e){
     const m=MEDS[S.med];
     let label;
     if(m.brand){
-      label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`;
+      label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`;
     } else {
       const p=m.plans[S.plan];
-      label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first)} first month, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first)} today, then $${p.rate}/mo`;
+      label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today, then $${p.rate}/mo`;
     }
     finish(label, 'Card ending '+num.value.replace(/\s/g,'').slice(-4));
   },1800);
@@ -1221,15 +1223,15 @@ async function handleRedirectReturn(clientSecret){
       S.lastPI = paymentIntent.id;
       const m = S.med && MEDS[S.med];
       if(m && isBnpl){
-        const total = m.brand ? brandMonthly(m) : (m.plans[S.plan] ? m.plans[S.plan].price : null);
+        const total = (m.brand ? brandMonthly(m) : (m.plans[S.plan] ? m.plans[S.plan].price : null));
         finish(m.brand ? `${m.label} — Monthly` : (m.plans[S.plan] ? m.plans[S.plan].name : 'Your plan'),
-               `${attempted||'Financing'} payment plan — ${total?fmt(total)+' financed':'financed'}${st==='processing' ? ' (processing)' : ''} · ${paymentIntent.id}`);
+               `${attempted||'Financing'} payment plan — ${total?fmt(total+FEES)+' financed':'financed'}${st==='processing' ? ' (processing)' : ''} · ${paymentIntent.id}`);
         return;
       }
       let label='Your plan';
       if(m){
-        if(m.brand) label = `${m.label} — ${fmt(brandMonthly(m))}/mo (membership + medication)`;
-        else if(m.plans[S.plan]) label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first)} first month, then $${m.plans[S.plan].rate}/mo` : `${m.plans[S.plan].name} — ${fmt(m.first)} today, then $${m.plans[S.plan].rate}/mo`;
+        if(m.brand) label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`;
+        else if(m.plans[S.plan]) label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today, then $${m.plans[S.plan].rate}/mo` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today, then $${m.plans[S.plan].rate}/mo`;
       }
       finish(label, 'Payment via Stripe' + (st==='processing' ? ' — processing' : '') + ' · ' + paymentIntent.id);
       return;
@@ -1378,7 +1380,7 @@ document.getElementById('zxSimBtn').addEventListener('click', async () => {
       const d = await r.json(); if(d && d.id) S.leadId = d.id;
     }catch(e){}
   }
-  const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first)} today, then $${m.plans[S.plan].rate}/mo`;
+  const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today, then $${m.plans[S.plan].rate}/mo`;
   finish(label, 'SIMULATED payment — test only, no charge');
 });
 </script>
