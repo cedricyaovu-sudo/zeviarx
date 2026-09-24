@@ -781,7 +781,7 @@ function setupCheckout(pivoted){
     document.getElementById('sumAfterLine').style.display='flex';
     document.getElementById('sumAfter').textContent = fmt(total)+'/mo';
     document.getElementById('sumDueLabel').textContent = 'Due today';
-    document.getElementById('sumTotal').textContent = fmt(due);
+    document.getElementById('sumTotal').textContent = `${fmt(total)} + ${fmt(FEE_SHIPPING)} + ${fmt(FEE_CONSULT)} = ${fmt(due)}`;
     document.getElementById('cardPayAmt').textContent = fmt(due);
     document.getElementById('bnplIntro').innerHTML = `Finance this month's total (<b style="color:var(--teal)">${fmt(due)}</b>) in installments — often 0% APR:`;
     document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(due/12*100)/100)+'/mo');
@@ -797,19 +797,19 @@ function setupCheckout(pivoted){
   const mtm = S.payMode==='mtm';
   const due = m.first + FEES;          // card "Due today" incl. one-time checkout fees
   const finPlan = p.price + FEES;      // BNPL financed total incl. one-time checkout fees
-  document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(m.first)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
+  document.getElementById('pivotText').innerHTML = `Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility. Start month-to-month instead: <b>${fmt(due)} for your first month</b>, then $${p.rate}/mo. Cancel anytime.`;
   document.getElementById('mtmOpt').style.display='flex';
   document.getElementById('directOpt').style.display='none';
-  document.getElementById('mtmFirst').textContent = fmt(m.first);
+  document.getElementById('mtmFirst').textContent = fmt(due);
   document.getElementById('mtmAfter').textContent = '$'+p.rate;
-  document.getElementById('mtmPrice').textContent = fmt(m.first);
+  document.getElementById('mtmPrice').textContent = fmt(due);
   document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(finPlan/(p.months*4)*100)/100)+'/mo');
   document.getElementById('bnplIntro').innerHTML = `Finance your full plan total (<b style="color:var(--teal)">${fmt(finPlan)}</b>) in installments — often 0% APR:`;
   document.getElementById('mtmOpt').classList.toggle('selected', mtm);
 
   if(mtm){
     document.getElementById('sumPlanName').textContent = 'Month-to-Month (first month)';
-    document.getElementById('sumPlanPrice').textContent = fmt(m.first);
+    document.getElementById('sumPlanPrice').textContent = fmt(m.first) + ' + fees = ' + fmt(due);
   } else {
     document.getElementById('sumPlanName').textContent = p.name;
     document.getElementById('sumPlanPrice').textContent = calcStr(m,p);
@@ -818,7 +818,7 @@ function setupCheckout(pivoted){
   document.getElementById('sumAfterLine').style.display='flex';
   document.getElementById('sumAfter').textContent = '$'+p.rate+'/mo';
   document.getElementById('sumDueLabel').textContent = 'Due today';
-  document.getElementById('sumTotal').textContent = fmt(due);
+  document.getElementById('sumTotal').textContent = `${fmt(m.first)} + ${fmt(FEE_SHIPPING)} + ${fmt(FEE_CONSULT)} = ${fmt(due)}`;
   document.getElementById('cardPayAmt').textContent = fmt(due);
 }
 function goBackToPlans(){ S.payMode='bnpl'; window.history.back(); }
@@ -1162,6 +1162,11 @@ function updateGate(){
   btn.classList.toggle('locked', !ok);
   document.getElementById('gateNote').style.display = ok ? 'none' : 'block';
 }
+/* Journey complete — leaving via Return Home clears saved progress (both storages) so the
+   next visit starts fresh instead of restoring a finished order. */
+document.getElementById('homeBtn').addEventListener('click', function(){
+  if(!this.classList.contains('locked')) clearProgress();
+});
 async function uploadDoc(kind, inputId, statusId){
   const input = document.getElementById(inputId);
   const st = document.getElementById(statusId);
@@ -1240,19 +1245,29 @@ async function handleRedirectReturn(clientSecret){
 }
 /* ---------- refresh persistence: the quiz survives page reloads ----------
    Every screen change and every input keystroke snapshots progress (step + state + typed
-   field values, NEVER card fields) to sessionStorage 'zx_progress' (per-tab, cleared when
-   the tab closes). On reload the customer lands back on the same screen with data intact. */
+   field values, NEVER card fields) to sessionStorage 'zx_progress' (per-tab) AND mirrors it
+   to localStorage (same key, 24h freshness window) — iOS Safari and in-app browsers can
+   hand a reload an EMPTY sessionStorage (purged/restored tabs, webview relaunches), so the
+   localStorage mirror is the fallback that keeps mobile reloads on the same screen.
+   Cleared on fresh ?med= entries and when the customer leaves via Return Home. */
 const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip'];
+const ZX_PROGRESS_TTL = 24*60*60*1000; // localStorage fallback valid for 24h
+function clearProgress(){
+  try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
+  try{ localStorage.removeItem('zx_progress'); }catch(e){}
+}
 function saveState(){
   try{
     const fields={};
     ZX_PERSIST_FIELDS.forEach(id=>{ const el=document.getElementById(id); if(el && el.value!=null) fields[id]=el.value; });
-    sessionStorage.setItem('zx_progress', JSON.stringify({ step: current, S: {
+    const snap = JSON.stringify({ t: Date.now(), step: current, S: {
       answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
       leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
       shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted,
       bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
-    }, fields }));
+    }, fields });
+    try{ sessionStorage.setItem('zx_progress', snap); }catch(e){}
+    try{ localStorage.setItem('zx_progress', snap); }catch(e){}
   }catch(e){}
 }
 document.addEventListener('input', e=>{ if(e.target && e.target.id) saveState(); });
@@ -1308,12 +1323,20 @@ if (bootSecret && STRIPE_PK){
   if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
   let resumed = false;
   if(ZX_FRESH_ENTRY){
-    try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
+    clearProgress();
   } else {
-    try{
-      const saved = JSON.parse(sessionStorage.getItem('zx_progress')||'null');
-      if(saved && saved.step && saved.step!=='goal') resumed = restoreProgress(saved);
-    }catch(e){}
+    let saved = null;
+    try{ saved = JSON.parse(sessionStorage.getItem('zx_progress')||'null'); }catch(e){}
+    if(!saved || !saved.step){
+      /* iOS Safari / in-app browsers can reload with an empty sessionStorage — fall back
+         to the localStorage mirror while it's fresh (see ZX_PROGRESS_TTL). */
+      try{
+        const ls = JSON.parse(localStorage.getItem('zx_progress')||'null');
+        if(ls && ls.step && ls.t && (Date.now()-ls.t) < ZX_PROGRESS_TTL) saved = ls;
+        else if(ls) localStorage.removeItem('zx_progress');
+      }catch(e){}
+    }
+    try{ if(saved && saved.step && saved.step!=='goal') resumed = restoreProgress(saved); }catch(e){}
   }
   if(!resumed) show('goal');
 }
