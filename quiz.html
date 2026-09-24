@@ -724,8 +724,13 @@ if(!medFromUrl){ try{ preMed = sessionStorage.getItem('zx_med'); medFromRelay = 
 S.preMed = (preMed && MEDS[preMed]) ? preMed : null;
 try{ sessionStorage.removeItem('zx_med'); }catch(e){}
 /* A ?med= arrival is a FRESH entry from the landing page: strip the param (so a mid-quiz
-   refresh isn't mistaken for a new arrival) and it will clear any saved progress at boot. */
+   refresh isn't mistaken for a new arrival) and it will clear any saved progress at boot.
+   NAV_TYPE guards the wipe: mobile browsers can re-send the ORIGINAL ?med= URL on a
+   refresh (ignoring the replaceState strip), which must resume, never restart. */
 const ZX_FRESH_ENTRY = medFromUrl || medFromRelay;
+let NAV_TYPE = '';
+try{ const ne = performance.getEntriesByType('navigation'); NAV_TYPE = (ne && ne[0] && ne[0].type) || ''; }catch(e){}
+try{ if(!NAV_TYPE && performance.navigation) NAV_TYPE = performance.navigation.type===1 ? 'reload' : (performance.navigation.type===2 ? 'back_forward' : 'navigate'); }catch(e){}
 if(medFromUrl){ try{ const u=new URL(location.href); u.searchParams.delete('med'); window.history.replaceState(null,'', u.pathname + (u.searchParams.toString()?'?'+u.searchParams.toString():'') + u.hash); }catch(e){} }
 function applyPreMed(){
   if(!S.preMed) return;
@@ -781,7 +786,7 @@ function setupCheckout(pivoted){
     document.getElementById('sumAfterLine').style.display='flex';
     document.getElementById('sumAfter').textContent = fmt(total)+'/mo';
     document.getElementById('sumDueLabel').textContent = 'Due today';
-    document.getElementById('sumTotal').textContent = `${fmt(total)} + ${fmt(FEE_SHIPPING)} + ${fmt(FEE_CONSULT)} = ${fmt(due)}`;
+    document.getElementById('sumTotal').textContent = fmt(due);
     document.getElementById('cardPayAmt').textContent = fmt(due);
     document.getElementById('bnplIntro').innerHTML = `Finance this month's total (<b style="color:var(--teal)">${fmt(due)}</b>) in installments — often 0% APR:`;
     document.querySelectorAll('.aslowAmt').forEach(el=>el.textContent = fmt(Math.round(due/12*100)/100)+'/mo');
@@ -818,7 +823,7 @@ function setupCheckout(pivoted){
   document.getElementById('sumAfterLine').style.display='flex';
   document.getElementById('sumAfter').textContent = '$'+p.rate+'/mo';
   document.getElementById('sumDueLabel').textContent = 'Due today';
-  document.getElementById('sumTotal').textContent = `${fmt(m.first)} + ${fmt(FEE_SHIPPING)} + ${fmt(FEE_CONSULT)} = ${fmt(due)}`;
+  document.getElementById('sumTotal').textContent = fmt(due);
   document.getElementById('cardPayAmt').textContent = fmt(due);
 }
 function goBackToPlans(){ S.payMode='bnpl'; window.history.back(); }
@@ -1322,22 +1327,32 @@ if (bootSecret && STRIPE_PK){
 } else {
   if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
   let resumed = false;
-  if(ZX_FRESH_ENTRY){
-    clearProgress();
-  } else {
-    let saved = null;
-    try{ saved = JSON.parse(sessionStorage.getItem('zx_progress')||'null'); }catch(e){}
-    if(!saved || !saved.step){
-      /* iOS Safari / in-app browsers can reload with an empty sessionStorage — fall back
-         to the localStorage mirror while it's fresh (see ZX_PROGRESS_TTL). */
-      try{
-        const ls = JSON.parse(localStorage.getItem('zx_progress')||'null');
-        if(ls && ls.step && ls.t && (Date.now()-ls.t) < ZX_PROGRESS_TTL) saved = ls;
-        else if(ls) localStorage.removeItem('zx_progress');
-      }catch(e){}
-    }
-    try{ if(saved && saved.step && saved.step!=='goal') resumed = restoreProgress(saved); }catch(e){}
+  let saved = null;
+  try{ saved = JSON.parse(sessionStorage.getItem('zx_progress')||'null'); }catch(e){}
+  if(!saved || !saved.step){
+    /* iOS Safari / in-app browsers can reload with an empty sessionStorage — fall back
+       to the localStorage mirror while it's fresh (see ZX_PROGRESS_TTL). */
+    try{
+      const ls = JSON.parse(localStorage.getItem('zx_progress')||'null');
+      if(ls && ls.step && ls.t && (Date.now()-ls.t) < ZX_PROGRESS_TTL) saved = ls;
+      else if(ls) localStorage.removeItem('zx_progress');
+    }catch(e){}
   }
+  const savedUsable = !!(saved && saved.step && saved.step!=='goal');
+  let freshWipe = false;
+  if(ZX_FRESH_ENTRY){
+    /* Wipe saved progress ONLY for a true new funnel entry. Mobile browsers can refresh
+       with the original ?med= URL still attached, and a customer re-tapping the same
+       landing/ad link mid-flow must not lose their order info — both must RESUME:
+       - navigation type 'reload'/'back_forward' → always resume;
+       - same medication as the in-progress session (and not yet submitted) → resume.
+       A different med, a finished (submitted) order, or no saved progress → fresh start. */
+    const navReload = NAV_TYPE==='reload' || NAV_TYPE==='back_forward';
+    const sameMed = !!(saved && saved.S && S.preMed && (saved.S.preMed===S.preMed || saved.S.med===S.preMed));
+    const resumable = savedUsable && !(saved.S && saved.S.submitted) && (navReload || sameMed);
+    if(!resumable){ clearProgress(); freshWipe = true; }
+  }
+  if(!freshWipe && savedUsable){ try{ resumed = restoreProgress(saved); }catch(e){} }
   if(!resumed) show('goal');
 }
 </script>
