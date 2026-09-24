@@ -1170,7 +1170,7 @@ if (bootSecret && STRIPE_PK){
      REMOVE THIS ENTIRE BLOCK (button + script, down to the closing marker) BEFORE LAUNCH. -->
 <button id="zxSimBtn" type="button" style="position:fixed;bottom:14px;left:14px;z-index:99;background:#fff;border:1.5px dashed #C8A96A;border-radius:12px;padding:10px 14px;font:600 11px 'Inter',sans-serif;color:#55524B;cursor:pointer;box-shadow:0 8px 20px rgba(28,27,24,.12)">TEST · Simulate successful checkout</button>
 <script id="zxSimScript">
-document.getElementById('zxSimBtn').addEventListener('click', () => {
+document.getElementById('zxSimBtn').addEventListener('click', async () => {
   if(!S.med || !MEDS[S.med]) S.med='sema';
   const m = MEDS[S.med];
   if(!m.brand && !m.plans[S.plan]) S.plan='6mo';
@@ -1178,6 +1178,14 @@ document.getElementById('zxSimBtn').addEventListener('click', () => {
   if(!S.answers.email) S.answers.email='test@zeviarx.com';
   if(!S.answers.state) S.answers.state='FL';
   S.lastPI = null;
+  /* anchor the simulated order to a real lead row so address/ID/video saves work during testing */
+  if(!S.leadId){
+    try{
+      const r = await fetch(BACKEND + '/lead', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name:S.answers.name, email:S.answers.email, state:S.answers.state, med:S.med, answers:S.answers, tracking:{sim:true} }) });
+      const d = await r.json(); if(d && d.id) S.leadId = d.id;
+    }catch(e){}
+  }
   const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first)} today, then $${m.plans[S.plan].rate}/mo`;
   finish(label, 'SIMULATED payment — test only, no charge');
 });
