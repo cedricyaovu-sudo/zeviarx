@@ -276,13 +276,27 @@ try{
   <section class="screen" data-step="contact">
     <h1>Where should we send your results?</h1>
     <p class="hint">Your eligibility summary and next steps will be waiting for you.</p>
-    <div class="field"><label>First name</label><input id="fName" type="text" placeholder="Alex" autocomplete="given-name"></div>
+    <div class="row2">
+      <div class="field"><label>First name</label><input id="fName" type="text" placeholder="Alex" autocomplete="given-name"></div>
+      <div class="field" id="dobField"><label>Date of birth</label><input id="dobIn" type="text" inputmode="numeric" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="bday"><div class="err">Please enter your date of birth (MM/DD/YYYY).</div></div>
+    </div>
     <div class="row2">
       <div class="field" id="emField"><label>Email</label><input id="email" type="email" placeholder="you@email.com" autocomplete="email"><div class="err">Please enter a valid email.</div></div>
       <div class="field"><label>Mobile phone</label><input id="phone" type="tel" placeholder="(555) 555-5555" autocomplete="tel"></div>
     </div>
     <div class="btn-row"><button class="btn gold wide" id="seeResults">See My Results →</button></div>
     <p style="font:500 11px 'Inter';color:#A39E93;margin-top:14px">By clicking "See My Results" you agree to our <a href="terms.html" target="_blank" style="color:#8C8578">Terms</a>, <a href="privacy.html" target="_blank" style="color:#8C8578">Privacy Policy</a>, and <a href="telehealth-consent.html" target="_blank" style="color:#8C8578">Telehealth Consent</a>, and to receive program emails/texts (you can opt out anytime).</p>
+  </section>
+
+  <!-- UNDER-18 SOFT BLOCK (age gate — reached from the contact step when DOB < 18) -->
+  <section class="screen" data-step="underage">
+    <div style="max-width:560px;margin:0 auto;text-align:center;padding:24px 0">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-soft);display:grid;place-items:center;margin:0 auto 22px;font:600 26px 'Inter';color:var(--teal)">18+</div>
+      <h1 style="margin-bottom:14px">We're sorry — Zevia Rx is only available to adults 18 and older.</h1>
+      <p class="hint" style="margin-bottom:14px">Thank you for your honesty. Based on the date of birth you entered, we aren't able to move forward: prescription GLP-1 weight-loss treatment through our platform can only be provided to adults, and the licensed providers we work with cannot treat patients under 18 through telehealth.</p>
+      <p class="hint" style="margin-bottom:22px">This isn't a judgment about you or your goals. If you're under 18 and thinking about your weight or health, the right first step is an in-person conversation with a pediatrician or family doctor — they can offer care that's designed and approved for your age group. If you believe you received this message in error, contact us at <a href="mailto:support@zeviarx.com" style="color:var(--teal)">support@zeviarx.com</a>.</p>
+      <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html">Return to Home</a></div>
+    </div>
   </section>
 
   <!-- RESULTS -->
@@ -604,7 +618,8 @@ function show(step){
   const qi = FLOW.indexOf(step);
   const label = document.getElementById('stepLabel');
   const bar = document.getElementById('bar');
-  if(qi < QCOUNT){ label.textContent = `Question ${qi+1} of ${QCOUNT}`; bar.style.width = ((qi)/QCOUNT*100)+'%'; }
+  if(step==='underage'){ label.textContent='Eligibility'; bar.style.width='100%'; }
+  else if(qi >= 0 && qi < QCOUNT){ label.textContent = `Question ${qi+1} of ${QCOUNT}`; bar.style.width = ((qi)/QCOUNT*100)+'%'; }
   else if(step==='results'){ label.textContent='Your Results'; bar.style.width='100%'; }
   else if(step==='checkout'){ label.textContent='Secure Checkout'; bar.style.width='100%'; }
   else if(step==='success'){ label.textContent='Order Confirmed'; bar.style.width='100%'; }
@@ -664,12 +679,44 @@ document.getElementById('stateNext').addEventListener('click',()=>{
   S.answers.state=sSel.value; next('contact');
 });
 
-/* ---------- results (no disqualification — provider decides) ---------- */
+/* ---------- date of birth (age gate) ---------- */
+const dobIn = document.getElementById('dobIn');
+dobIn.addEventListener('input', ()=>{
+  document.getElementById('dobField').classList.remove('error');
+  let v = dobIn.value.replace(/[^0-9]/g,'').slice(0,8);
+  if(v.length>=5) v = v.slice(0,2)+'/'+v.slice(2,4)+'/'+v.slice(4);
+  else if(v.length>=3) v = v.slice(0,2)+'/'+v.slice(2);
+  dobIn.value = v;
+});
+function parseDob(str){
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(str||''); if(!m) return null;
+  const mo=+m[1], d=+m[2], y=+m[3];
+  const dt = new Date(y, mo-1, d);
+  if(dt.getFullYear()!==y || dt.getMonth()!==mo-1 || dt.getDate()!==d) return null;
+  if(y < 1900 || dt > new Date()) return null;
+  return dt;
+}
+function ageFrom(dt){
+  const now = new Date();
+  let a = now.getFullYear()-dt.getFullYear();
+  const mDiff = now.getMonth()-dt.getMonth();
+  if(mDiff<0 || (mDiff===0 && now.getDate()<dt.getDate())) a--;
+  return a;
+}
+
+/* ---------- results (no disqualification — provider decides; age is the one hard gate) ---------- */
 document.getElementById('seeResults').addEventListener('click',()=>{
   const name=document.getElementById('fName').value.trim();
   const email=document.getElementById('email').value.trim();
   if(!email || !/.+@.+\..+/.test(email)){ document.getElementById('emField').classList.add('error'); return; }
   document.getElementById('emField').classList.remove('error');
+  const dob = parseDob(dobIn.value.trim());
+  if(!dob){ document.getElementById('dobField').classList.add('error'); dobIn.focus(); return; }
+  document.getElementById('dobField').classList.remove('error');
+  /* Age gate: the contact step itself can be completed, but under-18 cannot proceed to
+     results. No lead is sent for minors — their contact info never reaches our servers. */
+  if(ageFrom(dob) < 18){ next('underage'); return; }
+  S.answers.dob = dobIn.value.trim();
   S.answers.name=name; S.answers.email=email; S.answers.phone=document.getElementById('phone').value.trim();
   console.log('LEAD_CAPTURED', {...S.answers, bmi:S.bmi, tracking:S.tracking});
   fetch(BACKEND + '/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
@@ -1257,7 +1304,7 @@ async function handleRedirectReturn(clientSecret){
    hand a reload an EMPTY sessionStorage (purged/restored tabs, webview relaunches), so the
    localStorage mirror is the fallback that keeps mobile reloads on the same screen.
    Cleared on fresh ?med= entries and when the customer leaves via Return Home. */
-const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip'];
+const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip'];
 const ZX_PROGRESS_TTL = 24*60*60*1000; // localStorage fallback valid for 24h
 function clearProgress(){
   try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
