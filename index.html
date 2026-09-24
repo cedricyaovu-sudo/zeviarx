@@ -267,17 +267,16 @@ section.testis{display:none!important}
 <style id="zx-hide-press-20260818">
 div.press{display:none!important}
 </style>
-<!-- ═══ ZX-HIDE-BRAND v5 (2026-09-24, extended v6 2026-09-24) ═══
-     The three brand-name medication cards (Wegovy Pill, Wegovy Injection, Zepbound) AND the
-     "Scroll for brand-name options →" hint (.scroll-hint) are HIDDEN, not removed. Markup untouched.
-     TO RESTORE: delete this single <style id="zx-hide-brand-20260924"> block (and this comment). Independent of the hides above.
+<!-- ═══ ZX-HIDE-BRAND v5 (2026-09-24, updated v7 2026-09-24) ═══
+     The three brand-name medication cards (Wegovy Pill, Wegovy Injection, Zepbound) are HIDDEN, not removed. Markup untouched.
+     v7: the .scroll-hint is VISIBLE again with neutral text "Scroll to compare options →" (original brand-name wording preserved in the v5/v6 snapshots).
+     TO RESTORE brand cards: delete this single <style id="zx-hide-brand-20260924"> block (and this comment) — and change the hint text back to "Scroll for brand-name options →" if the brand cards return.
      The matching quiz-side hide lives in quiz.html (same id). Pre-hide snapshots: project docs
-     claude/zeviarx-index-v4-with-brand-meds-2026-09-24.html (cards) and claude/zeviarx-index-v5-2026-09-24.html (hint + "Free" copy). -->
+     claude/zeviarx-index-v4-with-brand-meds-2026-09-24.html (cards) and claude/zeviarx-index-v5-2026-09-24.html / -v6- (hint + "Free" copy). -->
 <style id="zx-hide-brand-20260924">
 .med-card:has(a[href="quiz.html?med=wpill"]){display:none!important}
 .med-card:has(a[href="quiz.html?med=winj"]){display:none!important}
 .med-card:has(a[href="quiz.html?med=zep"]){display:none!important}
-.scroll-hint{display:none!important}
 </style>
 </head>
 <body>
@@ -453,7 +452,7 @@ div.press{display:none!important}
         <a class="btn" href="quiz.html?med=zep">Get Started</a>
       </div>
     </div>
-    <div class="scroll-hint">Scroll for brand-name options →</div>
+    <div class="scroll-hint">Scroll to compare options →</div>
     <div class="lock-strip"><b>The Zevia Price-Lock:</b> the price you start at is the price you keep — for as long as you're a member.</div>
   </div>
 </section>

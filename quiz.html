@@ -425,7 +425,7 @@ try{
     <div class="pay-summary" id="shipBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
       <h3 style="font:700 16px 'Inter';margin-bottom:4px">Delivery address</h3>
       <p class="hint" style="margin-bottom:14px">Tell us where to ship your medication so your first order isn't delayed.</p>
-      <form id="shipForm" onsubmit="return saveShipping(event)">
+      <form id="shipForm" onsubmit="return false">
         <div class="field"><label>Full name</label><input id="shName" type="text" autocomplete="name" placeholder="Alex Morgan"></div>
         <div class="field" id="shL1Field"><label>Street address</label><input id="shLine1" type="text" autocomplete="address-line1" placeholder="123 Main St"><div class="err">Please enter your street address.</div></div>
         <div class="field"><label>Apt / suite / unit <span style="font-weight:500;color:#A39E93">(optional)</span></label><input id="shLine2" type="text" autocomplete="address-line2"></div>
@@ -435,7 +435,6 @@ try{
         </div>
         <div class="field" id="shZipField"><label>ZIP code</label><input id="shZip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="10" placeholder="33101"><div class="err">Please enter a valid ZIP code.</div></div>
         <div id="shipError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-bottom:12px"></div>
-        <button class="btn gold wide" id="shipSaveBtn" type="submit">Save Delivery Address</button>
       </form>
       <div id="shipSaved" style="display:none">
         <p style="font:700 15px 'Inter';color:var(--teal)">✓ Delivery address saved</p>
@@ -459,10 +458,12 @@ try{
           <div id="videoStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
         </div>
       </div>
+      <div id="submitError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-top:12px"></div>
+      <button class="btn gold wide" id="submitAll" type="button" style="margin-top:14px">Submit</button>
     </div>
     <div class="btn-row" style="justify-content:center;flex-direction:column;align-items:center;gap:10px">
       <a class="btn locked" id="homeBtn" href="index.html">Return Home</a>
-      <p id="gateNote" class="hint" style="font-size:12px;margin:0">Save your delivery address and complete verification above to finish.</p>
+      <p id="gateNote" class="hint" style="font-size:12px;margin:0">Complete the form above and press Submit to finish.</p>
     </div>
   </section>
 
@@ -474,6 +475,16 @@ try{
     <div class="spinner"></div>
     <h3 id="ovTitle">Checking with Klarna…</h3>
     <p id="ovText">Securely verifying your payment plan eligibility. This usually takes a few seconds.</p>
+  </div>
+</div>
+
+<!-- submission confirmation -->
+<div class="overlay" id="confirmModal">
+  <div class="box">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-soft);display:grid;place-items:center;font-size:30px;color:var(--teal);margin:0 auto 16px">✓</div>
+    <h3>Information submitted</h3>
+    <p>Your delivery address and verification documents are in. A licensed provider will review your intake within 24 hours.</p>
+    <button class="btn" id="confirmClose" style="margin-top:18px">Done</button>
   </div>
 </div>
 
@@ -1027,8 +1038,8 @@ function autoSaveShipping(){
       }
     }).catch(()=>{});
 }
-function saveShipping(e){
-  e.preventDefault();
+async function saveAddressIfNeeded(){
+  if(S.shipDone) return true;
   const line1=document.getElementById('shLine1'), city=document.getElementById('shCity'), zip=document.getElementById('shZip');
   let ok=true;
   const bad=(id,cond)=>{document.getElementById(id).classList.toggle('error',cond); if(cond) ok=false;};
@@ -1036,22 +1047,42 @@ function saveShipping(e){
   bad('shCityField', !city.value.trim());
   bad('shZipField', !/^\d{5}(-\d{4})?$/.test(zip.value.trim()));
   if(!ok) return false;
-  const btn=document.getElementById('shipSaveBtn'); btn.disabled=true; btn.textContent='Saving…';
   const errEl=document.getElementById('shipError'); errEl.style.display='none';
   const shipping={ name:(document.getElementById('shName').value.trim()||S.answers.name||'Customer'), line1:line1.value.trim(), line2:document.getElementById('shLine2').value.trim(), city:city.value.trim(), state:shSel.value, zip:zip.value.trim() };
-  fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ paymentIntent:S.lastPI||null, leadId:S.leadId||null, shipping }) })
-    .then(r=>r.json().then(d=>({good:r.ok && d && d.ok})))
-    .then(({good})=>{
-      if(!good) throw new Error('save');
-      document.getElementById('shipForm').style.display='none';
-      document.getElementById('shipSaved').style.display='block';
-      document.getElementById('shipSavedAddr').textContent = `Shipping to ${shipping.line1}${shipping.line2?', '+shipping.line2:''}, ${shipping.city}, ${shipping.state} ${shipping.zip}`;
-      S.shipDone = true; updateGate();
-    })
-    .catch(()=>{ errEl.textContent="We couldn't save your address — please try again."; errEl.style.display='block'; })
-    .finally(()=>{ btn.disabled=false; btn.textContent='Save Delivery Address'; });
-  return false;
+  try{
+    const r = await fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ paymentIntent:S.lastPI||null, leadId:S.leadId||null, shipping }) });
+    const d = await r.json();
+    if(!(r.ok && d && d.ok)) throw new Error('save');
+    document.getElementById('shipForm').style.display='none';
+    document.getElementById('shipSaved').style.display='block';
+    document.getElementById('shipSavedAddr').textContent = `Shipping to ${shipping.line1}${shipping.line2?', '+shipping.line2:''}, ${shipping.city}, ${shipping.state} ${shipping.zip}`;
+    S.shipDone = true;
+    return true;
+  }catch(e){
+    errEl.textContent="We couldn't save your address — please check the fields and try again.";
+    errEl.style.display='block';
+    return false;
+  }
 }
+async function submitAll(){
+  const btn=document.getElementById('submitAll');
+  const err=document.getElementById('submitError'); err.style.display='none';
+  btn.disabled=true; const orig=btn.textContent; btn.textContent='Submitting…';
+  try{
+    const addrOk = await saveAddressIfNeeded();
+    if(!addrOk){ err.textContent='Please complete your delivery address above.'; err.style.display='block'; return; }
+    if(!S.idDone){ err.textContent="Please upload your driver's license or photo ID."; err.style.display='block'; return; }
+    if(videoRequired() && !S.videoDone){ err.textContent='Please upload your verification video — it is required in your state.'; err.style.display='block'; return; }
+    S.submitted = true;
+    btn.textContent='✓ Submitted';
+    document.getElementById('confirmModal').classList.add('show');
+    updateGate();
+  } finally {
+    if(!S.submitted){ btn.disabled=false; btn.textContent=orig; }
+  }
+}
+document.getElementById('submitAll').addEventListener('click', submitAll);
+document.getElementById('confirmClose').addEventListener('click', ()=>document.getElementById('confirmModal').classList.remove('show'));
 
 /* ---------- identity verification (license upload + state-required consent video) ---------- */
 /* PROVISIONAL state list — states whose rules restrict questionnaire-only async prescribing
@@ -1065,17 +1096,20 @@ function buildVideoScript(){
   return `“Hi, my name is ${name}. I am in ${st}. My date of birth is [say your date of birth]. I am requesting prescription weight-loss treatment through Zevia Rx. The health information I provided in my intake is true and complete, and I consent to receive care through telehealth. This is my photo ID.” — then hold your ID up to the camera for a moment before you stop recording.`;
 }
 function setupVerification(){
-  S.idDone = false; S.videoDone = false; S.shipDone = false;
+  S.idDone = false; S.videoDone = false; S.shipDone = false; S.submitted = false;
   const g = id => document.getElementById(id);
   g('idFile').value = ''; g('videoFile').value = '';
   g('idStatus').textContent = ''; g('videoStatus').textContent = '';
+  g('submitError').style.display = 'none';
+  const sb = g('submitAll'); sb.disabled = false; sb.textContent = 'Submit';
+  g('confirmModal').classList.remove('show');
   const vr = videoRequired();
   g('videoReq').style.display = vr ? 'block' : 'none';
   if (vr) g('videoScript').textContent = buildVideoScript();
   updateGate();
 }
 function updateGate(){
-  const ok = S.shipDone && S.idDone && (!videoRequired() || S.videoDone);
+  const ok = !!S.submitted;
   const btn = document.getElementById('homeBtn');
   if (!btn) return;
   btn.classList.toggle('locked', !ok);
