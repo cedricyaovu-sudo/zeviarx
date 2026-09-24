@@ -1286,6 +1286,9 @@ function restoreProgress(p){
     if(step==='results'){ renderResults(); }
     else if(step==='checkout'){ renderResults(); setupCheckout(false); }
     else if(step==='success'){ renderSuccessRestore(); }
+    /* re-apply typed values after render prefills so the customer's own entries win */
+    for(const id in fields){ const el=document.getElementById(id); if(el && typeof fields[id]==='string') el.value=fields[id]; }
+    if(step==='success'){ refreshVideoReq(); }
     show(step);
     if(step!=='goal'){ try{ if(('#'+step)!==location.hash) location.hash=step; }catch(e){} }
     return true;
