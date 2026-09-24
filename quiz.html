@@ -607,6 +607,7 @@ function show(step){
   else if(step==='success'){ label.textContent='Order Confirmed'; bar.style.width='100%'; }
   window.scrollTo({top:0});
   current = step;
+  saveState();
 }
 function next(step){ history.push(current); show(step); if(('#'+step) !== location.hash) location.hash = step; }
 /* Browser back/forward navigates between quiz screens instead of leaving the page.
@@ -714,9 +715,15 @@ document.querySelectorAll('#medGrid .med-opt').forEach(btn=>{
 /* Preselected medication (?med= from the landing page's per-medication Get Started buttons):
    skip the chooser and show a compact confirmation with a Change option. */
 let preMed = new URLSearchParams(location.search).get('med');
-if(!(preMed && MEDS[preMed])){ try{ preMed = sessionStorage.getItem('zx_med'); }catch(e){} }
+const medFromUrl = !!(preMed && MEDS[preMed]);
+let medFromRelay = false;
+if(!medFromUrl){ try{ preMed = sessionStorage.getItem('zx_med'); medFromRelay = !!(preMed && MEDS[preMed]); }catch(e){} }
 S.preMed = (preMed && MEDS[preMed]) ? preMed : null;
 try{ sessionStorage.removeItem('zx_med'); }catch(e){}
+/* A ?med= arrival is a FRESH entry from the landing page: strip the param (so a mid-quiz
+   refresh isn't mistaken for a new arrival) and it will clear any saved progress at boot. */
+const ZX_FRESH_ENTRY = medFromUrl || medFromRelay;
+if(medFromUrl){ try{ const u=new URL(location.href); u.searchParams.delete('med'); window.history.replaceState(null,'', u.pathname + (u.searchParams.toString()?'?'+u.searchParams.toString():'') + u.hash); }catch(e){} }
 function applyPreMed(){
   if(!S.preMed) return;
   const m = MEDS[S.preMed];
@@ -990,6 +997,7 @@ function payCard(e){
 }
 
 function finish(planLabel, payLabel){
+  S.finishLabels = { plan: planLabel, pay: payLabel };
   document.getElementById('sName').textContent = S.answers.name||'friend';
   document.getElementById('sEmail').textContent = S.answers.email||'your email';
   document.getElementById('sPlan').textContent = planLabel;
@@ -997,8 +1005,9 @@ function finish(planLabel, payLabel){
   document.getElementById('sVia').textContent = payLabel.includes('plan') ? ' via '+payLabel : '';
   // conversion event would fire here (pixel + CAPI + affiliate S2S postback via n8n)
   console.log('CONVERSION', {med:S.med, plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
-  prefillShipping();
   setupVerification();
+  prefillShipping();
+  refreshVideoReq();
   autoSaveShipping();
   next('success');
 }
@@ -1009,9 +1018,17 @@ STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textCo
 const bnSel = document.getElementById('bnState');
 STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;bnSel.appendChild(o);});
 function prefillShipping(){
-  document.getElementById('shipForm').style.display='';
-  document.getElementById('shipSaved').style.display='none';
   const g=id=>document.getElementById(id);
+  if(S.shipDone && S.shipAddr){
+    /* address already saved (BNPL auto-save or restored session) — show the saved state */
+    g('shipForm').style.display='none';
+    g('shipSaved').style.display='block';
+    const a=S.shipAddr;
+    g('shipSavedAddr').textContent = `Shipping to ${a.line1}${a.line2?', '+a.line2:''}, ${a.city}, ${a.state} ${a.zip}`;
+    return;
+  }
+  g('shipForm').style.display='';
+  g('shipSaved').style.display='none';
   if(S.shipAddr){
     if(!g('shName').value) g('shName').value=S.shipAddr.name||S.answers.name||'';
     if(!g('shLine1').value) g('shLine1').value=S.shipAddr.line1||'';
@@ -1035,6 +1052,7 @@ function autoSaveShipping(){
         document.getElementById('shipSaved').style.display='block';
         document.getElementById('shipSavedAddr').textContent = `Shipping to ${a.line1}${a.line2?', '+a.line2:''}, ${a.city}, ${a.state} ${a.zip}`;
         S.shipDone = true; updateGate();
+        saveState();
       }
     }).catch(()=>{});
 }
@@ -1057,6 +1075,9 @@ async function saveAddressIfNeeded(){
     document.getElementById('shipSaved').style.display='block';
     document.getElementById('shipSavedAddr').textContent = `Shipping to ${shipping.line1}${shipping.line2?', '+shipping.line2:''}, ${shipping.city}, ${shipping.state} ${shipping.zip}`;
     S.shipDone = true;
+    S.shipAddr = shipping;
+    saveState();
+    refreshVideoReq();
     return true;
   }catch(e){
     errEl.textContent="We couldn't save your address — please check the fields and try again.";
@@ -1076,6 +1097,7 @@ async function submitAll(){
     S.submitted = true;
     btn.textContent='✓ Submitted';
     document.getElementById('confirmModal').classList.add('show');
+    saveState();
     updateGate();
   } finally {
     if(!S.submitted){ btn.disabled=false; btn.textContent=orig; }
@@ -1089,23 +1111,42 @@ document.getElementById('confirmClose').addEventListener('click', ()=>document.g
    (AK, AZ, AR, AL, MS per state online-prescribing rules; TX per some readings).
    The medical group (Beluga) provides the authoritative list before launch — edit this const only. */
 const VIDEO_STATES = ['AK','AZ','AR','AL','MS','TX'];
-function videoRequired(){ return VIDEO_STATES.includes(S.answers.state); }
+/* The state that governs the video requirement: the SAVED delivery state, else the live
+   delivery-state select (so changing it re-evaluates the requirement before submitting),
+   else the state given in the quiz. */
+function currentPatientState(){
+  /* saved delivery address governs once saved; before that, the live select governs */
+  if(S.shipDone && S.shipAddr && S.shipAddr.state) return S.shipAddr.state;
+  const sel = document.getElementById('shState');
+  if(sel && sel.value) return sel.value;
+  return S.answers.state || '';
+}
+function videoRequired(){ return VIDEO_STATES.includes(currentPatientState()); }
 function buildVideoScript(){
   const name = S.answers.name || '[your full name]';
-  const st = S.answers.state || '[your state]';
+  const st = currentPatientState() || '[your state]';
   return `“Hi, my name is ${name}. I am in ${st}. My date of birth is [say your date of birth]. I am requesting prescription weight-loss treatment through Zevia Rx. The health information I provided in my intake is true and complete, and I consent to receive care through telehealth. This is my photo ID.” — then hold your ID up to the camera for a moment before you stop recording.`;
 }
-function setupVerification(){
-  S.idDone = false; S.videoDone = false; S.shipDone = false; S.submitted = false;
+function refreshVideoReq(){
+  const vr = videoRequired();
+  const el = document.getElementById('videoReq');
+  if(!el) return;
+  el.style.display = vr ? 'block' : 'none';
+  if(vr) document.getElementById('videoScript').textContent = buildVideoScript();
+}
+document.getElementById('shState').addEventListener('change', refreshVideoReq);
+function setupVerification(preserve){
+  if(!preserve){ S.idDone = false; S.videoDone = false; S.shipDone = false; S.submitted = false; }
   const g = id => document.getElementById(id);
   g('idFile').value = ''; g('videoFile').value = '';
-  g('idStatus').textContent = ''; g('videoStatus').textContent = '';
+  if(preserve && S.idDone){ g('idStatus').style.color='var(--teal)'; g('idStatus').textContent='✓ ID uploaded'; } else { g('idStatus').textContent=''; }
+  if(preserve && S.videoDone){ g('videoStatus').style.color='var(--teal)'; g('videoStatus').textContent='✓ Video uploaded'; } else { g('videoStatus').textContent=''; }
   g('submitError').style.display = 'none';
-  const sb = g('submitAll'); sb.disabled = false; sb.textContent = 'Submit';
+  const sb = g('submitAll');
+  sb.disabled = !!(preserve && S.submitted);
+  sb.textContent = (preserve && S.submitted) ? '✓ Submitted' : 'Submit';
   g('confirmModal').classList.remove('show');
-  const vr = videoRequired();
-  g('videoReq').style.display = vr ? 'block' : 'none';
-  if (vr) g('videoScript').textContent = buildVideoScript();
+  refreshVideoReq();
   updateGate();
 }
 function updateGate(){
@@ -1138,6 +1179,7 @@ async function uploadDoc(kind, inputId, statusId){
     st.style.color = 'var(--teal)';
     st.textContent = kind === 'video' ? '✓ Video uploaded' : '✓ ID uploaded';
     if (kind === 'video') S.videoDone = true; else S.idDone = true;
+    saveState();
     updateGate();
   } catch (err) {
     st.style.color = 'var(--red)';
@@ -1190,12 +1232,81 @@ async function handleRedirectReturn(clientSecret){
   }catch(e){ console.error('redirect return', e); }
   show('goal');
 }
+/* ---------- refresh persistence: the quiz survives page reloads ----------
+   Every screen change and every input keystroke snapshots progress (step + state + typed
+   field values, NEVER card fields) to sessionStorage 'zx_progress' (per-tab, cleared when
+   the tab closes). On reload the customer lands back on the same screen with data intact. */
+const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip'];
+function saveState(){
+  try{
+    const fields={};
+    ZX_PERSIST_FIELDS.forEach(id=>{ const el=document.getElementById(id); if(el && el.value!=null) fields[id]=el.value; });
+    sessionStorage.setItem('zx_progress', JSON.stringify({ step: current, S: {
+      answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
+      leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
+      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted,
+      bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
+    }, fields }));
+  }catch(e){}
+}
+document.addEventListener('input', e=>{ if(e.target && e.target.id) saveState(); });
+document.addEventListener('change', e=>{ if(e.target && e.target.id) saveState(); });
+document.addEventListener('click', ()=>{ setTimeout(saveState, 100); }, true);
+
+function renderResults(){
+  document.getElementById('rName').textContent = S.answers.name||'friend';
+  document.getElementById('rLoss').innerHTML = '<span class="minus">–</span>'+Math.round((S.answers.weight||220)*0.20)+' lbs';
+  document.getElementById('rBmi').textContent = S.bmi||'—';
+  document.getElementById('rState').textContent = S.answers.state||'your state';
+  const savedPlan = S.plan;
+  if(S.preMed){ applyPreMed(); }
+  else if(S.med){ applyMed(S.med); }
+  if(savedPlan && savedPlan!=='brand'){
+    const pb=document.querySelector('.plan-opt[data-plan="'+savedPlan+'"]');
+    if(pb) pb.click();
+  }
+}
+function renderSuccessRestore(){
+  document.getElementById('sName').textContent = S.answers.name||'friend';
+  document.getElementById('sEmail').textContent = S.answers.email||'your email';
+  if(S.finishLabels){
+    document.getElementById('sPlan').textContent = S.finishLabels.plan||'—';
+    document.getElementById('sPay').textContent = S.finishLabels.pay||'—';
+    document.getElementById('sVia').textContent = (S.finishLabels.pay||'').includes('plan') ? ' via '+S.finishLabels.pay : '';
+  }
+  prefillShipping();
+  setupVerification(true);
+}
+function restoreProgress(p){
+  try{
+    Object.assign(S, p.S||{});
+    const fields=p.fields||{};
+    for(const id in fields){ const el=document.getElementById(id); if(el && typeof fields[id]==='string') el.value=fields[id]; }
+    const step = (p.step && document.querySelector('[data-step="'+p.step+'"]')) ? p.step : 'goal';
+    if(step==='results'){ renderResults(); }
+    else if(step==='checkout'){ renderResults(); setupCheckout(false); }
+    else if(step==='success'){ renderSuccessRestore(); }
+    show(step);
+    if(step!=='goal'){ try{ if(('#'+step)!==location.hash) location.hash=step; }catch(e){} }
+    return true;
+  }catch(e){ console.error('restore failed', e); return false; }
+}
+
 const bootSecret = new URLSearchParams(location.search).get('payment_intent_client_secret');
 if (bootSecret && STRIPE_PK){
   handleRedirectReturn(bootSecret);
 } else {
   if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
-  show('goal');
+  let resumed = false;
+  if(ZX_FRESH_ENTRY){
+    try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
+  } else {
+    try{
+      const saved = JSON.parse(sessionStorage.getItem('zx_progress')||'null');
+      if(saved && saved.step && saved.step!=='goal') resumed = restoreProgress(saved);
+    }catch(e){}
+  }
+  if(!resumed) show('goal');
 }
 </script>
 
