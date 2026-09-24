@@ -267,14 +267,17 @@ section.testis{display:none!important}
 <style id="zx-hide-press-20260818">
 div.press{display:none!important}
 </style>
-<!-- ═══ ZX-HIDE-BRAND v5 (2026-09-24) ═══
-     The three brand-name medication cards (Wegovy Pill, Wegovy Injection, Zepbound) are HIDDEN, not removed. Markup untouched.
+<!-- ═══ ZX-HIDE-BRAND v5 (2026-09-24, extended v6 2026-09-24) ═══
+     The three brand-name medication cards (Wegovy Pill, Wegovy Injection, Zepbound) AND the
+     "Scroll for brand-name options →" hint (.scroll-hint) are HIDDEN, not removed. Markup untouched.
      TO RESTORE: delete this single <style id="zx-hide-brand-20260924"> block (and this comment). Independent of the hides above.
-     The matching quiz-side hide lives in quiz.html (same id). Pre-hide snapshot: project doc claude/zeviarx-index-v4-with-brand-meds-2026-09-24.html -->
+     The matching quiz-side hide lives in quiz.html (same id). Pre-hide snapshots: project docs
+     claude/zeviarx-index-v4-with-brand-meds-2026-09-24.html (cards) and claude/zeviarx-index-v5-2026-09-24.html (hint + "Free" copy). -->
 <style id="zx-hide-brand-20260924">
 .med-card:has(a[href="quiz.html?med=wpill"]){display:none!important}
 .med-card:has(a[href="quiz.html?med=winj"]){display:none!important}
 .med-card:has(a[href="quiz.html?med=zep"]){display:none!important}
+.scroll-hint{display:none!important}
 </style>
 </head>
 <body>
@@ -378,7 +381,7 @@ div.press{display:none!important}
         <ul>
           <li>Same active ingredient class as Wegovy®</li>
           <li>Provider consult &amp; ongoing care included</li>
-          <li>Free cold-chain express shipping</li>
+          <li>Cold-chain express shipping</li>
         </ul>
         <a class="btn" href="quiz.html?med=sema">Get Started</a>
       </div>
@@ -393,7 +396,7 @@ div.press{display:none!important}
           <li>Dual-agonist (GIP + GLP-1) — the new gold standard</li>
           <li>Same active ingredient class as Zepbound®</li>
           <li>Provider consult &amp; ongoing care included</li>
-          <li>Free cold-chain express shipping</li>
+          <li>Cold-chain express shipping</li>
         </ul>
         <a class="btn" href="quiz.html?med=tirz">Get Started</a>
       </div>

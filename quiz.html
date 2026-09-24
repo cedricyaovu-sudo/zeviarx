@@ -144,6 +144,7 @@ svg.ic{display:inline-block;vertical-align:-2px}
 .demo-bar button{border:none;background:var(--cream-deep);border-radius:8px;padding:5px 10px;margin-left:6px;font:600 11px 'Inter'}
 .demo-bar button.on{background:var(--teal);color:#fff}
 
+.btn.locked{opacity:.45;pointer-events:none}
 .disclaim{max-width:660px;margin:0 auto;padding:0 20px 34px;font-size:11px;color:#A39E93;text-align:center}
 @media(max-width:640px){.opts.two,.bnpl-btns,.row3{grid-template-columns:1fr}.row2{grid-template-columns:1fr 1fr}}
 </style>
@@ -441,7 +442,28 @@ try{
         <p class="hint" id="shipSavedAddr" style="margin-top:6px"></p>
       </div>
     </div>
-    <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html">Return Home</a></div>
+    <div class="pay-summary" id="verifyBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
+      <h3 style="font:700 16px 'Inter';margin-bottom:4px">Identity verification</h3>
+      <p class="hint" style="margin-bottom:14px">Required before a licensed provider can review your intake.</p>
+      <div class="field">
+        <label>Driver's license or government photo ID</label>
+        <input id="idFile" type="file" accept="image/*,.pdf,.heic,.heif">
+        <div id="idStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
+      </div>
+      <div id="videoReq" style="display:none;margin-top:6px">
+        <div class="field">
+          <label>Verification video — required in your state</label>
+          <p class="hint" style="margin:4px 0 10px">Your state requires a brief video to complete a telehealth visit. Record yourself on your phone reading the script below, then upload the video.</p>
+          <div id="videoScript" style="background:var(--teal-soft);border-radius:12px;padding:14px 16px;font:500 14px 'Inter';line-height:1.55;margin-bottom:10px"></div>
+          <input id="videoFile" type="file" accept="video/*">
+          <div id="videoStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row" style="justify-content:center;flex-direction:column;align-items:center;gap:10px">
+      <a class="btn locked" id="homeBtn" href="index.html">Return Home</a>
+      <p id="gateNote" class="hint" style="font-size:12px;margin:0">Save your delivery address and complete verification above to finish.</p>
+    </div>
   </section>
 
 </div></div>
@@ -965,6 +987,7 @@ function finish(planLabel, payLabel){
   // conversion event would fire here (pixel + CAPI + affiliate S2S postback via n8n)
   console.log('CONVERSION', {med:S.med, plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
   prefillShipping();
+  setupVerification();
   autoSaveShipping();
   next('success');
 }
@@ -1000,6 +1023,7 @@ function autoSaveShipping(){
         document.getElementById('shipForm').style.display='none';
         document.getElementById('shipSaved').style.display='block';
         document.getElementById('shipSavedAddr').textContent = `Shipping to ${a.line1}${a.line2?', '+a.line2:''}, ${a.city}, ${a.state} ${a.zip}`;
+        S.shipDone = true; updateGate();
       }
     }).catch(()=>{});
 }
@@ -1022,11 +1046,72 @@ function saveShipping(e){
       document.getElementById('shipForm').style.display='none';
       document.getElementById('shipSaved').style.display='block';
       document.getElementById('shipSavedAddr').textContent = `Shipping to ${shipping.line1}${shipping.line2?', '+shipping.line2:''}, ${shipping.city}, ${shipping.state} ${shipping.zip}`;
+      S.shipDone = true; updateGate();
     })
     .catch(()=>{ errEl.textContent="We couldn't save your address — please try again."; errEl.style.display='block'; })
     .finally(()=>{ btn.disabled=false; btn.textContent='Save Delivery Address'; });
   return false;
 }
+
+/* ---------- identity verification (license upload + state-required consent video) ---------- */
+/* PROVISIONAL state list — states whose rules restrict questionnaire-only async prescribing
+   (AK, AZ, AR, AL, MS per state online-prescribing rules; TX per some readings).
+   The medical group (Beluga) provides the authoritative list before launch — edit this const only. */
+const VIDEO_STATES = ['AK','AZ','AR','AL','MS','TX'];
+function videoRequired(){ return VIDEO_STATES.includes(S.answers.state); }
+function buildVideoScript(){
+  const name = S.answers.name || '[your full name]';
+  const st = S.answers.state || '[your state]';
+  return `“Hi, my name is ${name}. I am in ${st}. My date of birth is [say your date of birth]. I am requesting prescription weight-loss treatment through Zevia Rx. The health information I provided in my intake is true and complete, and I consent to receive care through telehealth. This is my photo ID.” — then hold your ID up to the camera for a moment before you stop recording.`;
+}
+function setupVerification(){
+  S.idDone = false; S.videoDone = false; S.shipDone = false;
+  const g = id => document.getElementById(id);
+  g('idFile').value = ''; g('videoFile').value = '';
+  g('idStatus').textContent = ''; g('videoStatus').textContent = '';
+  const vr = videoRequired();
+  g('videoReq').style.display = vr ? 'block' : 'none';
+  if (vr) g('videoScript').textContent = buildVideoScript();
+  updateGate();
+}
+function updateGate(){
+  const ok = S.shipDone && S.idDone && (!videoRequired() || S.videoDone);
+  const btn = document.getElementById('homeBtn');
+  if (!btn) return;
+  btn.classList.toggle('locked', !ok);
+  document.getElementById('gateNote').style.display = ok ? 'none' : 'block';
+}
+async function uploadDoc(kind, inputId, statusId){
+  const input = document.getElementById(inputId);
+  const st = document.getElementById(statusId);
+  const f = input.files && input.files[0];
+  if (!f) return;
+  const ext = (f.name.split('.').pop() || '').toLowerCase();
+  const maxMb = kind === 'video' ? 100 : 20;
+  if (f.size > maxMb * 1024 * 1024) { st.style.color = 'var(--red)'; st.textContent = `File is too large — max ${maxMb}MB.`; return; }
+  st.style.color = 'var(--ink-soft)'; st.textContent = 'Uploading…';
+  try {
+    const r = await fetch(BACKEND + '/upload-doc', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'sign', kind, ext, paymentIntent:S.lastPI||null, leadId:S.leadId||null }) });
+    const d = await r.json();
+    if (!r.ok || !d.signedUrl) throw new Error(d.error === 'invalid_ext' ? "That file type isn't supported." : 'Upload could not start — please try again.');
+    const up = await fetch(d.signedUrl, { method:'PUT', headers:{'Content-Type': f.type || 'application/octet-stream'}, body: f });
+    if (!up.ok) throw new Error('Upload failed — please try again.');
+    const c = await fetch(BACKEND + '/upload-doc', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'confirm', kind, path:d.path, paymentIntent:S.lastPI||null, leadId:S.leadId||null }) });
+    const cd = await c.json();
+    if (!c.ok || !cd.ok) throw new Error('Upload could not be verified — please try again.');
+    st.style.color = 'var(--teal)';
+    st.textContent = kind === 'video' ? '✓ Video uploaded' : '✓ ID uploaded';
+    if (kind === 'video') S.videoDone = true; else S.idDone = true;
+    updateGate();
+  } catch (err) {
+    st.style.color = 'var(--red)';
+    st.textContent = (err && err.message && /try again|supported/.test(err.message)) ? err.message : 'Upload failed — check your connection and try again.';
+  }
+}
+document.getElementById('idFile').addEventListener('change', () => uploadDoc('license','idFile','idStatus'));
+document.getElementById('videoFile').addEventListener('change', () => uploadDoc('video','videoFile','videoStatus'));
 
 /* ---------- Stripe redirect-method return (Klarna / Affirm / Cash App tabs) ---------- */
 async function handleRedirectReturn(clientSecret){
