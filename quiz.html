@@ -147,6 +147,25 @@ svg.ic{display:inline-block;vertical-align:-2px}
 .disclaim{max-width:660px;margin:0 auto;padding:0 20px 34px;font-size:11px;color:#A39E93;text-align:center}
 @media(max-width:640px){.opts.two,.bnpl-btns,.row3{grid-template-columns:1fr}.row2{grid-template-columns:1fr 1fr}}
 </style>
+<!-- ═══ ZX-HIDE-BRAND v11 (2026-09-24) ═══
+     The three brand-name medication options (Wegovy Pill, Wegovy Injection, Zepbound) are HIDDEN from the med chooser, not removed.
+     The tiny guard script below also ignores brand preselection arriving via ?med= URLs or the zx_med relay, so old links can't reach hidden meds.
+     MEDS pricing, brand checkout logic, and all markup remain untouched and functional.
+     TO RESTORE: delete this style block AND the script block with id "zx-hide-brand-guard-20260924" (and these comments). The matching landing-page hide lives in index.html (same id).
+     Pre-hide snapshot: project doc claude/zeviarx-quiz-v10-with-brand-meds-2026-09-24.html -->
+<style id="zx-hide-brand-20260924">
+#medGrid .med-opt[data-med="wpill"]{display:none!important}
+#medGrid .med-opt[data-med="winj"]{display:none!important}
+#medGrid .med-opt[data-med="zep"]{display:none!important}
+</style>
+<script id="zx-hide-brand-guard-20260924">
+try{
+  const bm=['wpill','winj','zep'];
+  const u=new URL(location.href);
+  if(bm.includes(u.searchParams.get('med'))){ u.searchParams.delete('med'); history.replaceState(null,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'')+u.hash); }
+  if(bm.includes(sessionStorage.getItem('zx_med'))) sessionStorage.removeItem('zx_med');
+}catch(e){}
+</script>
 </head>
 <body>
 
@@ -1060,5 +1079,24 @@ if (bootSecret && STRIPE_PK){
   show('goal');
 }
 </script>
+
+<!-- ═══ ZX-TEST-SIM (2026-09-24) ═══
+     TEMPORARY TESTING CONTROL: simulates a successful checkout (no Stripe call, no charge, no database order).
+     REMOVE THIS ENTIRE BLOCK (button + script, down to the closing marker) BEFORE LAUNCH. -->
+<button id="zxSimBtn" type="button" style="position:fixed;bottom:14px;left:14px;z-index:99;background:#fff;border:1.5px dashed #C8A96A;border-radius:12px;padding:10px 14px;font:600 11px 'Inter',sans-serif;color:#55524B;cursor:pointer;box-shadow:0 8px 20px rgba(28,27,24,.12)">TEST · Simulate successful checkout</button>
+<script id="zxSimScript">
+document.getElementById('zxSimBtn').addEventListener('click', () => {
+  if(!S.med || !MEDS[S.med]) S.med='sema';
+  const m = MEDS[S.med];
+  if(!m.brand && !m.plans[S.plan]) S.plan='6mo';
+  if(!S.answers.name) S.answers.name='Test User';
+  if(!S.answers.email) S.answers.email='test@zeviarx.com';
+  if(!S.answers.state) S.answers.state='FL';
+  S.lastPI = null;
+  const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first)} today, then $${m.plans[S.plan].rate}/mo`;
+  finish(label, 'SIMULATED payment — test only, no charge');
+});
+</script>
+<!-- ═══ end ZX-TEST-SIM ═══ -->
 </body>
 </html>
