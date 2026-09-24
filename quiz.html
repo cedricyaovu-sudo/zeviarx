@@ -583,7 +583,7 @@ async function payWithStripe(){
     const m = MEDS[S.med];
     let label;
     if (m.brand) { label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`; }
-    else { const p = m.plans[S.plan]; label = S.payMode === 'mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today, then $${p.rate}/mo`; }
+    else { const p = m.plans[S.plan]; label = S.payMode === 'mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${p.rate}/mo`; }
     finish(label, 'Card payment via Stripe' + (paymentIntent && paymentIntent.id ? ' · ' + paymentIntent.id : ''));
   } catch (ex) {
     ov.classList.remove('show'); btn.disabled = false;
@@ -1002,7 +1002,7 @@ function payCard(e){
       label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`;
     } else {
       const p=m.plans[S.plan];
-      label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today, then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today, then $${p.rate}/mo`;
+      label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${p.rate}/mo`;
     }
     finish(label, 'Card ending '+num.value.replace(/\s/g,'').slice(-4));
   },1800);
@@ -1231,7 +1231,7 @@ async function handleRedirectReturn(clientSecret){
       let label='Your plan';
       if(m){
         if(m.brand) label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`;
-        else if(m.plans[S.plan]) label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today, then $${m.plans[S.plan].rate}/mo` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today, then $${m.plans[S.plan].rate}/mo`;
+        else if(m.plans[S.plan]) label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${m.plans[S.plan].rate}/mo` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${m.plans[S.plan].rate}/mo`;
       }
       finish(label, 'Payment via Stripe' + (st==='processing' ? ' — processing' : '') + ' · ' + paymentIntent.id);
       return;
@@ -1380,7 +1380,7 @@ document.getElementById('zxSimBtn').addEventListener('click', async () => {
       const d = await r.json(); if(d && d.id) S.leadId = d.id;
     }catch(e){}
   }
-  const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today, then $${m.plans[S.plan].rate}/mo`;
+  const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${m.plans[S.plan].rate}/mo`;
   finish(label, 'SIMULATED payment — test only, no charge');
 });
 </script>
