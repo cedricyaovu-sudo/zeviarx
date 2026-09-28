@@ -459,6 +459,7 @@ try{
     <div class="pay-summary" id="healthBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
       <h3 style="font:700 16px 'Inter';margin-bottom:4px">Health information</h3>
       <p class="hint" style="margin-bottom:14px">Your provider reviews this alongside your intake to prescribe safely.</p>
+      <div class="field"><label>Gender</label><select id="hSex"><option value="">Select…</option><option value="male">Male</option><option value="female">Female</option></select></div>
       <div class="field"><label>List any allergies you have — to medications, foods, or anything else (if any)</label><textarea id="hAllergies" rows="2" placeholder="e.g., penicillin, peanuts"></textarea></div>
       <div class="field"><label>List any medications you currently take (if any)</label><textarea id="hMeds" rows="2" placeholder="e.g., lisinopril 10mg daily"></textarea></div>
       <div class="field"><label>List any medical conditions you have (if any)</label><textarea id="hConds" rows="2" placeholder="e.g., high blood pressure"></textarea></div>
@@ -1154,14 +1155,20 @@ async function saveAddressIfNeeded(){
     return false;
   }
 }
-/* Health information (allergies / medications / conditions) — collected on the success
-   screen; not required to Submit (fields are optional by design, labeled only "if any").
-   If the customer DID enter something, it must reach the backend before Submit succeeds —
-   provided allergy/medication info is clinically important and is never silently dropped. */
+/* Health information — collected on the success screen.
+   - Gender (v24): REQUIRED before Submit (male/female — the values our medical partner's
+     patient record accepts, ISO 5218 1/2). Validated in submitAll().
+   - Allergies / medications / conditions: not required to Submit (optional by design,
+     labeled only "if any"). If the customer DID enter something, it must reach the backend
+     before Submit succeeds — provided allergy/medication info is clinically important and
+     is never silently dropped. Once gender is selected the payload always has content, so
+     the health save always runs at Submit. */
 function collectHealth(){
   const v=id=>document.getElementById(id).value.trim().slice(0,2000);
   const h={ allergies:v('hAllergies'), medications:v('hMeds'), conditions:v('hConds') };
-  return (h.allergies||h.medications||h.conditions) ? h : null;
+  const sex=document.getElementById('hSex').value;
+  if(sex) h.sex=sex;
+  return (h.sex||h.allergies||h.medications||h.conditions) ? h : null;
 }
 async function saveHealthIfAny(){
   const errEl=document.getElementById('healthError'); errEl.style.display='none';
@@ -1188,6 +1195,13 @@ async function submitAll(){
   try{
     const addrOk = await saveAddressIfNeeded();
     if(!addrOk){ err.textContent='Please complete your delivery address above.'; err.style.display='block'; return; }
+    if(!document.getElementById('hSex').value){
+      const hErr=document.getElementById('healthError');
+      hErr.textContent='Please select your gender — your provider needs it to prescribe safely.';
+      hErr.style.display='block';
+      err.textContent='Please see the note under Health information above.'; err.style.display='block';
+      return;
+    }
     const healthOk = await saveHealthIfAny();
     if(!healthOk){ err.textContent='Please see the note under Health information above.'; err.style.display='block'; return; }
     if(!S.idDone){ err.textContent="Please upload your driver's license or photo ID."; err.style.display='block'; return; }
@@ -1342,7 +1356,7 @@ async function handleRedirectReturn(clientSecret){
    hand a reload an EMPTY sessionStorage (purged/restored tabs, webview relaunches), so the
    localStorage mirror is the fallback that keeps mobile reloads on the same screen.
    Cleared on fresh ?med= entries and when the customer leaves via Return Home. */
-const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip','hAllergies','hMeds','hConds'];
+const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip','hSex','hAllergies','hMeds','hConds'];
 const ZX_PROGRESS_TTL = 24*60*60*1000; // localStorage fallback valid for 24h
 function clearProgress(){
   try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
