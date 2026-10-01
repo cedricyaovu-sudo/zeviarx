@@ -206,23 +206,6 @@ try{
     <div class="btn-row"><button class="btn" id="bodyNext">Continue →</button></div>
   </section>
 
-  <!-- Q2b conditions (v26) — shown ONLY when BMI is 27–29.9; the FDA label requires a
-       weight-related condition in that range. Outside FLOW: bodyNext routes here conditionally. -->
-  <section class="screen" data-step="conditions">
-    <h1>Have you been diagnosed with any of these weight-related conditions?</h1>
-    <p class="hint">For a BMI between 27 and 29.9, providers look for at least one of these. Select the one that applies &mdash; your provider will confirm the details.</p>
-    <div class="opts">
-      <button class="opt" data-value="hypertension">High blood pressure</button>
-      <button class="opt" data-value="cholesterol">High cholesterol or triglycerides</button>
-      <button class="opt" data-value="t2d_pre">Type 2 diabetes or pre-diabetes</button>
-      <button class="opt" data-value="sleep_apnea">Obstructive sleep apnea</button>
-      <button class="opt" data-value="pcos">PCOS</button>
-      <button class="opt" data-value="fatty_liver">Fatty liver disease</button>
-      <button class="opt" data-value="heart">Heart disease</button>
-      <button class="opt" data-value="none">None of these</button>
-    </div>
-  </section>
-
   <!-- Q3 diabetes -->
   <section class="screen" data-step="diabetes">
     <h1>Have you ever been diagnosed with diabetes?</h1>
@@ -659,7 +642,6 @@ function show(step){
   const bar = document.getElementById('bar');
   if(step==='underage'){ label.textContent='Eligibility'; bar.style.width='100%'; }
   else if(step==='ineligible'){ label.textContent='Eligibility'; bar.style.width='100%'; renderIneligible(); }
-  else if(step==='conditions'){ label.textContent='Question 2 of '+QCOUNT; bar.style.width=(1/QCOUNT*100)+'%'; }
   else if(qi >= 0 && qi < QCOUNT){ label.textContent = `Question ${qi+1} of ${QCOUNT}`; bar.style.width = ((qi)/QCOUNT*100)+'%'; }
   else if(step==='results'){ label.textContent='Your Results'; bar.style.width='100%'; }
   else if(step==='checkout'){ label.textContent='Secure Checkout'; bar.style.width='100%'; }
@@ -699,35 +681,28 @@ function advanceFrom(step){
   const dq = DQ_ANSWERS[step] && DQ_ANSWERS[step][S.answers[step]];
   if(dq){ S.dq = dq; next('ineligible'); return; }
   S.dq = null;
-  if(step==='conditions'){ next('diabetes'); return; } // v26: conditional screen rejoins the flow
   next(FLOW[i+1]);
 }
 
 /* ---------- eligibility hard stops (v25) ----------
    Mirrors the FDA labeling for GLP-1 weight-management medications and the screening
    used across telehealth weight-loss programs:
-   - BMI below BMI_MIN (27) — the label covers BMI ≥30, or ≥27 with a weight-related
-     condition; below 27 there is no approved indication. A HIGH BMI is never disqualifying.
-   - BMI 27–29.9 (v26) — the 'conditions' screen asks for a weight-related condition;
-     "None of these" is a hard stop (BMI_COND_MAX, exclusive).
+   - BMI: NO gate in either direction (v27, user directive 2026-10-01 — the BMI<27 stop and
+     the 27–29.9 comorbidity screen from v25/v26 were removed; BMI is shown to the provider,
+     who decides).
    - Type 1 diabetes — not an indication; insulin management belongs with an endocrinologist.
    - Personal/family history of medullary thyroid carcinoma or MEN 2 — boxed-warning contraindication.
    - Pregnant / nursing / planning pregnancy — contraindicated.
    - History of pancreatitis or serious kidney disease — telehealth exclusion (needs in-person care).
    Everything else (pre/Type 2 diabetes, current or previous GLP-1 use, goal, state) proceeds
    and is left to the licensed provider's judgment. */
-const BMI_MIN = 27;
-const BMI_COND_MAX = 30; // BMI in [BMI_MIN, BMI_COND_MAX) must report a weight-related condition
 const DQ_ANSWERS = {
-  conditions: { none: 'bmi_cond' },
   diabetes: { type1: 'type1' },
   thyroid:  { yes: 'thyroid' },
   pregnancy:{ yes: 'pregnancy' },
   organs:   { yes: 'organs' }
 };
 const DQ_COPY = {
-  bmi: () => `Based on the height and weight you entered, your BMI is ${S.bmi}. GLP-1 weight-loss medications are approved for adults with a BMI of 30 or higher, or 27 or higher with a weight-related health condition, and the licensed providers we work with follow those guidelines. Below that range the medication's risks outweigh its benefits, so treatment can't be offered through our platform.`,
-  bmi_cond: () => `Based on the height and weight you entered, your BMI is ${S.bmi}. For a BMI between 27 and 29.9, GLP-1 weight-loss medications are approved only when there is also at least one weight-related health condition, such as high blood pressure, high cholesterol, Type 2 diabetes, or sleep apnea. Since you told us you don't currently have one of these, the licensed providers we work with can't prescribe treatment through our platform.`,
   type1: () => `You told us you've been diagnosed with Type 1 diabetes. The GLP-1 medications we offer are not approved for Type 1 diabetes, and adding them through a weight-loss program could interfere with your insulin management. Your endocrinologist is the right person to talk with about weight management that's safe for you.`,
   thyroid: () => `You told us you have a personal or family history of medullary thyroid carcinoma or MEN 2. GLP-1 medications carry an FDA boxed warning for exactly this history, so they cannot be safely prescribed to you, and no provider on our platform will make an exception.`,
   pregnancy: () => `You told us you're pregnant, nursing, or planning to become pregnant in the next few months. GLP-1 medications aren't safe during pregnancy or while breastfeeding, and should be stopped at least two months before trying to conceive. Please talk with your OB-GYN; we'd welcome you back when the timing is right for you.`,
@@ -750,12 +725,8 @@ document.getElementById('bodyNext').addEventListener('click',()=>{
   const hTot = ft*12+inch;
   S.bmi = +(703*w/(hTot*hTot)).toFixed(1);
   S.answers.weight=w; S.answers.height=hTot;
-  /* v25: BMI below the approved range is a hard stop; a high BMI never is. */
-  if(S.bmi < BMI_MIN){ S.dq = 'bmi'; next('ineligible'); return; }
+  /* v27: no BMI gate — the provider reviews BMI and decides. */
   S.dq = null;
-  /* v26: 27–29.9 must report a weight-related condition; ≥30 skips the question. */
-  if(S.bmi < BMI_COND_MAX){ next('conditions'); return; }
-  delete S.answers.conditions; // a prior 27–29.9 answer must not ride along if they re-enter at ≥30
   next('diabetes');
 });
 
@@ -794,8 +765,8 @@ function ageFrom(dt){
   return a;
 }
 
-/* ---------- results (hard gates: age <18 here; contraindications + low BMI at their questions, v25;
-   everything else is the provider's decision) ---------- */
+/* ---------- results (hard gates: age <18 here; clinical contraindications at their questions, v25;
+   BMI is NOT gated (v27); everything else is the provider's decision) ---------- */
 document.getElementById('seeResults').addEventListener('click',()=>{
   const name=document.getElementById('fName').value.trim();
   const email=document.getElementById('email').value.trim();
