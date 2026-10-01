@@ -300,6 +300,18 @@ try{
     </div>
   </section>
 
+  <!-- NOT ELIGIBLE (v25 — industry-standard hard stops reached from the question that triggered them;
+       reason copy is filled by renderIneligible() from S.dq) -->
+  <section class="screen" data-step="ineligible">
+    <div style="max-width:560px;margin:0 auto;text-align:center;padding:24px 0">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-soft);display:grid;place-items:center;margin:0 auto 22px;font:600 26px 'Inter';color:var(--teal)">&#8212;</div>
+      <h1 style="margin-bottom:14px" id="inelTitle">We're sorry — we aren't able to offer you GLP-1 treatment.</h1>
+      <p class="hint" style="margin-bottom:14px" id="inelReason"></p>
+      <p class="hint" style="margin-bottom:22px">This isn't a judgment about you or your goals &mdash; it's the same safety standard every licensed provider follows, and we would rather be honest with you now than take your payment for a prescription that a provider won't write. If you answered in error, you can go back and correct it. If you have questions, contact us at <a href="mailto:support@zeviarx.com" style="color:var(--teal)">support@zeviarx.com</a>.</p>
+      <div class="btn-row" style="justify-content:center;gap:12px;flex-wrap:wrap"><button class="btn" type="button" id="inelBack" style="background:#fff;color:var(--teal);border:2px solid var(--cream-deep)">&larr; Go back</button><a class="btn" href="index.html">Return to Home</a></div>
+    </div>
+  </section>
+
   <!-- RESULTS -->
   <section class="screen" data-step="results">
     <div class="result-hero">
@@ -629,6 +641,7 @@ function show(step){
   const label = document.getElementById('stepLabel');
   const bar = document.getElementById('bar');
   if(step==='underage'){ label.textContent='Eligibility'; bar.style.width='100%'; }
+  else if(step==='ineligible'){ label.textContent='Eligibility'; bar.style.width='100%'; renderIneligible(); }
   else if(qi >= 0 && qi < QCOUNT){ label.textContent = `Question ${qi+1} of ${QCOUNT}`; bar.style.width = ((qi)/QCOUNT*100)+'%'; }
   else if(step==='results'){ label.textContent='Your Results'; bar.style.width='100%'; }
   else if(step==='checkout'){ label.textContent='Secure Checkout'; bar.style.width='100%'; }
@@ -662,8 +675,45 @@ document.querySelectorAll('.screen .opts:not(#medGrid)').forEach(group=>{
 function advanceFrom(step){
   const i = FLOW.indexOf(step);
   if(step==='contact'){ return; }
+  /* v25: industry-standard hard stops — a contraindicated answer ends the intake at the
+     question that revealed it (no contact step, so no lead is ever sent for an ineligible
+     person). The customer can still press "Go back" to correct a mis-tap. */
+  const dq = DQ_ANSWERS[step] && DQ_ANSWERS[step][S.answers[step]];
+  if(dq){ S.dq = dq; next('ineligible'); return; }
+  S.dq = null;
   next(FLOW[i+1]);
 }
+
+/* ---------- eligibility hard stops (v25) ----------
+   Mirrors the FDA labeling for GLP-1 weight-management medications and the screening
+   used across telehealth weight-loss programs:
+   - BMI below BMI_MIN (27) — the label covers BMI ≥30, or ≥27 with a weight-related
+     condition; below 27 there is no approved indication. A HIGH BMI is never disqualifying.
+   - Type 1 diabetes — not an indication; insulin management belongs with an endocrinologist.
+   - Personal/family history of medullary thyroid carcinoma or MEN 2 — boxed-warning contraindication.
+   - Pregnant / nursing / planning pregnancy — contraindicated.
+   - History of pancreatitis or serious kidney disease — telehealth exclusion (needs in-person care).
+   Everything else (pre/Type 2 diabetes, current or previous GLP-1 use, goal, state) proceeds
+   and is left to the licensed provider's judgment. */
+const BMI_MIN = 27;
+const DQ_ANSWERS = {
+  diabetes: { type1: 'type1' },
+  thyroid:  { yes: 'thyroid' },
+  pregnancy:{ yes: 'pregnancy' },
+  organs:   { yes: 'organs' }
+};
+const DQ_COPY = {
+  bmi: () => `Based on the height and weight you entered, your BMI is ${S.bmi}. GLP-1 weight-loss medications are approved for adults with a BMI of 30 or higher, or 27 or higher with a weight-related health condition, and the licensed providers we work with follow those guidelines. Below that range the medication's risks outweigh its benefits, so treatment can't be offered through our platform.`,
+  type1: () => `You told us you've been diagnosed with Type 1 diabetes. The GLP-1 medications we offer are not approved for Type 1 diabetes, and adding them through a weight-loss program could interfere with your insulin management. Your endocrinologist is the right person to talk with about weight management that's safe for you.`,
+  thyroid: () => `You told us you have a personal or family history of medullary thyroid carcinoma or MEN 2. GLP-1 medications carry an FDA boxed warning for exactly this history, so they cannot be safely prescribed to you, and no provider on our platform will make an exception.`,
+  pregnancy: () => `You told us you're pregnant, nursing, or planning to become pregnant in the next few months. GLP-1 medications aren't safe during pregnancy or while breastfeeding, and should be stopped at least two months before trying to conceive. Please talk with your OB-GYN; we'd welcome you back when the timing is right for you.`,
+  organs: () => `You told us you have a history of pancreatitis or serious kidney problems. GLP-1 medications can trigger pancreatitis and affect kidney function, so licensed providers won't prescribe them through telehealth with this history. Weight management for you should be guided in person by a doctor who can monitor you closely.`
+};
+function renderIneligible(){
+  const key = S.dq && DQ_COPY[S.dq] ? S.dq : null;
+  document.getElementById('inelReason').textContent = key ? DQ_COPY[key]() : 'Based on one of your answers, the licensed providers we work with would not be able to prescribe GLP-1 treatment for you.';
+}
+document.getElementById('inelBack').addEventListener('click', ()=>{ window.history.back(); });
 
 /* ---------- body / BMI (always-enabled Continue; validates on click) ---------- */
 const hIn = document.getElementById('hIn');
@@ -676,6 +726,9 @@ document.getElementById('bodyNext').addEventListener('click',()=>{
   const hTot = ft*12+inch;
   S.bmi = +(703*w/(hTot*hTot)).toFixed(1);
   S.answers.weight=w; S.answers.height=hTot;
+  /* v25: BMI below the approved range is a hard stop; a high BMI never is. */
+  if(S.bmi < BMI_MIN){ S.dq = 'bmi'; next('ineligible'); return; }
+  S.dq = null;
   next('diabetes');
 });
 
@@ -714,7 +767,8 @@ function ageFrom(dt){
   return a;
 }
 
-/* ---------- results (no disqualification — provider decides; age is the one hard gate) ---------- */
+/* ---------- results (hard gates: age <18 here; contraindications + low BMI at their questions, v25;
+   everything else is the provider's decision) ---------- */
 document.getElementById('seeResults').addEventListener('click',()=>{
   const name=document.getElementById('fName').value.trim();
   const email=document.getElementById('email').value.trim();
@@ -1369,7 +1423,7 @@ function saveState(){
     const snap = JSON.stringify({ t: Date.now(), step: current, S: {
       answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
       leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
-      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted, health:S.health||null,
+      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted, health:S.health||null, dq:S.dq||null,
       bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
     }, fields });
     try{ sessionStorage.setItem('zx_progress', snap); }catch(e){}
