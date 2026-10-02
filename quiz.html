@@ -1271,10 +1271,12 @@ document.getElementById('submitAll').addEventListener('click', submitAll);
 document.getElementById('confirmClose').addEventListener('click', ()=>document.getElementById('confirmModal').classList.remove('show'));
 
 /* ---------- identity verification (license upload + state-required consent video) ---------- */
-/* PROVISIONAL state list — states whose rules restrict questionnaire-only async prescribing
-   (AK, AZ, AR, AL, MS per state online-prescribing rules; TX per some readings).
-   The medical group (Beluga) provides the authoritative list before launch — edit this const only. */
-const VIDEO_STATES = ['AK','AZ','AR','AL','MS','TX'];
+/* AV states — states where MDI requires an intro video recording from the patient.
+   Source of truth: MDI `GET /v1/partner/metadata/states`, field `is_av_flow` (pulled 2026-10-02,
+   quiz v28). The 5 "sync" states (DE, KS, MO, MS, WV) are a subset; there the clinician decides
+   the modality and initiates any live call themselves — nothing extra for us to collect.
+   Re-pull the endpoint if MDI changes the list — edit this const only. */
+const VIDEO_STATES = ['AK','AR','DE','HI','KS','ME','MO','MS','OR','RI','WV'];
 /* The state that governs the video requirement: the SAVED delivery state, else the live
    delivery-state select (so changing it re-evaluates the requirement before submitting),
    else the state given in the quiz. */
