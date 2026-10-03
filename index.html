@@ -250,46 +250,17 @@ footer .logo{color:#fff;margin-bottom:14px}
   .stat p{max-width:none}
 }
 </style>
-<!-- ═══ ZX-HIDE v3 (2026-08-18) ═══
-     The medical-experts section and the member-stories video carousel are HIDDEN, not removed.
-     All markup, media references, and scripts below remain untouched.
-     TO RESTORE: delete this single <style id="zx-hide-20260818"> block (and this comment). Nothing else was changed.
-     Pre-hide snapshot: project doc claude/zeviarx-index-v2-with-experts-testimonials-2026-08-18.html -->
-<style id="zx-hide-20260818">
-#experts{display:none!important}
-section.testis{display:none!important}
-.nav-links a[href="#experts"]{display:none!important}
-</style>
-<!-- ═══ ZX-HIDE-PRESS v4 (2026-08-18) ═══
-     The "As seen in" placeholder press-logo strip is HIDDEN, not removed. Markup untouched.
-     TO RESTORE: delete this single <style id="zx-hide-press-20260818"> block (and this comment). Independent of the experts/testimonials hide above.
-     Pre-hide snapshot: project doc claude/zeviarx-index-v3-with-press-2026-08-18.html -->
-<style id="zx-hide-press-20260818">
-div.press{display:none!important}
-</style>
-<!-- ═══ ZX-HIDE-BRAND v5 (2026-09-24, updated v7 2026-09-24) ═══
-     The three brand-name medication cards (Wegovy Pill, Wegovy Injection, Zepbound) are HIDDEN, not removed. Markup untouched.
-     v7: the .scroll-hint is VISIBLE again with neutral text "Scroll to compare options →" (original brand-name wording preserved in the v5/v6 snapshots).
-     TO RESTORE brand cards: delete this single <style id="zx-hide-brand-20260924"> block (and this comment) — and change the hint text back to "Scroll for brand-name options →" if the brand cards return.
-     The matching quiz-side hide lives in quiz.html (same id). Pre-hide snapshots: project docs
-     claude/zeviarx-index-v4-with-brand-meds-2026-09-24.html (cards) and claude/zeviarx-index-v5-2026-09-24.html / -v6- (hint + "Free" copy). -->
-<style id="zx-hide-brand-20260924">
-.med-card:has(a[href="quiz.html?med=wpill"]){display:none!important}
-.med-card:has(a[href="quiz.html?med=winj"]){display:none!important}
-.med-card:has(a[href="quiz.html?med=zep"]){display:none!important}
-</style>
-</head>
+<!-- zx-ls1-removed: zx-hide-20260818 style block (restore from claude/zeviarx-index-v11-2026-10-01.html) --><!-- zx-ls1-removed: zx-hide-press style block (restore from claude/zeviarx-index-v11-2026-10-01.html) --><!-- zx-ls1-removed: zx-hide-brand style block (restore from claude/zeviarx-index-v11-2026-10-01.html) --></head>
 <body>
 
 <div class="announce">Limited intro offer — <b>$125 your first month</b> of doctor-prescribed GLP-1s. No insurance needed.</div>
 
 <nav>
   <div class="wrap nav-inner">
-    <a class="logo" href="#">Zevia<em>&nbsp;Rx</em><span class="rx">®</span></a>
+    <a class="logo" href="index.html">Zevia<em>&nbsp;Rx</em><span class="rx">®</span></a>
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#meds">Medications</a>
-      <a href="#experts">Experts</a>
       <a href="#plans">Plans</a>
       <a href="#faq">FAQ</a>
       <a href="payment-plans.html">Payment Plans</a><!-- zx-cherry-20261001 -->
@@ -313,7 +284,7 @@ div.press{display:none!important}
       </div>
       <div class="locks">
         <span>✓ No insurance required</span>
-        <span>✓ No hidden fees</span>
+        <span>✓ Transparent pricing</span>
         <span>✓ Cancel anytime</span>
       </div>
       <div class="hero-ctas">
@@ -340,14 +311,7 @@ div.press{display:none!important}
   </div>
 </div>
 
-<!-- PRESS -->
-<div class="press">
-  <div class="wrap">
-    <small>As seen in — placeholder logos</small>
-    <div class="row"><span>The Daily Ledger</span><span>WellnessWeek</span><span>Metro Health</span><span>The Morning Post</span><span>VitalityMag</span><span>HealthWire</span></div>
-  </div>
-</div>
-
+<!-- zx-ls1-removed: press strip (placeholder logos) (restore from claude/zeviarx-index-v11-2026-10-01.html) -->
 <!-- CALCULATOR -->
 <section>
   <div class="wrap calc">
@@ -370,7 +334,7 @@ div.press{display:none!important}
   <div class="wrap center">
     <p class="eyebrow">Medications</p>
     <h2>Real medication. Honest pricing.</h2>
-    <p class="sub" style="margin-left:auto;margin-right:auto">Every plan includes your provider consultation, prescription (if approved), cold-chain shipping, and ongoing check-ins. One price. Nothing bolted on.</p>
+    <p class="sub" style="margin-left:auto;margin-right:auto">Prices shown are the medication cost, billed monthly at the stated rate until you cancel (multi-month plans are paid up front or financed in monthly installments). A one-time $63.75 cold-chain shipping fee and a $20 provider consultation fee are added at checkout, and every option is itemized before you pay.</p>
     <div class="med-grid">
       <div class="med-card">
         <img class="prod" src="vial-cutout.webp" alt="Zevia Rx prescription GLP-1 injection vial">
@@ -379,9 +343,9 @@ div.press{display:none!important}
         <div class="m-price">$125<small> first month</small></div>
         <div class="after">then $299/mo · price-locked</div>
         <ul>
-          <li>Same active ingredient class as Wegovy®</li>
-          <li>Provider consult &amp; ongoing care included</li>
-          <li>Cold-chain express shipping</li>
+          <li>Active ingredient: compounded semaglutide</li>
+          <li>Ongoing provider check-ins</li>
+          <li>Cold-chain express shipping (one-time fee at checkout)</li>
         </ul>
         <a class="btn" href="quiz.html?med=sema">Get Started</a>
       </div>
@@ -394,9 +358,9 @@ div.press{display:none!important}
         <div class="after">then $349/mo · price-locked</div>
         <ul>
           <li>Dual-agonist (GIP + GLP-1) — the new gold standard</li>
-          <li>Same active ingredient class as Zepbound®</li>
-          <li>Provider consult &amp; ongoing care included</li>
-          <li>Cold-chain express shipping</li>
+          <li>Active ingredient: compounded tirzepatide</li>
+          <li>Ongoing provider check-ins</li>
+          <li>Cold-chain express shipping (one-time fee at checkout)</li>
         </ul>
         <a class="btn" href="quiz.html?med=tirz">Get Started</a>
       </div>
@@ -409,51 +373,14 @@ div.press{display:none!important}
         <ul>
           <li>Needle-free daily option</li>
           <li>No refrigeration required — travel friendly</li>
-          <li>Provider consult &amp; ongoing care included</li>
+          <li>Ongoing provider check-ins</li>
         </ul>
         <a class="btn" href="quiz.html?med=oral">Get Started</a>
       </div>
-      <div class="med-card">
-        <img class="prod" src="brand-bottle-cutout.webp" alt="Brand-name daily GLP-1 tablet bottle">
-        <h3>Wegovy® Pill</h3>
-        <div class="kind">Brand-Name · Daily Tablet</div>
-        <div class="m-price">$99<small>/mo membership</small></div>
-        <div class="after">+ medication cost · one pill per day</div>
-        <ul>
-          <li>FDA-approved brand-name medication</li>
-          <li>Dispensed through licensed US pharmacies</li>
-          <li>Provider consult &amp; ongoing care included</li>
-        </ul>
-        <a class="btn" href="quiz.html?med=wpill">Get Started</a>
-      </div>
-      <div class="med-card">
-        <img class="prod" src="brand-bluepens-cutout.webp" alt="Brand-name weekly GLP-1 injection pens">
-        <h3>Wegovy® Injection</h3>
-        <div class="kind">Brand-Name · Weekly Injection</div>
-        <div class="m-price">$99<small>/mo membership</small></div>
-        <div class="after">+ medication cost · availability subject to change</div>
-        <ul>
-          <li>FDA-approved brand-name medication</li>
-          <li>Dispensed through licensed US pharmacies</li>
-          <li>Provider consult &amp; ongoing care included</li>
-        </ul>
-        <a class="btn" href="quiz.html?med=winj">Get Started</a>
-      </div>
-      <div class="med-card">
-        <img class="prod" src="brand-purplepens-cutout.webp" alt="Brand-name weekly dual-agonist injection pens">
-        <h3>Zepbound® Injection</h3>
-        <div class="kind">Brand-Name · Weekly Injection</div>
-        <div class="m-price">$99<small>/mo membership</small></div>
-        <div class="after">+ medication cost · availability subject to change</div>
-        <ul>
-          <li>FDA-approved brand-name medication</li>
-          <li>Dispensed through licensed US pharmacies</li>
-          <li>Provider consult &amp; ongoing care included</li>
-        </ul>
-        <a class="btn" href="quiz.html?med=zep">Get Started</a>
-      </div>
+      <!-- zx-ls1-removed: three brand-name medication cards (restore from claude/zeviarx-index-v11-2026-10-01.html) -->
     </div>
     <div class="scroll-hint">Scroll to compare options →</div>
+    <!-- zx-ls1-compound-disc --><div style="max-width:880px;margin:22px auto 0;padding:16px 20px;border:1px solid var(--cream-deep);border-radius:12px;background:#fff;font:500 12.5px/1.65 'Inter';color:var(--ink-soft);text-align:left">Compounded medications are prepared by state-licensed 503A compounding pharmacies pursuant to a patient-specific prescription from a licensed healthcare provider. Compounded drugs are not FDA-approved, and the FDA does not evaluate compounded products for safety, effectiveness, or quality. A prescription is never guaranteed; your provider decides whether treatment is appropriate for you.</div><!-- /zx-ls1-compound-disc -->
     <div class="lock-strip"><b>The Zevia Price-Lock:</b> the price you start at is the price you keep — for as long as you're a member.</div>
   </div>
 </section>
@@ -500,41 +427,7 @@ div.press{display:none!important}
 </section>
 
 <!-- EXPERTS -->
-<section class="experts" id="experts">
-  <div class="wrap center">
-    <p class="eyebrow">Our Medical Experts</p>
-    <h2 style="font-size:clamp(34px,4vw,48px)">Care designed by leading physicians.</h2>
-    <p class="sub" style="margin:14px auto 0">Every Zevia Rx protocol is shaped and reviewed by experienced, board-certified clinicians.</p>
-    <div class="e-grid">
-      <div class="e-card">
-        <img class="e-photo" src="expert-1.webp" alt="Portrait of Dr. Ludwig Dagraft">
-        <h3>Dr. Ludwig Dagraft, MD</h3>
-        <div class="e-title">Medical Advisor</div>
-        <div class="e-cred"><b>Board-certified</b> in Cardiothoracic Surgery, Vascular Surgery &amp; Critical Care Medicine</div>
-        <div class="e-cred">Harvard Medical School</div>
-        <div class="e-cred">Cleveland Clinic Foundation Board of Governors</div>
-      </div>
-      <div class="e-card">
-        <img class="e-photo" src="expert-2.webp" alt="Portrait of Dr. Vanessa Ray">
-        <h3>Dr. Vanessa Ray, MD</h3>
-        <div class="e-title">Medical Advisor</div>
-        <div class="e-cred"><b>Double board-certified</b> in Mohs Micrographic Surgery &amp; Nutrition</div>
-        <div class="e-cred">Harvard Medical School</div>
-        <div class="e-cred">Mayo Clinic Board of Trustees</div>
-      </div>
-      <div class="e-card">
-        <img class="e-photo" src="expert-3.webp" alt="Portrait of Dr. Arjun Mehta">
-        <h3>Dr. Arjun Mehta, MD, MBA</h3>
-        <div class="e-title">Medical Advisor</div>
-        <div class="e-cred"><b>Board-certified</b> in Interventional Cardiology, Cardiovascular Disease &amp; Internal Medicine</div>
-        <div class="e-cred">Johns Hopkins University School of Medicine</div>
-        <div class="e-cred">American Heart Association National Board of Directors</div>
-      </div>
-    </div>
-    <p class="placeholder-note">Illustrative profiles for design preview — Zevia Rx's licensed care team will be announced and verified prior to launch.</p>
-  </div>
-</section>
-
+<!-- zx-ls1-removed: experts section (placeholder clinician profiles) (restore from claude/zeviarx-index-v11-2026-10-01.html) -->
 <!-- STEPS -->
 <section class="steps" id="how">
   <div class="wrap center">
@@ -579,40 +472,17 @@ div.press{display:none!important}
 </section>
 
 <!-- TESTIMONIALS (placeholder) -->
-<section class="testis">
-  <div class="wrap center">
-    <p class="eyebrow">Member Stories</p>
-    <h2>Results our members talk about.</h2>
-    <div class="t-fadewrap"><div class="t-carousel"><div class="t-track" id="tTrack">
-      <div class="t-item"><img src="member-1.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 10 lbs in 1 month</span></div>
-      <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-1-poster.jpg"><source src="member-vid-1.mp4" type="video/mp4"><source src="member-vid-1.webm" type="video/webm"></video><span class="result-tag">↓ 4 lbs in 1 week</span><span class="vid-dot"></span></div>
-      <div class="t-item"><img src="member-2.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 10 lbs in 2 weeks</span></div>
-      <div class="t-item"><img src="member-3.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 18 lbs in 3 months</span></div>
-      <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-2-poster.jpg"><source src="member-vid-2.mp4" type="video/mp4"><source src="member-vid-2.webm" type="video/webm"></video><span class="result-tag">↓ 2 lbs in 1 month</span><span class="vid-dot"></span></div>
-      <div class="t-item"><img src="member-4.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 7 lbs in 3 weeks</span></div>
-      <div class="t-item"><img src="member-5.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 25 lbs in 4 months</span></div>
-      <div class="t-item"><video class="tv" muted loop playsinline autoplay poster="member-vid-3-poster.jpg"><source src="member-vid-3.mp4" type="video/mp4"><source src="member-vid-3.webm" type="video/webm"></video><span class="result-tag">↓ 12 lbs in 6 weeks</span><span class="vid-dot"></span></div>
-      <div class="t-item"><img src="member-6.jpg" alt="Zevia Rx member portrait"><span class="result-tag">↓ 15 lbs in 2 months</span></div>
-    </div></div></div>
-    <div class="t-grid">
-      <div class="t-card"><div class="stars">★★★★★</div><p>"The food noise just stopped. I'm three months in and down 19 lbs without feeling like I'm white-knuckling every meal. Whenever I message my provider, I hear back within a day."</p><div class="who">Sarah M.<small>Verified member · Austin, TX</small></div></div>
-      <div class="t-card"><div class="stars">★★★★★</div><p>"I was skeptical of the $125 first month, but there were no surprise fees — my price has stayed exactly what they promised. Shipping was fast and everything arrived cold and sealed."</p><div class="who">Marcus D.<small>Verified member · Atlanta, GA</small></div></div>
-      <div class="t-card"><div class="stars">★★★★★</div><p>"The 2-minute quiz really was 2 minutes. I was reviewed the next morning and my first month arrived that week. The monthly check-ins make it feel like actual care, not just a subscription."</p><div class="who">Elena R.<small>Verified member · Phoenix, AZ</small></div></div>
-    </div>
-    <p class="placeholder-note">Illustrative sample reviews and member media for design preview — replace with real, verified member reviews and consented customer content before launch.</p>
-  </div>
-</section>
-
+<!-- zx-ls1-removed: member-stories testimonials (placeholder) (restore from claude/zeviarx-index-v11-2026-10-01.html) -->
 <!-- FAQ -->
 <section class="faq" id="faq">
   <div class="wrap">
     <div class="center"><p class="eyebrow">Questions</p><h2>Everything you're wondering.</h2></div>
     <div class="faq-list">
       <details open><summary>What exactly is compounded GLP-1 medication?</summary><p>Compounded semaglutide and tirzepatide are prepared by state-licensed US compounding pharmacies using the same active ingredient class as brand-name GLP-1s. Compounded medications are not FDA-approved, but the pharmacies that prepare them are state-regulated. Your provider will determine whether a compounded option is appropriate for you.</p></details>
-      <details><summary>Do I need insurance?</summary><p>No. Zevia Rx is priced for cash pay — $125 for your first month, then a price-locked $299/mo. No insurance paperwork, no prior authorizations, no surprise bills.</p></details>
+      <details><summary>Do I need insurance?</summary><p>No. Zevia Rx is priced for cash pay — $125 for your first month, then a price-locked $299/mo. A one-time $63.75 shipping fee and a $20 provider consultation fee are added at checkout. No insurance paperwork, no prior authorizations, no surprise bills.</p></details>
       <details><summary>How fast will I get my medication?</summary><p>Most members complete the quiz in about 2 minutes. If a licensed provider approves your prescription, your first shipment typically arrives within days in cold-chain packaging.</p></details>
       <details><summary>What if I'm declined for a payment plan?</summary><p>No problem — you can always start month-to-month with a standard credit or debit card at $125 for your first month. You'll see every option at checkout.</p></details>
-      <details><summary>Can I cancel?</summary><p>Yes. Month-to-month plans can be paused or cancelled anytime from your member portal. Multi-month programs run for their committed term, which is how we keep the pricing low.</p></details>
+      <details><summary>Can I cancel?</summary><p>Yes. Month-to-month plans can be paused or cancelled anytime before your renewal date by emailing support@zeviarx.com. Multi-month programs run for their committed term, which is how we keep the pricing low.</p></details>
       <details><summary>Is this safe?</summary><p>GLP-1 medications are prescription-only for a reason. That's why every Zevia Rx plan starts with a health intake reviewed by a licensed clinician in your state, who determines eligibility and appropriate dosing, with ongoing check-ins included.</p></details>
     </div>
   </div>
@@ -637,15 +507,17 @@ div.press{display:none!important}
       </div>
       <div><h5>Program</h5><a href="#how">How it works</a><a href="#meds">Medications</a><a href="#plans">Plans &amp; pricing</a><a href="#faq">FAQ</a><a href="payment-plans.html">Payment Plans</a><!-- zx-cherry-20261001 --></div>
       <div><h5>Company</h5><a href="about.html">About</a><a href="mailto:support@zeviarx.com">Contact</a><a href="mailto:support@zeviarx.com">Support</a></div>
-      <div><h5>Legal</h5><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a href="telehealth-consent.html">Telehealth Consent</a><a href="refunds.html">Refund &amp; Cancellation Policy</a><a href="ca-notice.html">CA Notice</a></div>
+      <div><h5>Legal</h5><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a href="notice-of-privacy-practices.html">Notice of Privacy Practices</a><a href="telehealth-consent.html">Telehealth Consent</a><a href="refunds.html">Refund &amp; Cancellation Policy</a><a href="ca-notice.html">CA Notice</a></div>
     </div>
     <div class="legal">
-      <p><b>Important safety &amp; regulatory information:</b> Zevia Rx is a telehealth platform that connects patients with independent, licensed healthcare providers. A prescription is never guaranteed — all medication decisions are made solely by a licensed provider based on your individual health profile. Compounded semaglutide and compounded tirzepatide are prepared by state-licensed compounding pharmacies and are <b>not approved by the FDA</b>; the FDA does not review compounded drugs for safety, effectiveness, or quality. Wegovy® and Zepbound® are registered trademarks of their respective owners, which are not affiliated with Zevia Rx. Weight loss results vary; published clinical results refer to FDA-approved versions of these medications studied alongside diet and exercise. GLP-1 medications carry risks, including a boxed warning regarding thyroid C-cell tumors; do not use if you or your family have a history of medullary thyroid carcinoma or MEN 2. Speak with your provider about all risks and side effects. Financing options subject to eligibility and provided by third-party partners (Klarna, Affirm, Afterpay, Cherry); 0% APR offers are subject to credit approval.</p>
+      <p><b>Important safety &amp; regulatory information:</b> Zevia Rx is a telehealth platform that connects patients with independent, licensed healthcare providers. A prescription is never guaranteed — all medication decisions are made solely by a licensed provider based on your individual health profile. Compounded semaglutide and compounded tirzepatide are prepared by state-licensed compounding pharmacies and are <b>not approved by the FDA</b>; the FDA does not review compounded drugs for safety, effectiveness, or quality. Weight loss results vary; published clinical results refer to the FDA-approved versions of these active ingredients studied alongside diet and exercise. GLP-1 medications carry risks, including a boxed warning regarding thyroid C-cell tumors; do not use if you or your family have a history of medullary thyroid carcinoma or MEN 2. Speak with your provider about all risks and side effects. Financing options subject to eligibility and provided by third-party partners (Klarna, Affirm, Afterpay, Cherry); 0% APR offers are subject to credit approval.</p>
       <p style="margin-top:14px">Support &amp; adverse-event reporting: <a href="mailto:support@zeviarx.com" style="display:inline;padding:0;color:#C9D6D3">support@zeviarx.com</a> · If a licensed provider does not prescribe treatment, your medication cost and shipping fee are refunded; the provider consultation fee is non-refundable — see our <a href="refunds.html" style="display:inline;padding:0;color:#C9D6D3">Refund &amp; Cancellation Policy</a>.</p>
-      <!-- zx-partners-20260926: named care/fulfillment partners (user directive 2026-09-26). REVERSAL: delete from this comment through the closing marker. -->
-      <p style="margin-top:14px"><b style="color:#C9D6D3">Care &amp; fulfillment partners:</b> medical consultations are conducted by independent, licensed providers through <b style="color:#C9D6D3">MD Integrations (MDI)</b>. Prescriptions, when issued, are filled and shipped by <b style="color:#C9D6D3">Hallandale Pharmacy</b>, a state-licensed US pharmacy.</p>
-      <!-- /zx-partners-20260926 -->
-      <p style="margin-top:14px">© 2026 Zevia Rx, Inc. · 30 N Gould St, Ste R, Sheridan, WY 82801 · All rights reserved. · This site is a pre-launch design build; statistics, press mentions, testimonials, and medical expert profiles shown are illustrative placeholders pending verification of the final licensed care team.</p>
+      <!-- zx-ls1-disclosures (LegitScript build 2026-10-03; supersedes zx-partners-20260926). REVERSAL: restore claude/zeviarx-index-v11-2026-10-01.html -->
+      <p style="margin-top:14px"><b style="color:#C9D6D3">Clinical partner:</b> Medical consultations, asynchronous clinical evaluations, and prescribing services are facilitated through <b style="color:#C9D6D3">MD Integrations (MDI)</b> and performed by independent, licensed healthcare providers licensed in the patient's state of residence.</p>
+      <p style="margin-top:10px"><b style="color:#C9D6D3">Dispensing pharmacy:</b> Prescriptions are filled and dispensed by <b style="color:#C9D6D3">Hallandale Pharmacy</b>, a state-licensed 503A compounding pharmacy located at 2666 SW 36th St, Fort Lauderdale, FL 33312.</p>
+      <p style="margin-top:10px"><b style="color:#C9D6D3">Emergencies &amp; adverse events:</b> Zevia Rx does not provide emergency medical services. If you are experiencing a medical emergency, call 911 or visit the nearest emergency room immediately. To report an adverse drug event or medication issue, contact our clinical care team at <a href="mailto:support@zeviarx.com" style="display:inline;padding:0;color:#C9D6D3">support@zeviarx.com</a> or report directly to the <a href="https://www.fda.gov/safety/medwatch-fda-safety-information-and-adverse-event-reporting-program" target="_blank" rel="noopener" style="display:inline;padding:0;color:#C9D6D3;text-decoration:underline">FDA MedWatch program</a>.</p>
+      <!-- /zx-ls1-disclosures -->
+      <p style="margin-top:14px">© 2026 Zevia Rx, Inc. · 30 N Gould St, Ste R, Sheridan, WY 82801 · <a href="mailto:support@zeviarx.com" style="display:inline;padding:0;color:#C9D6D3">support@zeviarx.com</a> · All rights reserved.</p>
     </div>
   </div>
 </footer>

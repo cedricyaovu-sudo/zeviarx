@@ -146,20 +146,11 @@ svg.ic{display:inline-block;vertical-align:-2px}
 .demo-bar button.on{background:var(--teal);color:#fff}
 
 .btn.locked{opacity:.45;pointer-events:none}
-.disclaim{max-width:660px;margin:0 auto;padding:0 20px 34px;font-size:11px;color:#A39E93;text-align:center}
+.disclaim{max-width:660px;margin:0 auto;padding:0 20px 18px;font-size:11px;color:#A39E93;text-align:center}
+.zx-ls1-disc{max-width:660px;margin:0 auto;padding:0 20px 34px;font-size:11px;color:#A39E93;text-align:center}.zx-ls1-disc p{margin:0 0 8px}.zx-ls1-disc a{color:#8C8578}.zx-ls1-disc b{color:#8C8578}
 @media(max-width:640px){.opts.two,.bnpl-btns,.row3{grid-template-columns:1fr}.row2{grid-template-columns:1fr 1fr}}
 </style>
-<!-- ═══ ZX-HIDE-BRAND v11 (2026-09-24) ═══
-     The three brand-name medication options (Wegovy Pill, Wegovy Injection, Zepbound) are HIDDEN from the med chooser, not removed.
-     The tiny guard script below also ignores brand preselection arriving via ?med= URLs or the zx_med relay, so old links can't reach hidden meds.
-     MEDS pricing, brand checkout logic, and all markup remain untouched and functional.
-     TO RESTORE: delete this style block AND the script block with id "zx-hide-brand-guard-20260924" (and these comments). The matching landing-page hide lives in index.html (same id).
-     Pre-hide snapshot: project doc claude/zeviarx-quiz-v10-with-brand-meds-2026-09-24.html -->
-<style id="zx-hide-brand-20260924">
-#medGrid .med-opt[data-med="wpill"]{display:none!important}
-#medGrid .med-opt[data-med="winj"]{display:none!important}
-#medGrid .med-opt[data-med="zep"]{display:none!important}
-</style>
+<!-- zx-ls1-removed: zx-hide-brand comment+style (brand buttons removed from the DOM in v29; the guard script below still ignores brand ?med= links) -->
 <script id="zx-hide-brand-guard-20260924">
 try{
   const bm=['wpill','winj','zep'];
@@ -231,7 +222,7 @@ try{
   <!-- Q5 current meds -->
   <section class="screen" data-step="current">
     <h1>Are you currently taking a GLP-1 medication?</h1>
-    <p class="hint">Like Ozempic®, Wegovy®, Mounjaro®, or Zepbound®.</p>
+    <p class="hint">For example semaglutide or tirzepatide, whether brand-name or compounded.</p>
     <div class="opts">
       <button class="opt" data-value="no">No, I'm new to GLP-1s</button>
       <button class="opt" data-value="yes">Yes — I'd like to switch or continue</button>
@@ -265,7 +256,15 @@ try{
     </div>
   </section>
 
-  <!-- Q9 state -->
+  <!-- Q9 medications (v29 / LS1) -->
+  <section class="screen" data-step="meds">
+    <h1>Do you currently take any prescription medications?</h1>
+    <p class="hint">List each one with its dose so your provider can check for interactions. If you don't take any, just continue.</p>
+    <div class="field"><label>Current prescription medications (if any)</label><textarea id="qMeds" rows="3" placeholder="e.g., lisinopril 10mg daily, levothyroxine 50mcg"></textarea></div>
+    <div class="btn-row"><button class="btn" id="medsNext">Continue →</button></div>
+  </section>
+
+  <!-- Q10 state -->
   <section class="screen" data-step="state">
     <h1>Which state do you live in?</h1>
     <p class="hint">We verify that our pharmacy network ships to your area.</p>
@@ -287,6 +286,16 @@ try{
     </div>
     <div class="btn-row"><button class="btn gold wide" id="seeResults">See My Results →</button></div>
     <p style="font:500 11px 'Inter';color:#A39E93;margin-top:14px">By clicking "See My Results" you agree to our <a href="terms.html" target="_blank" style="color:#8C8578">Terms</a>, <a href="privacy.html" target="_blank" style="color:#8C8578">Privacy Policy</a>, and <a href="telehealth-consent.html" target="_blank" style="color:#8C8578">Telehealth Consent</a>, and to receive program emails/texts (you can opt out anytime).</p>
+  </section>
+
+  <!-- SERVICE AREA (v29) — shown only if a state is ever removed from SERVICE_STATES -->
+  <section class="screen" data-step="unavailable">
+    <div style="max-width:560px;margin:0 auto;text-align:center;padding:24px 0">
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-soft);display:grid;place-items:center;margin:0 auto 22px;font:600 26px 'Inter';color:var(--teal)">&#8212;</div>
+      <h1 style="margin-bottom:14px">We're not able to offer care in your state yet.</h1>
+      <p class="hint" style="margin-bottom:22px">A licensed provider must be available in your state of residence before we can accept you as a patient, and we don't have one there today. We haven't taken any payment or created an account. If you believe this is an error, contact <a href="mailto:support@zeviarx.com" style="color:var(--teal)">support@zeviarx.com</a>.</p>
+      <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html">Return to Home</a></div>
+    </div>
   </section>
 
   <!-- UNDER-18 SOFT BLOCK (age gate — reached from the contact step when DOB < 18) -->
@@ -319,7 +328,7 @@ try{
       <div class="serif">You're likely eligible.</div>
       <div class="lossnum" id="rLoss"><span class="minus">–</span>44 lbs</div>
       <p>estimated potential weight loss with a GLP-1 program<br>based on your BMI of <b id="rBmi" style="color:#fff">32.5</b></p>
-      <div class="badges"><span>✓ Provider review included</span><span>✓ Ships to <span id="rState">your state</span></span><span>✓ Cancel anytime monthly</span></div>
+      <div class="badges"><span>✓ Licensed provider review</span><span>✓ Ships to <span id="rState">your state</span></span><span>✓ Cancel anytime monthly</span></div>
     </div>
     <div id="medChooser">
       <h1 style="font-size:28px">Choose your medication.</h1>
@@ -328,10 +337,8 @@ try{
         <button class="opt med-opt" data-med="sema"><img src="vial-cutout.webp" alt="Semaglutide vial"><div>Semaglutide<small>Compounded · Weekly Injection · $125 first month, then $299/mo</small></div></button>
         <button class="opt med-opt" data-med="tirz"><img src="vial-cutout.webp" alt="Tirzepatide vial"><div>Tirzepatide<small>Compounded · Weekly Injection · $166 first month, then $349/mo</small></div></button>
         <button class="opt med-opt" data-med="oral"><img src="tablets-cutout.webp" alt="Oral dissolving tablets bottle"><div>Oral Tablets<small>Compounded · Daily Sublingual · $99 first month, then $249/mo</small></div></button>
-        <button class="opt med-opt" data-med="wpill"><img src="brand-bottle-cutout.webp" alt="Wegovy daily tablet bottle"><div>Wegovy® Pill<small>Brand-Name · Daily Tablet · $99/mo membership + $1,638.99/mo medication</small></div></button>
-        <button class="opt med-opt" data-med="winj"><img src="brand-bluepens-cutout.webp" alt="Wegovy injection pens"><div>Wegovy® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,349/mo medication</small></div></button>
-        <button class="opt med-opt" data-med="zep"><img src="brand-purplepens-cutout.webp" alt="Zepbound injection pens"><div>Zepbound® Injection<small>Brand-Name · Weekly Injection · $99/mo membership + $1,086/mo medication</small></div></button>
       </div>
+      <!-- zx-ls1-compound-disc --><div style="margin:18px auto 0;padding:14px 16px;border:1px solid var(--cream-deep);border-radius:12px;background:#fff;font:500 12px/1.6 'Inter';color:var(--ink-soft);text-align:left">Compounded medications are prepared by state-licensed 503A compounding pharmacies pursuant to a patient-specific prescription from a licensed healthcare provider. Compounded drugs are not FDA-approved, and the FDA does not evaluate compounded products for safety, effectiveness, or quality.</div><!-- /zx-ls1-compound-disc -->
     </div>
     <div class="chosen-med" id="medChosen" style="display:none">
       <img id="chosenImg" src="vial-cutout.webp" alt="">
@@ -340,7 +347,7 @@ try{
     </div>
     <div id="planSection" style="display:none;margin-top:34px">
       <h1 style="font-size:28px">Choose your plan.</h1>
-      <p class="hint">Commit longer, pay less per month. Every plan includes provider care, your prescription if approved, and cold-chain shipping.</p>
+      <p class="hint">Commit longer, pay less per month. Prices shown are the medication cost; a one-time $63.75 cold-chain shipping fee and a $20 provider consultation fee are added at checkout and itemized before you pay.</p>
       <div class="plan-grid">
         <button class="plan-opt" data-plan="3mo">
           <div><div class="name">3-Month Kickstart</div><div class="meta"><span class="pFirst">$125</span> for your first month</div></div>
@@ -369,6 +376,27 @@ try{
       </div>
     </div>
     <div class="btn-row"><button class="btn wide" id="toCheckout" disabled>Continue to Secure Checkout →</button></div>
+  </section>
+
+  <!-- IDENTITY (v29 / LS1) — required before any payment is taken -->
+  <section class="screen" data-step="identity">
+    <h1>Verify your identity.</h1>
+    <p class="hint">A licensed provider must confirm who they are treating before any prescription can be considered. Your ID is encrypted and seen only by your provider.</p>
+    <div class="pay-summary" style="max-width:440px;margin:0 auto 20px;text-align:left">
+      <div class="row2">
+        <div class="field" id="idTypeField"><label>ID type</label><select id="idType"><option value="">Select…</option><option value="drivers_license">Driver's license</option><option value="state_id">State ID card</option><option value="passport">US passport</option></select><div class="err">Please select your ID type.</div></div>
+        <div class="field" id="idStateField"><label>Issuing state</label><select id="idState"><option value="">Select…</option></select><div class="err">Please select the issuing state.</div></div>
+      </div>
+      <div class="field" id="idNumField"><label>ID number</label><input id="idNum" type="text" inputmode="text" autocomplete="off" maxlength="24" placeholder="As printed on your ID"><div class="err">Please enter the ID number exactly as printed.</div></div>
+      <div class="field">
+        <label>Photo of the front of your ID</label>
+        <input id="idFile" type="file" accept="image/*,.pdf,.heic,.heif">
+        <div id="idStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
+      </div>
+      <div id="identityError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-top:4px"></div>
+    </div>
+    <div class="btn-row"><button class="btn wide" id="identityNext">Continue to Secure Checkout →</button></div>
+    <p class="hint" style="font-size:12px;margin-top:12px;text-align:center">We store only the ID type, issuing state and last four characters of the number alongside the photo your provider reviews.</p>
   </section>
 
   <!-- CHECKOUT -->
@@ -478,13 +506,9 @@ try{
       <div id="healthError" style="display:none;font:600 13px 'Inter';color:var(--red)"></div>
     </div>
     <div class="pay-summary" id="verifyBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
-      <h3 style="font:700 16px 'Inter';margin-bottom:4px">Identity verification</h3>
+      <h3 style="font:700 16px 'Inter';margin-bottom:4px">Verification</h3>
       <p class="hint" style="margin-bottom:14px">Required before a licensed provider can review your intake.</p>
-      <div class="field">
-        <label>Driver's license or government photo ID</label>
-        <input id="idFile" type="file" accept="image/*,.pdf,.heic,.heif">
-        <div id="idStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
-      </div>
+      <p style="font:700 14px 'Inter';color:var(--teal);margin-bottom:12px">✓ Photo ID received before checkout</p>
       <div id="videoReq" style="display:none;margin-top:6px">
         <div class="field">
           <label>Verification video — required in your state</label>
@@ -524,7 +548,10 @@ try{
   </div>
 </div>
 
-<p class="disclaim">Zevia Rx connects patients with independent licensed providers; a prescription is never guaranteed and all medical decisions are made solely by your provider. If a provider does not prescribe treatment, your medication cost and shipping fee are refunded (the provider consultation fee is non-refundable) — see our <a href="refunds.html" target="_blank" style="color:inherit">Refund &amp; Cancellation Policy</a>. Compounded medications are not FDA-approved. Estimated weight loss is based on published clinical results for FDA-approved GLP-1 medications and varies by individual. Financing subject to eligibility via third-party partners. Support: <a href="mailto:support@zeviarx.com" style="color:inherit">support@zeviarx.com</a></p>
+<p class="disclaim">Zevia Rx connects patients with independent licensed providers; a prescription is never guaranteed and all medical decisions are made solely by your provider. If a provider does not prescribe treatment, your medication cost and shipping fee are refunded (the provider consultation fee is non-refundable) — see our <a href="refunds.html" target="_blank" style="color:inherit">Refund &amp; Cancellation Policy</a>. Compounded medications are not FDA-approved. Estimated weight loss is based on published clinical results for FDA-approved GLP-1 medications and varies by individual. Financing subject to eligibility via third-party partners. Support: <a href="mailto:support@zeviarx.com" style="color:inherit">support@zeviarx.com</a> · <a href="terms.html" target="_blank" style="color:inherit">Terms</a> · <a href="privacy.html" target="_blank" style="color:inherit">Privacy Policy</a> · <a href="notice-of-privacy-practices.html" target="_blank" style="color:inherit">Notice of Privacy Practices</a> · <a href="telehealth-consent.html" target="_blank" style="color:inherit">Telehealth Consent</a></p>
+<!-- zx-ls1-disclosures (LegitScript build 2026-10-03). REVERSAL: restore claude/zeviarx-quiz-v28-2026-10-02.html -->
+<div class="zx-ls1-disc"><p><b>Clinical partner:</b> Medical consultations, asynchronous clinical evaluations, and prescribing services are facilitated through MD Integrations (MDI) and performed by independent, licensed healthcare providers licensed in the patient&rsquo;s state of residence.</p><p><b>Dispensing pharmacy:</b> Prescriptions are filled and dispensed by Hallandale Pharmacy, a state-licensed 503A compounding pharmacy located at 2666 SW 36th St, Fort Lauderdale, FL 33312.</p><p><b>Emergencies &amp; adverse events:</b> Zevia Rx does not provide emergency medical services. If you are experiencing a medical emergency, call 911 or visit the nearest emergency room immediately. To report an adverse drug event or medication issue, contact our clinical care team at <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> or report directly to the <a href="https://www.fda.gov/safety/medwatch-fda-safety-information-and-adverse-event-reporting-program" target="_blank" rel="noopener">FDA MedWatch program</a>.</p><p><b>Zevia Rx, Inc.</b> &middot; 30 N Gould St, Ste R, Sheridan, WY 82801 &middot; <a href="mailto:support@zeviarx.com">support@zeviarx.com</a></p></div>
+<!-- /zx-ls1-disclosures -->
 
 <script>
 /* ---------- state ---------- */
@@ -550,10 +577,8 @@ const MEDS = {
   oral:{label:'Oral Tablets', kind:'Compounded · Daily Sublingual', first:99, plans:{
     '3mo':{name:'3-Month Kickstart',months:3,rate:249,price:597,asLow:'$49.75/mo'},
     '6mo':{name:'6-Month Reset',months:6,rate:199,price:1094,asLow:'$45.58/mo'},
-    '12mo':{name:'12-Month Transformation',months:12,rate:149,price:1738,asLow:'$36.21/mo'}}},
-  wpill:{label:'Wegovy® Pill', kind:'Brand-Name · Daily Tablet', brand:true, member:99, med:1638.99},
-  winj:{label:'Wegovy® Injection', kind:'Brand-Name · Weekly Injection', brand:true, member:99, med:1349},
-  zep:{label:'Zepbound® Injection', kind:'Brand-Name · Weekly Injection', brand:true, member:99, med:1086}
+    '12mo':{name:'12-Month Transformation',months:12,rate:149,price:1738,asLow:'$36.21/mo'}}}
+  /* zx-ls1: brand-name entries (wpill/winj/zep) removed in v29 — restore from claude/zeviarx-quiz-v28-2026-10-02.html */
 };
 const fmt = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:(n%1?2:0),maximumFractionDigits:2});
 /* Checkout-only fees (charged once at checkout on top of the plan; renewals unaffected).
@@ -628,8 +653,8 @@ async function payWithStripe(){
   }
 }
 
-const FLOW = ['goal','body','diabetes','thyroid','current','previous','pregnancy','organs','state','contact','results','checkout','success'];
-const QCOUNT = 10;
+const FLOW = ['goal','body','diabetes','thyroid','current','previous','pregnancy','organs','meds','state','contact','results','identity','checkout','success'];
+const QCOUNT = 11;
 let history = [];
 let current = 'goal';
 
@@ -642,22 +667,33 @@ function show(step){
   const bar = document.getElementById('bar');
   if(step==='underage'){ label.textContent='Eligibility'; bar.style.width='100%'; }
   else if(step==='ineligible'){ label.textContent='Eligibility'; bar.style.width='100%'; renderIneligible(); }
+  else if(step==='unavailable'){ label.textContent='Service area'; bar.style.width='100%'; }
+  else if(step==='identity'){ label.textContent='Identity Verification'; bar.style.width='100%'; }
   else if(qi >= 0 && qi < QCOUNT){ label.textContent = `Question ${qi+1} of ${QCOUNT}`; bar.style.width = ((qi)/QCOUNT*100)+'%'; }
   else if(step==='results'){ label.textContent='Your Results'; bar.style.width='100%'; }
   else if(step==='checkout'){ label.textContent='Secure Checkout'; bar.style.width='100%'; }
   else if(step==='success'){ label.textContent='Order Confirmed'; bar.style.width='100%'; }
   window.scrollTo({top:0});
   current = step;
+  { const qi2 = FLOW.indexOf(step); if(qi2 > (S.reached||0)) S.reached = qi2; }
   saveState();
 }
 function next(step){ history.push(current); show(step); if(('#'+step) !== location.hash) location.hash = step; }
 /* Browser back/forward navigates between quiz screens instead of leaving the page.
    Hash changes create native history entries — reliable on every engine, including iOS Safari.
    Going back past the first screen exits to the referring page as normal. */
+/* v29: the hash router only honors steps the customer has actually reached (S.reached = the
+   furthest FLOW index shown). Typing #checkout or #results into the URL can't skip the medical
+   questionnaire, the contact step or identity verification; back/forward still work. */
+const OFF_FLOW = ['underage','ineligible','unavailable'];
 window.addEventListener('hashchange', () => {
   const step = location.hash.replace('#','') || 'goal';
   const scr = document.querySelector(`[data-step="${step}"]`);
-  if(scr && step !== current) show(step);
+  if(!scr || step === current) return;
+  const idx = FLOW.indexOf(step);
+  const allowed = OFF_FLOW.includes(step) ? (S.dq || step==='underage' || step==='unavailable') : (idx >= 0 && idx <= (S.reached||0));
+  if(!allowed){ try{ window.history.replaceState(null,'', location.pathname + location.search + (FLOW.indexOf(current)>0 ? '#'+current : '')); }catch(e){} return; }
+  show(step);
 });
 
 /* ---------- option buttons (auto-advance) ---------- */
@@ -732,12 +768,22 @@ document.getElementById('bodyNext').addEventListener('click',()=>{
 
 /* ---------- state select (always-enabled Continue; validates on click) ---------- */
 const STATES="AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" ");
+const SERVICE_STATES = STATES.slice(); // states where a licensed provider is available via MDI (all, as of 2026-10-03)
 const sSel=document.getElementById('stateSel');
 STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;sSel.appendChild(o);});
 sSel.addEventListener('change',()=>document.getElementById('stField').classList.remove('error'));
+document.getElementById('medsNext').addEventListener('click',()=>{
+  S.answers.medications = document.getElementById('qMeds').value.trim().slice(0,2000);
+  next('state');
+});
 document.getElementById('stateNext').addEventListener('click',()=>{
   if(!sSel.value){ document.getElementById('stField').classList.add('error'); return; }
-  S.answers.state=sSel.value; next('contact');
+  S.answers.state=sSel.value;
+  /* v29: service-area check before any payment. MDI's provider network is licensed in all 50
+     states (+DC), so every option passes today; the filter exists so a state can be switched
+     off here without touching the flow. */
+  if(!SERVICE_STATES.includes(sSel.value)){ next('unavailable'); return; }
+  next('contact');
 });
 
 /* ---------- date of birth (age gate) ---------- */
@@ -794,7 +840,7 @@ document.getElementById('seeResults').addEventListener('click',()=>{
 });
 
 /* ---------- medication selection ---------- */
-const MED_IMGS = {sema:'vial-cutout.webp', tirz:'vial-cutout.webp', oral:'tablets-cutout.webp', wpill:'brand-bottle-cutout.webp', winj:'brand-bluepens-cutout.webp', zep:'brand-purplepens-cutout.webp'};
+const MED_IMGS = {sema:'vial-cutout.webp', tirz:'vial-cutout.webp', oral:'tablets-cutout.webp'};
 function applyMed(key){
   S.med = key;
   const m = MEDS[key];
@@ -865,7 +911,33 @@ document.querySelectorAll('.plan-opt[data-plan]').forEach(btn=>{
     document.getElementById('toCheckout').disabled=false;
   });
 });
-document.getElementById('toCheckout').addEventListener('click',()=>{ S.payMode='bnpl'; setupCheckout(false); next('checkout'); });
+document.getElementById('toCheckout').addEventListener('click',()=>{ next('identity'); });
+/* ---------- identity step (v29) ---------- */
+const idStateSel = document.getElementById('idState');
+STATES.forEach(st=>{ const o=document.createElement('option'); o.value=st; o.textContent=st; idStateSel.appendChild(o); });
+['idType','idState','idNum'].forEach(id=>document.getElementById(id).addEventListener('input',()=>document.getElementById(id+'Field').classList.remove('error')));
+document.getElementById('identityNext').addEventListener('click', async ()=>{
+  const err=document.getElementById('identityError'); err.style.display='none';
+  const type=document.getElementById('idType').value, st=idStateSel.value, num=document.getElementById('idNum').value.trim();
+  let bad=false;
+  if(!type){ document.getElementById('idTypeField').classList.add('error'); bad=true; }
+  if(!st){ document.getElementById('idStateField').classList.add('error'); bad=true; }
+  if(num.replace(/[^A-Za-z0-9]/g,'').length<4){ document.getElementById('idNumField').classList.add('error'); bad=true; }
+  if(bad) return;
+  if(!S.idDone){ err.textContent='Please upload a photo of your ID to continue.'; err.style.display='block'; return; }
+  const identity = { type, state: st, last4: num.replace(/[^A-Za-z0-9]/g,'').slice(-4) };
+  const btn=document.getElementById('identityNext'); btn.disabled=true; const orig=btn.textContent; btn.textContent='Saving…';
+  try{
+    if(S.leadId){
+      const r = await fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ leadId:S.leadId, identity }) });
+      const d = await r.json(); if(!(r.ok && d && d.ok)) throw new Error('save');
+    }
+    S.identity = identity; saveState();
+    S.payMode='bnpl'; setupCheckout(false); next('checkout');
+  }catch(e){
+    err.textContent="We couldn't save your verification details — please check your connection and try again."; err.style.display='block';
+  } finally { btn.disabled=false; btn.textContent=orig; }
+});
 
 function setupCheckout(pivoted){
   const m = MEDS[S.med];
@@ -1129,6 +1201,7 @@ function finish(planLabel, payLabel){
   console.log('CONVERSION', {med:S.med, plan:S.plan, payMode:S.payMode, pay:payLabel, tracking:S.tracking});
   setupVerification();
   prefillShipping();
+  { const hm=document.getElementById('hMeds'); if(hm && !hm.value && S.answers.medications) hm.value = S.answers.medications; }
   refreshVideoReq();
   autoSaveShipping();
   next('success');
@@ -1302,10 +1375,9 @@ function refreshVideoReq(){
 }
 document.getElementById('shState').addEventListener('change', refreshVideoReq);
 function setupVerification(preserve){
-  if(!preserve){ S.idDone = false; S.videoDone = false; S.shipDone = false; S.submitted = false; }
+  if(!preserve){ S.videoDone = false; S.shipDone = false; S.submitted = false; } // idDone persists — ID is collected on the identity step before checkout (v29)
   const g = id => document.getElementById(id);
-  g('idFile').value = ''; g('videoFile').value = '';
-  if(preserve && S.idDone){ g('idStatus').style.color='var(--teal)'; g('idStatus').textContent='✓ ID uploaded'; } else { g('idStatus').textContent=''; }
+  g('videoFile').value = '';
   if(preserve && S.videoDone){ g('videoStatus').style.color='var(--teal)'; g('videoStatus').textContent='✓ Video uploaded'; } else { g('videoStatus').textContent=''; }
   g('submitError').style.display = 'none';
   const sb = g('submitAll');
@@ -1423,7 +1495,7 @@ function saveState(){
     const snap = JSON.stringify({ t: Date.now(), step: current, S: {
       answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
       leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
-      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted, health:S.health||null, dq:S.dq||null,
+      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted, health:S.health||null, dq:S.dq||null, reached:S.reached||0, identity:S.identity||null,
       bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
     }, fields });
     try{ sessionStorage.setItem('zx_progress', snap); }catch(e){}
@@ -1447,6 +1519,11 @@ function renderResults(){
     if(pb) pb.click();
   }
 }
+function renderIdentityRestore(){
+  const st=document.getElementById('idStatus');
+  if(S.idDone){ st.style.color='var(--teal)'; st.textContent='✓ ID uploaded'; }
+  if(S.identity){ document.getElementById('idType').value=S.identity.type||''; document.getElementById('idState').value=S.identity.state||''; }
+}
 function renderSuccessRestore(){
   document.getElementById('sName').textContent = S.answers.name||'friend';
   document.getElementById('sEmail').textContent = S.answers.email||'your email';
@@ -1465,7 +1542,8 @@ function restoreProgress(p){
     for(const id in fields){ const el=document.getElementById(id); if(el && typeof fields[id]==='string') el.value=fields[id]; }
     const step = (p.step && document.querySelector('[data-step="'+p.step+'"]')) ? p.step : 'goal';
     if(step==='results'){ renderResults(); }
-    else if(step==='checkout'){ renderResults(); setupCheckout(false); }
+    else if(step==='identity'){ renderResults(); renderIdentityRestore(); }
+    else if(step==='checkout'){ renderResults(); renderIdentityRestore(); setupCheckout(false); }
     else if(step==='success'){ renderSuccessRestore(); }
     /* re-apply typed values after render prefills so the customer's own entries win */
     for(const id in fields){ const el=document.getElementById(id); if(el && typeof fields[id]==='string') el.value=fields[id]; }
@@ -1512,31 +1590,6 @@ if (bootSecret && STRIPE_PK){
 }
 </script>
 
-<!-- ═══ ZX-TEST-SIM (2026-09-24) ═══
-     TEMPORARY TESTING CONTROL: simulates a successful checkout (no Stripe call, no charge, no database order).
-     REMOVE THIS ENTIRE BLOCK (button + script, down to the closing marker) BEFORE LAUNCH. -->
-<button id="zxSimBtn" type="button" style="position:fixed;bottom:14px;left:14px;z-index:99;background:#fff;border:1.5px dashed #C8A96A;border-radius:12px;padding:10px 14px;font:600 11px 'Inter',sans-serif;color:#55524B;cursor:pointer;box-shadow:0 8px 20px rgba(28,27,24,.12)">TEST · Simulate successful checkout</button>
-<script id="zxSimScript">
-document.getElementById('zxSimBtn').addEventListener('click', async () => {
-  if(!S.med || !MEDS[S.med]) S.med='sema';
-  const m = MEDS[S.med];
-  if(!m.brand && !m.plans[S.plan]) S.plan='6mo';
-  if(!S.answers.name) S.answers.name='Test User';
-  if(!S.answers.email) S.answers.email='test@zeviarx.com';
-  if(!S.answers.state) S.answers.state='FL';
-  S.lastPI = null;
-  /* anchor the simulated order to a real lead row so address/ID/video saves work during testing */
-  if(!S.leadId){
-    try{
-      const r = await fetch(BACKEND + '/lead', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ name:S.answers.name, email:S.answers.email, state:S.answers.state, med:S.med, answers:S.answers, tracking:{sim:true} }) });
-      const d = await r.json(); if(d && d.id) S.leadId = d.id;
-    }catch(e){}
-  }
-  const label = m.brand ? `${m.label} — Monthly` : `${m.plans[S.plan].name} — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${m.plans[S.plan].rate}/mo`;
-  finish(label, 'SIMULATED payment — test only, no charge');
-});
-</script>
-<!-- ═══ end ZX-TEST-SIM ═══ -->
+<!-- zx-ls1-removed: ZX-TEST-SIM test control (launch item) -->
 </body>
 </html>
