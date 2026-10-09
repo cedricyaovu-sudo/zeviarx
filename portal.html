@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patient Portal — Zevia Rx</title>
+<meta name="description" content="Track your Zevia Rx order, message your provider and upload documents.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* zx-portal v1 (2026-10-09) — branded shell + MDI white-label embed */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cream:#F5F1EA;--cream-deep:#EAE3D6;--ink:#1C1B18;--ink-soft:#55524B;--teal:#1E4F53;--teal-deep:#14393C;--teal-soft:#DCE7E5;--gold:#C8A96A;--ok:#2F7D4F;--warn:#B3701C;--bad:#A23B3B}
+body{background:var(--cream);color:var(--ink);font:400 16px/1.6 'Inter',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+.serif{font-family:'DM Serif Display',serif;font-weight:400}
+nav{position:sticky;top:0;z-index:50;background:rgba(245,241,234,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(28,27,24,.08)}
+nav .bar{max-width:900px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+nav a.logo{font-size:22px;color:var(--teal-deep);text-decoration:none}
+nav a.logo span{color:var(--gold);font-size:12px;vertical-align:super}
+nav .right{display:flex;gap:18px;align-items:center}
+nav a.lnk,nav button.lnk{font:600 13px 'Inter';color:var(--teal);text-decoration:none;background:none;border:0;cursor:pointer}
+main{max-width:900px;width:100%;margin:0 auto;padding:40px 24px 72px;flex:1}
+h1{font-size:clamp(28px,4.5vw,38px);color:var(--teal-deep);line-height:1.15;margin-bottom:8px}
+h2{font-size:20px;color:var(--teal-deep);margin:0 0 10px}
+p{color:var(--ink-soft)}
+.sub{margin-bottom:28px}
+.card{background:#fff;border:2px solid var(--cream-deep);border-radius:18px;padding:24px;margin-bottom:18px}
+.card.gold{border-left:5px solid var(--gold)}
+.view{display:none}.view.show{display:block}
+.tabs{display:flex;gap:8px;margin-bottom:18px}
+.tab{flex:1;padding:12px;border-radius:12px;border:2px solid var(--cream-deep);background:#fff;font:600 14px 'Inter';color:var(--ink-soft);cursor:pointer}
+.tab.on{border-color:var(--teal);color:var(--teal);background:var(--teal-soft)}
+label{display:block;font:600 13px 'Inter';color:var(--ink);margin:14px 0 6px}
+input{width:100%;padding:14px 16px;border:2px solid var(--cream-deep);border-radius:12px;font:500 16px 'Inter';color:var(--ink);background:#fff;outline:none}
+input:focus{border-color:var(--teal)}
+input.code{letter-spacing:.35em;font-size:22px;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:999px;border:0;font:600 15px 'Inter';cursor:pointer;text-decoration:none}
+.btn.teal{background:var(--teal);color:#fff}.btn.teal:hover{background:var(--teal-deep)}
+.btn.gold{background:var(--gold);color:var(--teal-deep)}
+.btn.ghost{background:#fff;border:2px solid var(--cream-deep);color:var(--teal)}
+.btn.wide{width:100%;margin-top:16px}
+.btn[disabled]{opacity:.55;cursor:default}
+.hint{font-size:13px;color:var(--ink-soft);margin-top:10px}
+.err{display:none;margin-top:10px;font-size:13.5px;color:var(--bad)}
+.okmsg{display:none;margin-top:10px;font-size:13.5px;color:var(--ok)}
+.greet{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.order .head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.order .med{font-size:19px;color:var(--teal-deep)}
+.order .meta{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.pill{display:inline-block;padding:6px 12px;border-radius:999px;font:600 12px 'Inter';letter-spacing:.04em;background:var(--teal-soft);color:var(--teal-deep);white-space:nowrap}
+.pill.ok{background:#E3F2E8;color:var(--ok)}.pill.warn{background:#FBEEDB;color:var(--warn)}.pill.bad{background:#F8E3E3;color:var(--bad)}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:18px 0 14px}
+.step{text-align:center;font:600 11px 'Inter';color:var(--ink-soft);letter-spacing:.02em}
+.step .dot{height:6px;border-radius:999px;background:var(--cream-deep);margin-bottom:8px}
+.step.done .dot{background:var(--teal)}.step.now .dot{background:var(--gold)}
+.step.done,.step.now{color:var(--teal-deep)}
+.status-title{font:700 16px 'Inter';color:var(--ink);margin-top:4px}
+.status-detail{font-size:14.5px;color:var(--ink-soft);margin-top:4px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin-top:16px;font-size:13.5px}
+.kv div span{display:block;font:600 11px 'Inter';letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+#providerCard{scroll-margin-top:90px}
+.frameWrap{position:relative;border:2px solid var(--cream-deep);border-radius:14px;overflow:hidden;background:#fff;min-height:560px}
+.frameWrap iframe{width:100%;height:720px;border:0;display:block}
+.frameNote{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-soft);margin-top:10px}
+.loading{padding:40px;text-align:center;color:var(--ink-soft)}
+.help{display:flex;gap:28px;flex-wrap:wrap;font-size:14px}
+.help b{display:block;color:var(--ink);margin-bottom:2px}
+footer{background:#11292B;color:#8FA6A2;padding:44px 24px;font-size:13px}
+footer .wrap{max-width:900px;margin:0 auto}
+footer a{color:#C9D6D3;text-decoration:none;margin-right:18px}
+footer .fine{border-top:1px solid rgba(255,255,255,.12);margin-top:22px;padding-top:18px;font-size:11.5px;line-height:1.7}
+.zx-ls1-disc{margin-top:16px;font-size:11.5px;line-height:1.65}.zx-ls1-disc p{margin:0 0 8px;color:#8FA6A2}.zx-ls1-disc b{color:#C9D6D3}.zx-ls1-disc a{margin:0;display:inline;color:#C9D6D3;text-decoration:underline}
+@media(max-width:640px){main{padding:28px 18px 56px}.card{padding:20px 18px}.kv{grid-template-columns:1fr 1fr}.steps{gap:4px}.step{font-size:10px}.frameWrap iframe{height:640px}}
+</style>
+</head>
+<body>
+<nav><div class="bar"><a class="logo serif" href="index.html">Zevia&nbsp;Rx<span>&reg;</span></a><div class="right"><a class="lnk" href="index.html">&larr; Home</a><button class="lnk" id="signOut" type="button" style="display:none">Sign out</button></div></div></nav>
+<main>
+
+<!-- ===== LOGIN ===== -->
+<section class="view" id="vLogin">
+  <h1 class="serif">Patient portal</h1>
+  <p class="sub">Track your order, message your provider and upload anything they request. No password needed &mdash; we'll send you a one-time sign-in.</p>
+  <div class="card gold" style="max-width:520px">
+    <div class="tabs"><button class="tab on" type="button" data-ch="email">Email me a link</button><button class="tab" type="button" data-ch="sms">Text me a code</button></div>
+    <form id="startForm" novalidate>
+      <div id="fEmail"><label for="email">The email you used at checkout</label><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+      <div id="fPhone" style="display:none"><label for="phone">The mobile number you gave us</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-5555"></div>
+      <button class="btn teal wide" id="startBtn" type="submit">Send my sign-in link</button>
+      <p class="err" id="startErr"></p>
+    </form>
+    <div id="sent" style="display:none">
+      <p class="okmsg" id="sentMsg" style="display:block"></p>
+      <form id="codeForm" novalidate style="display:none">
+        <label for="code">6-digit code</label><input id="code" class="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••">
+        <button class="btn teal wide" id="codeBtn" type="submit">Continue</button>
+        <p class="err" id="codeErr"></p>
+      </form>
+      <p class="hint">Didn't get it? Check spam, or <a href="#" id="resend">send again</a>. Codes expire in 10 minutes, links in 15.</p>
+    </div>
+  </div>
+  <p class="hint">Trouble signing in? Email <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> or call <a href="tel:+18325861086">832-586-1086</a>.</p>
+</section>
+
+<!-- ===== VERIFYING (magic link) ===== -->
+<section class="view" id="vVerify"><div class="card"><p class="loading">Signing you in&hellip;</p></div></section>
+
+<!-- ===== DASHBOARD ===== -->
+<section class="view" id="vDash">
+  <div class="greet"><div><h1 class="serif" id="greetName">Welcome back</h1><p id="greetSub">Here's where your treatment stands.</p></div></div>
+  <div id="orders"></div>
+  <div class="card" id="providerCard">
+    <h2>Your provider</h2>
+    <p id="providerIntro" style="font-size:14.5px;margin-bottom:12px">Message your provider, read their replies, and upload anything they request. This secure area is provided by our clinical partner, MD Integrations.</p>
+    <div id="providerBody">
+      <div class="actions"><button class="btn teal" type="button" data-mode="portal">Open provider messages &amp; documents</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Need help?</h2>
+    <div class="help">
+      <div><b>Support</b><a href="mailto:support@zeviarx.com">support@zeviarx.com</a><br><a href="tel:+18325861086">832-586-1086</a></div>
+      <div><b>Billing, pausing or cancelling</b>Email support before your renewal date &mdash; we confirm every change in writing.</div>
+      <div><b>Medical emergency</b>Call 911 or go to the nearest emergency room.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+<p><a href="terms.html">Terms of Service</a> <a href="notice-of-privacy-practices.html">Notice of Privacy Practices</a> <a href="privacy.html">Privacy Policy</a> <a href="telehealth-consent.html">Telehealth Consent</a> <a href="refunds.html">Refund &amp; Cancellation Policy</a> <a href="ca-notice.html">CA Notice</a></p>
+<p style="margin-top:14px">Questions? Contact <a href="mailto:support@zeviarx.com">support@zeviarx.com</a><br>Zevia Rx, Inc. &middot; 30 N Gould St, Ste R, Sheridan, WY 82801</p>
+<!-- zx-ls1-disclosures (LegitScript build 2026-10-03). REVERSAL: delete from this comment through the closing marker. --><!-- zx-ls1.1 (2026-10-03): "board-certified" added to clinical-partner wording after MDI confirmation. REVERSAL: restore the LS1 snapshot of this page. --><!-- zx-ls1.2 (2026-10-03): support phone added. REVERSAL: restore the LS1.1 snapshot of this page. -->
+<div class="zx-ls1-disc"><p><b>Clinical partner:</b> Medical consultations, asynchronous clinical evaluations, and prescribing services are facilitated through MD Integrations (MDI) and performed by independent, board-certified healthcare providers licensed in the patient&rsquo;s state of residence.</p><p><b>Dispensing pharmacy:</b> Prescriptions are filled and dispensed by Hallandale Pharmacy, a state-licensed 503A compounding pharmacy located at 2666 SW 36th St, Fort Lauderdale, FL 33312.</p><p><b>Emergencies &amp; adverse events:</b> Zevia Rx does not provide emergency medical services. If you are experiencing a medical emergency, call 911 or visit the nearest emergency room immediately. To report an adverse drug event or medication issue, contact our clinical care team at <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> or report directly to the <a href="https://www.fda.gov/safety/medwatch-fda-safety-information-and-adverse-event-reporting-program" target="_blank" rel="noopener">FDA MedWatch program</a>.</p><p><b>Zevia Rx, Inc.</b> &middot; 30 N Gould St, Ste R, Sheridan, WY 82801 &middot; <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> &middot; <a href="tel:+18325861086">832-586-1086</a></p></div>
+<!-- /zx-ls1-disclosures -->
+<div class="fine"><p>&copy; 2026 Zevia Rx, Inc. All rights reserved. Zevia Rx is a telehealth platform that connects patients with independent, licensed healthcare providers; it is not a pharmacy and does not manufacture, dispense, or ship medication. A prescription is never guaranteed &mdash; all medication decisions are made solely by a licensed provider. Compounded medications are not approved by the FDA.</p></div>
+</div></footer>
+
+<script>
+/* zx-portal v1 — session lives in localStorage only (token hashed server-side, 30-day sliding expiry). No PHI is cached. */
+const BACKEND = 'https://zdvbhfykxjbgfdclfmcu.supabase.co/functions/v1';
+const MDI_ORIGINS = ['https://patient.mdintegrations.com', 'https://message.mdintegrations.com'];
+const SKEY = 'zx_portal_session';
+const g = id => document.getElementById(id);
+const views = ['vLogin','vVerify','vDash'];
+function show(v){ views.forEach(x => g(x).classList.toggle('show', x===v)); g('signOut').style.display = v==='vDash' ? '' : 'none'; window.scrollTo(0,0); }
+function getSession(){ try { return localStorage.getItem(SKEY) || ''; } catch(e){ return ''; } }
+function setSession(t){ try { t ? localStorage.setItem(SKEY, t) : localStorage.removeItem(SKEY); } catch(e){} }
+async function api(body){ const r = await fetch(BACKEND + '/portal-auth', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) }); let d = {}; try { d = await r.json(); } catch(e){} return { ok: r.ok, status: r.status, ...d }; }
+
+/* ---------- login ---------- */
+let channel = 'email';
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  channel = t.dataset.ch; document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x===t));
+  g('fEmail').style.display = channel==='email' ? '' : 'none'; g('fPhone').style.display = channel==='sms' ? '' : 'none';
+  g('startBtn').textContent = channel==='email' ? 'Send my sign-in link' : 'Text me a code';
+  g('startErr').style.display='none';
+}));
+let lastPhone = '';
+async function start(){
+  const err = g('startErr'); err.style.display='none';
+  const payload = { action:'start', channel };
+  if (channel==='email'){ const e = g('email').value.trim(); if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ err.textContent='Please enter the email you used at checkout.'; err.style.display='block'; return; } payload.email = e; }
+  else { const p = g('phone').value.replace(/\D/g,''); if(!(p.length===10 || (p.length===11 && p[0]==='1'))){ err.textContent='Please enter a 10-digit US mobile number.'; err.style.display='block'; return; } payload.phone = p; lastPhone = p; }
+  const btn = g('startBtn'); btn.disabled = true; const orig = btn.textContent; btn.textContent = 'Sending…';
+  try {
+    const d = await api(payload);
+    if (d.error === 'unavailable'){ err.textContent = "We couldn't send that right now. Please email support@zeviarx.com and we'll get you in."; err.style.display='block'; return; }
+    if (!d.ok){ err.textContent = 'Something went wrong — please try again.'; err.style.display='block'; return; }
+    g('startForm').style.display='none'; g('sent').style.display='block';
+    if (channel==='email'){ g('sentMsg').textContent = `If we have an order under ${payload.email}, a sign-in link is on its way. Open it on this device to continue.`; g('codeForm').style.display='none'; }
+    else { g('sentMsg').textContent = d.throttled ? 'We recently sent a code to that number — enter it below.' : 'If we have an order under that number, your code is on its way.'; g('codeForm').style.display='block'; g('code').focus(); }
+  } finally { btn.disabled=false; btn.textContent=orig; }
+}
+g('startForm').addEventListener('submit', e => { e.preventDefault(); start(); });
+g('resend').addEventListener('click', e => { e.preventDefault(); g('sent').style.display='none'; g('startForm').style.display='block'; });
+g('codeForm').addEventListener('submit', async e => {
+  e.preventDefault(); const err = g('codeErr'); err.style.display='none';
+  const code = g('code').value.replace(/\D/g,''); if (code.length!==6){ err.textContent='Enter the 6-digit code from your text message.'; err.style.display='block'; return; }
+  const btn = g('codeBtn'); btn.disabled=true;
+  try {
+    const d = await api({ action:'verify', phone:lastPhone, code });
+    if (d.ok && d.session){ setSession(d.session); await loadDash(); return; }
+    err.textContent = d.error==='wrong_code' ? `That code isn't right${d.attempts_left!=null ? ` (${d.attempts_left} tries left)` : ''}.` : d.error==='too_many_attempts' ? 'Too many tries — request a new code.' : 'That code has expired — request a new one.';
+    err.style.display='block';
+  } finally { btn.disabled=false; }
+});
+g('signOut').addEventListener('click', async () => { const s = getSession(); setSession(''); if (s) api({ action:'logout', session:s }); location.replace('portal.html'); });
+
+/* ---------- dashboard ---------- */
+const STEPS = ['Paid','Intake','Provider review','Decision','Shipped'];
+const PILL = { paid:'', intake:'warn', review:'', action:'warn', support:'', approved:'ok', shipped:'ok', not_prescribed:'bad', cancelled:'bad', payment:'warn' };
+const fmtDate = s => s ? new Date(s.length===10 ? s+'T12:00:00' : s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function orderCard(o){
+  const st = o.status; const steps = STEPS.map((n,i)=>`<div class="step ${i+1<st.step?'done':(i+1===st.step?'now':'')}"><div class="dot"></div>${n}</div>`).join('');
+  const action = o.action_required ? `<p class="hint" style="color:var(--warn)"><b>Action needed:</b> your provider asked for ${esc(String(o.action_required.type||'').replace(/_requested$/,'').replace(/_/g,' '))}. Open your provider messages below.</p>` : '';
+  return `<div class="card order" data-id="${esc(o.id)}">
+    <div class="head"><div><div class="med serif">${esc(o.med)} &middot; ${esc(o.plan)}</div><div class="meta">Ordered ${fmtDate(o.created_at)}${o.shipping_to?` &middot; ships to ${esc(o.shipping_to)}`:''}</div></div><span class="pill ${PILL[st.key]||''}">${esc(st.title)}</span></div>
+    <div class="steps">${steps}</div>
+    <div class="status-title">${esc(st.title)}</div><div class="status-detail">${esc(st.detail)}</div>${action}
+    <div class="kv">${o.tracking?`<div><span>Shipment</span>${esc(o.tracking)}</div>`:''}<div><span>Next renewal</span>${o.next_renewal?fmtDate(o.next_renewal):'—'}</div><div><span>Paid</span>$${Number(o.amount).toFixed(2)}</div><div><span>Last update</span>${o.last_update?fmtDate(o.last_update):'—'}</div></div>
+    ${(st.key==='action'||st.key==='review'||st.key==='approved'||st.key==='support') && o.has_provider_portal ? `<div class="actions"><button class="btn ghost" type="button" data-mode="messages">Message your provider</button></div>` : ''}
+  </div>`;
+}
+async function loadDash(){
+  const s = getSession(); if (!s){ show('vLogin'); return; }
+  const d = await api({ action:'me', session:s });
+  if (!d.ok){ setSession(''); show('vLogin'); return; }
+  g('greetName').textContent = d.patient && d.patient.name ? `Hi, ${d.patient.name.split(' ')[0]}` : 'Welcome back';
+  g('orders').innerHTML = d.orders.length ? d.orders.map(orderCard).join('') : `<div class="card"><p>We couldn't find an order for this sign-in. If you ordered with a different email or phone, sign out and try that one — or contact support.</p></div>`;
+  const hasPortal = d.orders.some(o => o.has_provider_portal);
+  if (!hasPortal) g('providerBody').innerHTML = `<p class="hint">Your provider messages will appear here once your intake is complete and your case has been sent for review.</p>`;
+  show('vDash');
+}
+
+/* ---------- MDI white-label embed with seamless one-time code ---------- */
+let embedCode = null;
+async function openEmbed(mode){
+  const body = g('providerBody'); body.innerHTML = `<div class="frameWrap"><p class="loading">Opening your secure provider area&hellip;</p></div>`;
+  g('providerCard').scrollIntoView({ behavior:'smooth', block:'start' });
+  const d = await api({ action:'mdi_portal', session:getSession(), mode: mode||'portal' });
+  if (!d.ok || !d.url){ body.innerHTML = `<p class="hint" style="color:var(--bad)">${d.error==='no_provider_record' ? 'Your provider area isn’t ready yet — it opens once your intake is complete.' : 'We couldn’t open the provider area right now. Please try again in a minute or contact support.'}</p>`; return; }
+  embedCode = d.code;
+  body.innerHTML = `<div class="frameWrap"><iframe id="mdiFrame" allow="camera; microphone" referrerpolicy="no-referrer" src="${esc(d.url)}" title="Provider messages and documents"></iframe></div>
+    <div class="frameNote"><span id="frameHint">If you're asked for a confirmation code, use: <b id="codeShow">${esc(d.code||'')}</b></span><a class="btn ghost" href="${esc(d.url)}" target="_blank" rel="noopener">Open in a new window</a></div>`;
+}
+window.addEventListener('message', e => {
+  if (!MDI_ORIGINS.includes(e.origin)) return;
+  const ev = e.data && (e.data.event || e.data.message || e.data);
+  const frame = g('mdiFrame'); if (!frame) return;
+  if (ev === 'otp_ready' && embedCode) frame.contentWindow.postMessage({ message:'otp', data: embedCode }, e.origin);
+  if (ev === 'logged_in') { const h = g('frameHint'); if (h) h.textContent = 'Signed in securely.'; }
+  if (ev === 'otp_failed') { const h = g('frameHint'); if (h) h.innerHTML = `Enter this confirmation code in the window: <b>${esc(embedCode||'')}</b>`; }
+});
+document.addEventListener('click', e => { const b = e.target.closest('button[data-mode]'); if (b) openEmbed(b.dataset.mode); });
+
+/* ---------- boot ---------- */
+(async function boot(){
+  const u = new URL(location.href); const token = u.searchParams.get('token');
+  if (token){
+    show('vVerify'); u.searchParams.delete('token'); history.replaceState(null,'',u.pathname + (u.search||''));
+    const d = await api({ action:'verify', token });
+    if (d.ok && d.session){ setSession(d.session); await loadDash(); return; }
+    show('vLogin'); const err = g('startErr'); err.textContent = 'That sign-in link has expired or was already used — request a new one below.'; err.style.display='block'; return;
+  }
+  if (getSession()) { await loadDash(); return; }
+  show('vLogin');
+})();
+</script>
+</body>
+</html>
