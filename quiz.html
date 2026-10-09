@@ -284,6 +284,7 @@ try{
       <div class="field" id="emField"><label>Email</label><input id="email" type="email" placeholder="you@email.com" autocomplete="email"><div class="err">Please enter a valid email.</div></div>
       <div class="field"><label>Mobile phone</label><input id="phone" type="tel" placeholder="(555) 555-5555" autocomplete="tel"></div>
     </div>
+    <p id="smsConsent" style="font:500 11px 'Inter';color:#A39E93;margin-top:10px;line-height:1.5">By entering your mobile number you agree to receive texts from Zevia Rx about your account and treatment, including one-time sign-in codes and provider updates. Message frequency varies; msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of purchase.</p><!-- zx-sms-consent-20261009 -->
     <div class="btn-row"><button class="btn gold wide" id="seeResults">See My Results →</button></div>
     <p style="font:500 11px 'Inter';color:#A39E93;margin-top:14px">By clicking "See My Results" you agree to our <a href="terms.html" target="_blank" style="color:#8C8578">Terms</a>, <a href="privacy.html" target="_blank" style="color:#8C8578">Privacy Policy</a>, and <a href="telehealth-consent.html" target="_blank" style="color:#8C8578">Telehealth Consent</a>, and to receive program emails/texts (you can opt out anytime).</p>
   </section>
@@ -827,6 +828,7 @@ document.getElementById('seeResults').addEventListener('click',()=>{
   if(ageFrom(dob) < 18){ next('underage'); return; }
   S.answers.dob = dobIn.value.trim();
   S.answers.name=name; S.answers.email=email; S.answers.phone=document.getElementById('phone').value.trim();
+  if(S.answers.phone) S.answers.sms_consent = { accepted:true, at:new Date().toISOString(), text:document.getElementById('smsConsent').textContent.trim() }; // zx-sms-consent-20261009: TCPA record stored with the lead
   console.log('LEAD_CAPTURED', {...S.answers, bmi:S.bmi, tracking:S.tracking});
   fetch(BACKEND + '/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
     body: JSON.stringify({ name, email, phone: S.answers.phone, state: S.answers.state, bmi: S.bmi, med: S.preMed || S.med || null, answers: S.answers, tracking: S.tracking }) })
