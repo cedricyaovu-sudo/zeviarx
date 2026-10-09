@@ -103,6 +103,16 @@ footer .fine{border-top:1px solid rgba(255,255,255,.12);margin-top:22px;padding-
     </div>
   </div>
   <p class="hint">Trouble signing in? Email <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> or call <a href="tel:+18325861086">832-586-1086</a>.</p>
+  <div class="card" id="reviewerCard" style="display:none;margin-top:18px"><!-- zx-reviewer-access-20261009 -->
+    <h2>Reviewer access</h2>
+    <p class="hint" style="margin-bottom:12px">For compliance reviewers with an access code issued by Zevia Rx. Signs you in to a test patient account.</p>
+    <form id="reviewerForm" novalidate>
+      <label for="rvEmail">Reviewer email</label><input id="rvEmail" type="email" inputmode="email" autocomplete="off" placeholder="reviewer@example.com">
+      <label for="rvCode" style="margin-top:10px">Access code</label><input id="rvCode" type="text" autocomplete="off" autocapitalize="characters" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX">
+      <button class="btn teal wide" id="rvBtn" type="submit" style="margin-top:12px">Sign in as reviewer</button>
+      <p class="err" id="rvErr"></p>
+    </form>
+  </div>
 </section>
 
 <!-- ===== VERIFYING (magic link) ===== -->
@@ -250,7 +260,21 @@ document.addEventListener('click', e => { const b = e.target.closest('button[dat
   }
   if (getSession()) { await loadDash(); return; }
   show('vLogin');
+  if (u.searchParams.get('access') === 'reviewer') g('reviewerCard').style.display = ''; // zx-reviewer-access-20261009: only revealed via ?access=reviewer
 })();
+/* zx-reviewer-access-20261009 — compliance reviewer sign-in (email + long-lived access code, verified server-side) */
+g('reviewerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = g('rvErr'); err.style.display = 'none';
+  const email = g('rvEmail').value.trim(), code = g('rvCode').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || code.replace(/[^A-Za-z0-9]/g,'').length < 12){ err.textContent = 'Enter the reviewer email and the full access code.'; err.style.display = 'block'; return; }
+  const btn = g('rvBtn'); btn.disabled = true;
+  const d = await api({ action:'reviewer', email, code });
+  btn.disabled = false;
+  if (d.ok && d.session){ setSession(d.session); await loadDash(); return; }
+  err.textContent = d.error === 'invalid_or_expired' ? 'That access code is not valid or has expired. Contact support@zeviarx.com for a new one.' : 'We couldn\'t sign you in right now — please try again.';
+  err.style.display = 'block';
+});
 </script>
 </body>
 </html>
