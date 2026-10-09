@@ -317,15 +317,17 @@ footer .logo{color:#fff;margin-bottom:14px}
 <section>
   <div class="wrap calc">
     <div>
-      <p class="eyebrow">Your Projection</p>
-      <h2>How much could you lose?</h2>
-      <p class="sub" style="font-size:16px">Drag the slider to your current weight. Estimate based on published clinical results for GLP-1 medications (up to ~20% body weight over 68–72 weeks).</p>
-      <input type="range" id="wt" min="140" max="400" value="220" oninput="calc()">
+      <p class="eyebrow">Your Goal</p><!-- zx-ls1.5-compound-20261009 -->
+      <h2>Where do you want to be?</h2>
+      <p class="sub" style="font-size:16px">Set your current weight and the weight you want to reach. This is your goal, not a prediction — results vary by individual, and your provider decides whether a GLP-1 program is appropriate for you.</p>
+      <input type="range" id="wt" min="140" max="400" value="220" oninput="calc()" aria-label="Current weight">
       <div class="readout">Current weight: <b id="wtOut">220</b> lbs</div>
+      <input type="range" id="gwt" min="100" max="400" value="176" oninput="calc()" aria-label="Goal weight">
+      <div class="readout">Goal weight: <b id="gwtOut">176</b> lbs</div>
     </div>
     <div class="result">
       <div class="num" id="lossOut">44</div>
-      <p><b>pounds</b> — your estimated potential loss with a GLP-1 program.<br><br><a class="btn" href="quiz.html" style="padding:15px 28px;font-size:14px">See If I Qualify</a></p>
+      <p><b>pounds</b> — the distance between you and your goal.<br><br><a class="btn" href="quiz.html" style="padding:15px 28px;font-size:14px">See If I Qualify</a></p>
     </div>
   </div>
 </section>
@@ -358,7 +360,7 @@ footer .logo{color:#fff;margin-bottom:14px}
         <div class="m-price">$166<small> first month</small></div>
         <div class="after">then $349/mo · price-locked</div>
         <ul>
-          <li>Dual-agonist (GIP + GLP-1) — the new gold standard</li>
+          <li>Dual-agonist (GIP + GLP-1)</li><!-- zx-ls1.5-compound-20261009 -->
           <li>Active ingredient: compounded tirzepatide</li>
           <li>Ongoing provider check-ins</li>
           <li>Cold-chain express shipping (one-time fee at checkout)</li>
@@ -381,7 +383,7 @@ footer .logo{color:#fff;margin-bottom:14px}
       <!-- zx-ls1-removed: three brand-name medication cards (restore from claude/zeviarx-index-v11-2026-10-01.html) -->
     </div>
     <div class="scroll-hint">Scroll to compare options →</div>
-    <!-- zx-ls1-compound-disc --><div style="max-width:880px;margin:22px auto 0;padding:16px 20px;border:1px solid var(--cream-deep);border-radius:12px;background:#fff;font:500 12.5px/1.65 'Inter';color:var(--ink-soft);text-align:left">Compounded medications are prepared by state-licensed 503A compounding pharmacies pursuant to a patient-specific prescription from a licensed healthcare provider. Compounded drugs are not FDA-approved, and the FDA does not evaluate compounded products for safety, effectiveness, or quality. A prescription is never guaranteed; your provider decides whether treatment is appropriate for you.</div><!-- /zx-ls1-compound-disc -->
+    <!-- zx-ls1-compound-disc --><div style="max-width:880px;margin:22px auto 0;padding:16px 20px;border:1px solid var(--cream-deep);border-radius:12px;background:#fff;font:500 12.5px/1.65 'Inter';color:var(--ink-soft);text-align:left">Compounded medications are prepared by state-licensed 503A compounding pharmacies pursuant to a patient-specific prescription from a licensed healthcare provider. Compounded drugs are not FDA-approved and are not commercially manufactured products; the FDA does not evaluate compounded products for safety, effectiveness, or quality. A prescription is never guaranteed; your provider decides whether treatment is appropriate for you.</div><!-- /zx-ls1-compound-disc -->
     <div class="lock-strip"><b>The Zevia Price-Lock:</b> the price you start at is the price you keep — for as long as you're a member.</div>
   </div>
 </section>
@@ -415,11 +417,11 @@ footer .logo{color:#fff;margin-bottom:14px}
       <h2>Built to quiet the food noise.</h2>
       <p class="sub">GLP-1 medications work with your biology — slowing digestion, steadying blood sugar, and turning down the constant background chatter of cravings so a smaller portion actually satisfies.</p>
       <div class="stat-row">
-        <div class="stat"><div class="n">~20%</div><p>average body weight lost in clinical trials of tirzepatide*</p></div>
+        <div class="stat"><div class="n">1:1</div><p>provider review of every intake before anything is prescribed</p></div><!-- zx-ls1.5-compound-20261009: replaced brand-trial percentage stat -->
         <div class="stat"><div class="n">1<span class="xmark">×</span></div><p>weekly dose — no daily pills to remember on injection plans</p></div>
         <div class="stat"><div class="n">50</div><p>states served through our licensed pharmacy network</p></div>
       </div>
-      <p style="font-size:11.5px;color:#A39E93;margin-top:26px">*Published clinical results for FDA-approved tirzepatide at highest dose over 72 weeks. Individual results vary. Compounded medications are not FDA-approved.</p>
+      <p style="font-size:11.5px;color:#A39E93;margin-top:26px">Individual results vary. Compounded medications are not FDA-approved and are not commercially manufactured products; your provider determines whether treatment is appropriate for you.<!-- zx-ls1.5-compound-20261009: brand-trial footnote removed --></p>
     </div>
     <div class="stage">
       <video class="pv" autoplay muted loop playsinline preload="auto" poster="pill-poster.jpg" aria-label="Zevia Rx capsule dissolving and recomposing"><source src="pill-dissolve.mp4" type="video/mp4"><source src="pill-dissolve.webm" type="video/webm"></video>
@@ -479,7 +481,7 @@ footer .logo{color:#fff;margin-bottom:14px}
   <div class="wrap">
     <div class="center"><p class="eyebrow">Questions</p><h2>Everything you're wondering.</h2></div>
     <div class="faq-list">
-      <details open><summary>What exactly is compounded GLP-1 medication?</summary><p>Compounded semaglutide and tirzepatide are prepared by state-licensed US compounding pharmacies using the same active ingredient class as brand-name GLP-1s. Compounded medications are not FDA-approved, but the pharmacies that prepare them are state-regulated. Your provider will determine whether a compounded option is appropriate for you.</p></details>
+      <details open><summary>What exactly is compounded GLP-1 medication?</summary><p>Compounded medications contain semaglutide or tirzepatide as the active ingredient and are prepared by a state-licensed compounding pharmacy pursuant to a patient-specific prescription. They are not the brand-name products, are not commercially manufactured, and have not been evaluated by the FDA for safety, effectiveness, or quality. Your provider will determine whether a compounded option is appropriate for you.<!-- zx-ls1.5-compound-20261009 --></p></details>
       <details><summary>Do I need insurance?</summary><p>No. Zevia Rx is priced for cash pay — $125 for your first month, then a price-locked $299/mo. A one-time $63.75 shipping fee and a $20 provider consultation fee are added at checkout. No insurance paperwork, no prior authorizations, no surprise bills.</p></details>
       <details><summary>How fast will I get my medication?</summary><p>Most members complete the quiz in about 2 minutes. If a licensed provider approves your prescription, your first shipment typically arrives within days in cold-chain packaging.</p></details>
       <details><summary>What if I'm declined for a payment plan?</summary><p>No problem — you can always start month-to-month with a standard credit or debit card at $125 for your first month. You'll see every option at checkout.</p></details>
@@ -511,7 +513,7 @@ footer .logo{color:#fff;margin-bottom:14px}
       <div><h5>Legal</h5><a href="terms.html">Terms of Service</a><a href="privacy.html">Privacy Policy</a><a href="notice-of-privacy-practices.html">Notice of Privacy Practices</a><a href="telehealth-consent.html">Telehealth Consent</a><a href="refunds.html">Refund &amp; Cancellation Policy</a><a href="ca-notice.html">CA Notice</a></div>
     </div>
     <div class="legal">
-      <p><b>Important safety &amp; regulatory information:</b> Zevia Rx is a telehealth platform that connects patients with independent, licensed healthcare providers. A prescription is never guaranteed — all medication decisions are made solely by a licensed provider based on your individual health profile. Compounded semaglutide and compounded tirzepatide are prepared by state-licensed compounding pharmacies and are <b>not approved by the FDA</b>; the FDA does not review compounded drugs for safety, effectiveness, or quality. Weight loss results vary; published clinical results refer to the FDA-approved versions of these active ingredients studied alongside diet and exercise. GLP-1 medications carry risks, including a boxed warning regarding thyroid C-cell tumors; do not use if you or your family have a history of medullary thyroid carcinoma or MEN 2. Speak with your provider about all risks and side effects. Financing options subject to eligibility and provided by third-party partners (Klarna, Affirm, Afterpay, Cherry); 0% APR offers are subject to credit approval.</p>
+      <p><b>Important safety &amp; regulatory information:</b> Zevia Rx is a telehealth platform that connects patients with independent, licensed healthcare providers. A prescription is never guaranteed — all medication decisions are made solely by a licensed provider based on your individual health profile. Compounded semaglutide and compounded tirzepatide are prepared by state-licensed compounding pharmacies and are <b>not approved by the FDA</b> and are not commercially manufactured products<!-- zx-ls1.5-compound-20261009 -->; the FDA does not review compounded drugs for safety, effectiveness, or quality. Weight loss results vary by individual and are not guaranteed; compounded medications are not the brand-name products and have not been evaluated by the FDA for safety or effectiveness.<!-- zx-ls1.5-compound-20261009 --> GLP-1 medications carry risks, including a boxed warning regarding thyroid C-cell tumors; do not use if you or your family have a history of medullary thyroid carcinoma or MEN 2. Speak with your provider about all risks and side effects. Financing options subject to eligibility and provided by third-party partners (Klarna, Affirm, Afterpay, Cherry); 0% APR offers are subject to credit approval.</p>
       <p style="margin-top:14px">Support &amp; adverse-event reporting: <a href="mailto:support@zeviarx.com" style="display:inline;padding:0;color:#C9D6D3">support@zeviarx.com</a> · If a licensed provider does not prescribe treatment, your medication cost and shipping fee are refunded; the provider consultation fee is non-refundable — see our <a href="refunds.html" style="display:inline;padding:0;color:#C9D6D3">Refund &amp; Cancellation Policy</a>.</p>
       <!-- zx-ls1-disclosures (LegitScript build 2026-10-03; supersedes zx-partners-20260926). REVERSAL: restore claude/zeviarx-index-v11-2026-10-01.html --><!-- zx-ls1.1 (2026-10-03): "board-certified" added to clinical-partner wording after MDI confirmation. REVERSAL: restore the LS1 snapshot of this page. --><!-- zx-ls1.2 (2026-10-03): support phone added. REVERSAL: restore the LS1.1 snapshot of this page. -->
       <p style="margin-top:14px"><b style="color:#C9D6D3">Clinical partner:</b> Medical consultations, asynchronous clinical evaluations, and prescribing services are facilitated through <b style="color:#C9D6D3">MD Integrations (MDI)</b> and performed by independent, board-certified healthcare providers licensed in the patient's state of residence.</p>
@@ -604,10 +606,12 @@ if(tTrack){
     });
   }, 700);
 })();
-function calc(){
-  const w = document.getElementById('wt').value;
+function calc(){ // zx-ls1.5-compound-20261009: goal-distance calculator (no trial-based % projection)
+  const w = +document.getElementById('wt').value, gEl = document.getElementById('gwt');
+  if(+gEl.value >= w) gEl.value = Math.max(+gEl.min, w - 1);
   document.getElementById('wtOut').textContent = w;
-  document.getElementById('lossOut').textContent = Math.round(w * 0.20);
+  document.getElementById('gwtOut').textContent = gEl.value;
+  document.getElementById('lossOut').textContent = w - gEl.value;
 }
 calc();
 
