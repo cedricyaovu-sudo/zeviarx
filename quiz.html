@@ -51,6 +51,8 @@ svg.ic{display:inline-block;vertical-align:-2px}
   display:flex;align-items:center;gap:14px;box-shadow:0 6px 18px rgba(28,27,24,.06);transition:.18s}
 .opt:hover{border-color:var(--teal);transform:translateY(-1px)}
 .opt.selected{border-color:var(--teal);background:var(--teal-soft)}
+.opts.multi .opt{position:relative;padding-left:52px}.opts.multi .opt::before{content:'';position:absolute;left:18px;top:50%;transform:translateY(-50%);width:20px;height:20px;border:2px solid var(--cream-deep);border-radius:6px;background:#fff}.opts.multi .opt.selected::before{background:var(--teal);border-color:var(--teal)}.opts.multi .opt.selected::after{content:'';position:absolute;left:25px;top:50%;width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-62%) rotate(45deg)}
+.agree-note{background:var(--teal-soft);border-radius:12px;padding:12px 14px;font:500 13px 'Inter';line-height:1.5;margin-bottom:14px;color:var(--ink)}
 .opt small{display:block;font:500 13px 'Inter';color:var(--ink-soft)}
 .med-opt img{height:52px;width:52px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(28,27,24,.14))}
 .chosen-med{display:flex;align-items:center;gap:14px;background:#fff;border:2px solid var(--teal);border-radius:16px;padding:16px 20px;box-shadow:0 6px 18px rgba(28,27,24,.06)}
@@ -194,7 +196,23 @@ try{
       <div class="field"><label>Height (in)</label><select id="hIn"></select></div>
       <div class="field" id="wField"><label>Weight (lbs)</label><input id="wLbs" type="number" inputmode="numeric" placeholder="220" min="80" max="700"><div class="err">Please enter a weight between 80 and 700 lbs.</div></div>
     </div>
+    <div class="field" id="gwField" style="margin-top:14px"><label>Goal weight (lbs) <span style="font-weight:500;color:#A39E93">(optional)</span></label><input id="gwLbs" type="number" inputmode="numeric" placeholder="170" min="60" max="700"><div class="err">Please enter a goal weight between 60 and 700 lbs, or leave it blank.</div></div><!-- zx-v34-intake-20261009 -->
     <div class="btn-row"><button class="btn" id="bodyNext">Continue →</button></div>
+  </section>
+
+  <!-- v34 comorbidities (MDI intake parity) -->
+  <section class="screen" data-step="comorbid"><!-- zx-v34-intake-20261009 -->
+    <h1>Have you been diagnosed with any of the following?</h1>
+    <p class="hint">Select all that apply. These weight-related conditions help your provider review your BMI — you don't need one to qualify.</p>
+    <div class="opts multi" id="comorbidOpts">
+      <button class="opt" type="button" data-value="high_cholesterol">High cholesterol</button>
+      <button class="opt" type="button" data-value="fatty_liver">Fatty liver disease</button>
+      <button class="opt" type="button" data-value="hypertension">High blood pressure</button>
+      <button class="opt" type="button" data-value="sleep_apnea">Obstructive sleep apnea</button>
+      <button class="opt" type="button" data-value="none">None of the above</button>
+    </div>
+    <div class="field" id="comorbidField" style="margin-top:10px"><div class="err">Please select at least one option, or "None of the above".</div></div>
+    <div class="btn-row"><button class="btn" id="comorbidNext">Continue →</button></div>
   </section>
 
   <!-- Q3 diabetes -->
@@ -229,6 +247,20 @@ try{
     </div>
   </section>
 
+  <!-- v34 current GLP-1 details (shown only when Q5 = yes) -->
+  <section class="screen" data-step="glp1"><!-- zx-v34-intake-20261009 -->
+    <h1>Tell us about your current GLP-1 medication.</h1>
+    <p class="hint">Your provider uses this to choose the right starting dose — if you're switching, you usually won't restart at the lowest dose.</p>
+    <div class="field" id="g1ProdField"><label>Which medication are you taking?</label><select id="g1Product"><option value="">Select…</option><option value="branded">Brand-name — Wegovy, Zepbound, Mounjaro, Ozempic, Trulicity or Saxenda</option><option value="compounded_semaglutide">Compounded semaglutide</option><option value="compounded_tirzepatide">Compounded tirzepatide</option><option value="other">Another prescription weight-loss medication</option></select><div class="err">Please select your medication.</div></div>
+    <div class="field" id="g1DoseField"><label>Name, strength and current dose — as written on your label</label><input id="g1Dose" type="text" maxlength="240" placeholder="e.g., semaglutide 2.5 mg/mL vial — inject 20 units (0.5 mg) once weekly"><div class="err">Please enter your current medication and dose.</div></div>
+    <div class="row2">
+      <div class="field"><label>Date of your last dose</label><input id="g1Last" type="date"></div>
+      <div class="field"><label>Your dose preference</label><select id="g1Pref"><option value="">Select…</option><option value="stay">Stay at my current dose</option><option value="increase">Discuss an increase</option><option value="decrease">Discuss a decrease</option><option value="unsure">Not sure — ask my provider</option></select></div>
+    </div>
+    <p class="hint" style="font-size:12.5px">After checkout you can add a photo of your prescription or medication label (optional) so your provider can confirm the dose.</p>
+    <div class="btn-row"><button class="btn" id="glp1Next">Continue →</button></div>
+  </section>
+
   <!-- Q6 previous -->
   <section class="screen" data-step="previous">
     <h1>Have you tried prescription weight loss medication before?</h1>
@@ -256,6 +288,24 @@ try{
     </div>
   </section>
 
+  <!-- v34 conditions checklist (MDI intake parity). Cedric 2026-10-09: every item is a hard stop EXCEPT severe GI disease, which is flagged to the provider. -->
+  <section class="screen" data-step="conditions"><!-- zx-v34-intake-20261009 -->
+    <h1>Do you have a history of any of the following?</h1>
+    <p class="hint">Select all that apply. Your provider needs to know before prescribing a GLP-1.</p>
+    <div class="opts multi" id="condOpts">
+      <button class="opt" type="button" data-value="gi_surgery">Bariatric or other GI surgery in the last 6 months</button>
+      <button class="opt" type="button" data-value="gi_disease">Severe GI disease (Crohn's disease or ulcerative colitis)</button>
+      <button class="opt" type="button" data-value="retinopathy">Diabetic retinopathy</button>
+      <button class="opt" type="button" data-value="gallbladder">Gallbladder disease (not including gallbladder removal)</button>
+      <button class="opt" type="button" data-value="liver">Liver disease or cirrhosis</button>
+      <button class="opt" type="button" data-value="glycine_allergy">Glycine sensitivity or allergy</button>
+      <button class="opt" type="button" data-value="benzyl_allergy">Benzyl alcohol sensitivity or allergy</button>
+      <button class="opt" type="button" data-value="none">None of the above</button>
+    </div>
+    <div class="field" id="condField" style="margin-top:10px"><div class="err">Please select at least one option, or "None of the above".</div></div>
+    <div class="btn-row"><button class="btn" id="condNext">Continue →</button></div>
+  </section>
+
   <!-- Q9 medications (v29 / LS1) -->
   <section class="screen" data-step="meds">
     <h1>Do you currently take any prescription medications?</h1>
@@ -270,6 +320,24 @@ try{
     <p class="hint">We verify that our pharmacy network ships to your area.</p>
     <div class="field" id="stField"><label>State of residence</label><select id="stateSel"><option value="">Select your state…</option></select><div class="err">Please select your state.</div></div>
     <div class="btn-row"><button class="btn" id="stateNext">Continue →</button></div>
+  </section>
+
+  <!-- v34 reasons for consulting — shown only in LA and MS (MDI GLP-1 questionnaire state rule) -->
+  <section class="screen" data-step="reasons"><!-- zx-v34-intake-20261009 -->
+    <h1>What are you hoping GLP-1 treatment will help with?</h1>
+    <p class="hint">Providers in your state record the reasons for your consultation. Select all that apply.</p>
+    <div class="opts multi" id="reasonOpts">
+      <button class="opt" type="button" data-value="support_weight">Support a healthy weight</button>
+      <button class="opt" type="button" data-value="cardiovascular">Cardiovascular benefit</button>
+      <button class="opt" type="button" data-value="anti_inflammatory">Anti-inflammatory benefit</button>
+      <button class="opt" type="button" data-value="longevity">Longevity</button>
+      <button class="opt" type="button" data-value="neurocognitive">Neurocognitive benefit</button>
+      <button class="opt" type="button" data-value="microdosing">Microdosing for general health</button>
+      <button class="opt" type="button" data-value="other">Other</button>
+    </div>
+    <div class="field" id="reasonOtherField" style="display:none;margin-top:12px"><label>Please specify</label><input id="reasonOther" type="text" maxlength="200" placeholder="Tell your provider what you're hoping for"></div>
+    <div class="field" id="reasonField" style="margin-top:10px"><div class="err">Please select at least one reason.</div></div>
+    <div class="btn-row"><button class="btn" id="reasonsNext">Continue →</button></div>
   </section>
 
   <!-- Q10 contact -->
@@ -410,6 +478,7 @@ try{
       <p id="pivotText">Our financing partners couldn't offer a payment plan this time, but it doesn't affect your eligibility.</p>
     </div>
 
+    <div class="agree-note" id="glycineNote" style="display:none"><b>About your compounded medication.</b> Your <span id="glycineMed">semaglutide</span> is compounded with <b>glycine</b>, an amino acid your provider may use to help limit muscle loss during treatment, and contains benzyl alcohol as a preservative. Your provider personalizes your dose and may adjust it during treatment to reduce side effects and keep you on track. By placing your order you confirm you've read this and agree to a personalized, provider-adjusted treatment plan.</div><!-- zx-v34-intake-20261009 -->
     <div class="pay-summary">
       <div class="line"><span id="sumPlanName">6-Month Reset</span><span id="sumPlanPrice">$125 + $249 × 5 = $1,370</span></div>
       <div class="line" id="sumAfterLine"><span>After your first month</span><span id="sumAfter">$249/mo</span></div>
@@ -504,6 +573,11 @@ try{
       <div class="field"><label>List any allergies you have — to medications, foods, or anything else (if any)</label><textarea id="hAllergies" rows="2" placeholder="e.g., penicillin, peanuts"></textarea></div>
       <div class="field"><label>List any medications you currently take (if any)</label><textarea id="hMeds" rows="2" placeholder="e.g., lisinopril 10mg daily"></textarea></div>
       <div class="field"><label>List any medical conditions you have (if any)</label><textarea id="hConds" rows="2" placeholder="e.g., high blood pressure"></textarea></div>
+      <div class="field"><label>Anything else you'd like your provider to know? <span style="font-weight:500;color:#A39E93">(optional)</span></label><textarea id="hNote" rows="3" placeholder="Questions for your provider, health issues not covered above, or anything else"></textarea></div><!-- zx-v34-intake-20261009 -->
+      <div class="field" id="hLabsField"><label>Have you had lab tests in the last 6 months you'd like to share?</label><select id="hLabs"><option value="">Select…</option><option value="yes">Yes</option><option value="no">No, not at this time</option></select><div class="err">Please answer yes or no.</div></div>
+      <div id="labsReq" style="display:none"><div class="field"><label>Upload your lab results <span style="font-weight:500;color:#A39E93">(optional)</span></label><p class="hint" style="margin:4px 0 10px">Your provider only needs cholesterol, TSH (thyroid), HbA1c and creatinine (kidney function). Other results won't be reviewed. Photo or PDF.</p><input id="labsFile" type="file" accept="image/*,.pdf,application/pdf"><div id="labsStatus" style="font:600 13px 'Inter';margin-top:6px"></div></div></div>
+      <div id="rxReq" style="display:none"><div class="field"><label>Photo of your current prescription or medication label <span style="font-weight:500;color:#A39E93">(optional)</span></label><p class="hint" style="margin:4px 0 10px">Must show your name. Helps your provider confirm your current dose.</p><input id="rxFile" type="file" accept="image/*,.pdf,application/pdf"><div id="rxStatus" style="font:600 13px 'Inter';margin-top:6px"></div></div></div>
+      <div class="field" id="hNauseaField"><label>Would you like your provider to also send a prescription for nausea medication to a local pharmacy?</label><select id="hNausea"><option value="">Select…</option><option value="yes">Yes — I understand it's separate from my treatment and I pick it up and pay for it at my pharmacy</option><option value="no">No, thank you</option></select><p class="hint" style="margin:6px 0 0;font-size:12.5px">Nausea medication isn't included in your plan but is usually inexpensive. If you choose yes, you'll pick your pharmacy in your patient portal.</p><div class="err">Please answer yes or no.</div></div>
       <div id="healthError" style="display:none;font:600 13px 'Inter';color:var(--red)"></div>
     </div>
     <div class="pay-summary" id="verifyBlock" style="max-width:440px;margin:0 auto 24px;text-align:left">
@@ -517,6 +591,14 @@ try{
           <div id="videoScript" style="background:var(--teal-soft);border-radius:12px;padding:14px 16px;font:500 14px 'Inter';line-height:1.55;margin-bottom:10px"></div>
           <input id="videoFile" type="file" accept="video/*">
           <div id="videoStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
+        </div>
+      </div>
+      <div id="photoReq" style="display:none;margin-top:6px"><!-- zx-v34-intake-20261009 -->
+        <div class="field">
+          <label>Full-body photo — required in your state</label>
+          <p class="hint" style="margin:4px 0 10px">Providers in your state must see a current full-length photo of you before approving treatment. Stand facing the camera, head to feet in frame, in everyday clothing.</p>
+          <input id="bodyFile" type="file" accept="image/*">
+          <div id="bodyStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
         </div>
       </div>
       <div id="submitError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-top:12px"></div>
@@ -551,7 +633,7 @@ try{
 </div>
 
 <p class="disclaim">Zevia Rx connects patients with independent licensed providers; a prescription is never guaranteed and all medical decisions are made solely by your provider. If a provider does not prescribe treatment, your medication cost and shipping fee are refunded (the provider consultation fee is non-refundable) — see our <a href="refunds.html" target="_blank" style="color:inherit">Refund &amp; Cancellation Policy</a>. Compounded medications are not FDA-approved. Estimated weight loss is based on published clinical results for FDA-approved GLP-1 medications and varies by individual. Financing subject to eligibility via third-party partners. Support: <a href="mailto:support@zeviarx.com" style="color:inherit">support@zeviarx.com</a> · <a href="terms.html" target="_blank" style="color:inherit">Terms</a> · <a href="privacy.html" target="_blank" style="color:inherit">Privacy Policy</a> · <a href="notice-of-privacy-practices.html" target="_blank" style="color:inherit">Notice of Privacy Practices</a> · <a href="telehealth-consent.html" target="_blank" style="color:inherit">Telehealth Consent</a></p>
-<!-- zx-ls1-disclosures (LegitScript build 2026-10-03). REVERSAL: restore claude/zeviarx-quiz-v28-2026-10-02.html --><!-- zx-ls1.1 (2026-10-03): "board-certified" added to clinical-partner wording after MDI confirmation. REVERSAL: restore the LS1 snapshot of this page. --><!-- zx-ls1.2 (2026-10-03): support phone added. REVERSAL: restore the LS1.1 snapshot of this page. -->
+<!-- zx-ls1-disclosures (LegitScript build 2026-10-03). REVERSAL: restore claude/zeviarx-quiz-v28-2026-10-02.html --><!-- zx-ls1.1 (2026-10-03): "board-certified" added to clinical-partner wording after MDI confirmation. REVERSAL: restore the LS1 snapshot of this page. --><!-- zx-ls1.2 (2026-10-03): support phone added. REVERSAL: restore the LS1.1 snapshot of this page. --><!-- zx-v34-intake-20261009: MDI intake parity (comorbidities, current GLP-1 details, conditions checklist with hard stops, LA/MS reasons + full-body photo, goal weight, labs/nausea/provider note, consent + glycine records, LA video). REVERSAL: restore claude/zeviarx-quiz-v33-sms-consent-2026-10-09.html -->
 <div class="zx-ls1-disc"><p><b>Clinical partner:</b> Medical consultations, asynchronous clinical evaluations, and prescribing services are facilitated through MD Integrations (MDI) and performed by independent, board-certified healthcare providers licensed in the patient&rsquo;s state of residence.</p><p><b>Dispensing pharmacy:</b> Prescriptions are filled and dispensed by Hallandale Pharmacy, a state-licensed 503A compounding pharmacy located at 2666 SW 36th St, Fort Lauderdale, FL 33312.</p><p><b>Emergencies &amp; adverse events:</b> Zevia Rx does not provide emergency medical services. If you are experiencing a medical emergency, call 911 or visit the nearest emergency room immediately. To report an adverse drug event or medication issue, contact our clinical care team at <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> or report directly to the <a href="https://www.fda.gov/safety/medwatch-fda-safety-information-and-adverse-event-reporting-program" target="_blank" rel="noopener">FDA MedWatch program</a>.</p><p><b>Zevia Rx, Inc.</b> &middot; 30 N Gould St, Ste R, Sheridan, WY 82801 &middot; <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> &middot; <a href="tel:+18325861086">832-586-1086</a></p></div>
 <!-- /zx-ls1-disclosures -->
 
@@ -655,8 +737,11 @@ async function payWithStripe(){
   }
 }
 
-const FLOW = ['goal','body','diabetes','thyroid','current','previous','pregnancy','organs','meds','state','contact','results','identity','checkout','success'];
-const QCOUNT = 11;
+/* v34: comorbid, glp1 (conditional on current=yes), conditions, reasons (conditional on LA/MS) added. <!-- zx-v34-intake-20261009 --> */
+const FLOW = ['goal','body','comorbid','diabetes','thyroid','current','glp1','previous','pregnancy','organs','conditions','meds','state','reasons','contact','results','identity','checkout','success'];
+const SUBSTEP = { glp1:'current', reasons:'state' }; // conditional screens share their parent's question number
+const QSTEPS = FLOW.slice(0, FLOW.indexOf('results')).filter(x => !SUBSTEP[x]);
+const QCOUNT = QSTEPS.length; // 13
 let history = [];
 let current = 'goal';
 
@@ -671,7 +756,7 @@ function show(step){
   else if(step==='ineligible'){ label.textContent='Eligibility'; bar.style.width='100%'; renderIneligible(); }
   else if(step==='unavailable'){ label.textContent='Service area'; bar.style.width='100%'; }
   else if(step==='identity'){ label.textContent='Identity Verification'; bar.style.width='100%'; }
-  else if(qi >= 0 && qi < QCOUNT){ label.textContent = `Question ${qi+1} of ${QCOUNT}`; bar.style.width = ((qi)/QCOUNT*100)+'%'; }
+  else if(qi >= 0 && qi < FLOW.indexOf('results')){ const qn = QSTEPS.indexOf(SUBSTEP[step] || step); label.textContent = `Question ${qn+1} of ${QCOUNT}`; bar.style.width = ((qn)/QCOUNT*100)+'%'; }
   else if(step==='results'){ label.textContent='Your Results'; bar.style.width='100%'; }
   else if(step==='checkout'){ label.textContent='Secure Checkout'; bar.style.width='100%'; }
   else if(step==='success'){ label.textContent='Order Confirmed'; bar.style.width='100%'; }
@@ -699,7 +784,7 @@ window.addEventListener('hashchange', () => {
 });
 
 /* ---------- option buttons (auto-advance) ---------- */
-document.querySelectorAll('.screen .opts:not(#medGrid)').forEach(group=>{
+document.querySelectorAll('.screen .opts:not(#medGrid):not(.multi)').forEach(group=>{
   group.querySelectorAll('.opt').forEach(btn=>{
     btn.addEventListener('click',()=>{
       group.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
@@ -719,8 +804,67 @@ function advanceFrom(step){
   const dq = DQ_ANSWERS[step] && DQ_ANSWERS[step][S.answers[step]];
   if(dq){ S.dq = dq; next('ineligible'); return; }
   S.dq = null;
+  if(step==='current'){ next(S.answers.current==='yes' ? 'glp1' : 'previous'); return; } // v34
   next(FLOW[i+1]);
 }
+
+/* ---------- v34 multi-select screens (checkbox-style; "none" is exclusive; Continue validates) ---------- */
+function multiSetup(groupId, noneValue){
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const v = btn.dataset.value;
+      if(v===noneValue){ group.querySelectorAll('.opt').forEach(b=>b.classList.toggle('selected', b===btn && !btn.classList.contains('selected'))); }
+      else { btn.classList.toggle('selected'); const n = group.querySelector(`.opt[data-value="${noneValue}"]`); if(n) n.classList.remove('selected'); }
+      const f = group.parentElement.querySelector('.field .err'); if(f) f.parentElement.classList.remove('error');
+      if(groupId==='reasonOpts'){ document.getElementById('reasonOtherField').style.display = group.querySelector('.opt[data-value="other"].selected') ? 'block' : 'none'; }
+    });
+  });
+}
+function multiValues(groupId){ return Array.from(document.querySelectorAll('#'+groupId+' .opt.selected')).map(b=>b.dataset.value); }
+function multiRestore(groupId, values){ document.querySelectorAll('#'+groupId+' .opt').forEach(b=>b.classList.toggle('selected', (values||[]).includes(b.dataset.value))); }
+multiSetup('comorbidOpts','none'); multiSetup('condOpts','none'); multiSetup('reasonOpts', null);
+document.getElementById('comorbidNext').addEventListener('click',()=>{
+  const v = multiValues('comorbidOpts');
+  if(!v.length){ document.getElementById('comorbidField').classList.add('error'); return; }
+  S.answers.comorbidities = v;
+  next('diabetes');
+});
+/* conditions: Cedric 2026-10-09 — every item is a hard stop except severe GI disease (flagged to the provider) */
+const COND_DQ = {
+  gi_surgery: 'bariatric or other GI surgery within the last 6 months — GLP-1 medications slow stomach emptying and are not started until you have fully recovered',
+  retinopathy: 'diabetic retinopathy — rapid blood-sugar changes on a GLP-1 can worsen it, so it needs in-person specialist oversight',
+  gallbladder: 'gallbladder disease — GLP-1 medications raise the risk of gallstones and gallbladder inflammation',
+  liver: 'liver disease or cirrhosis — this needs in-person specialist care before a GLP-1 can be considered',
+  glycine_allergy: 'a glycine allergy — our compounded injectable formulations contain glycine',
+  benzyl_allergy: 'a benzyl alcohol allergy — our compounded formulations contain benzyl alcohol as a preservative'
+};
+document.getElementById('condNext').addEventListener('click',()=>{
+  const v = multiValues('condOpts');
+  if(!v.length){ document.getElementById('condField').classList.add('error'); return; }
+  S.answers.conditions = v;
+  const bad = v.filter(x=>COND_DQ[x]);
+  if(bad.length){ S.dq = 'conditions'; S.dqItems = bad; next('ineligible'); return; }
+  S.dq = null; S.dqItems = null;
+  next('meds');
+});
+document.getElementById('reasonsNext').addEventListener('click',()=>{
+  const v = multiValues('reasonOpts');
+  if(!v.length){ document.getElementById('reasonField').classList.add('error'); return; }
+  S.answers.reasons = v;
+  S.answers.reasons_other = v.includes('other') ? document.getElementById('reasonOther').value.trim().slice(0,200) : '';
+  next('contact');
+});
+/* current GLP-1 details */
+document.getElementById('g1Product').addEventListener('change',()=>{ document.getElementById('g1ProdField').classList.remove('error'); const o = document.getElementById('g1Product').value==='other'; document.getElementById('g1Dose').placeholder = o ? 'e.g., phentermine 37.5 mg — one tablet each morning' : 'e.g., semaglutide 2.5 mg/mL vial — inject 20 units (0.5 mg) once weekly'; });
+document.getElementById('g1Dose').addEventListener('input',()=>document.getElementById('g1DoseField').classList.remove('error'));
+document.getElementById('glp1Next').addEventListener('click',()=>{
+  const prod = document.getElementById('g1Product').value, dose = document.getElementById('g1Dose').value.trim().slice(0,240);
+  if(!prod){ document.getElementById('g1ProdField').classList.add('error'); return; }
+  if(!dose){ document.getElementById('g1DoseField').classList.add('error'); document.getElementById('g1Dose').focus(); return; }
+  S.answers.glp1 = { product: prod, dose, last_dose: document.getElementById('g1Last').value || '', dose_pref: document.getElementById('g1Pref').value || '' };
+  next('previous');
+});
 
 /* ---------- eligibility hard stops (v25) ----------
    Mirrors the FDA labeling for GLP-1 weight-management medications and the screening
@@ -744,6 +888,7 @@ const DQ_COPY = {
   type1: () => `You told us you've been diagnosed with Type 1 diabetes. The GLP-1 medications we offer are not approved for Type 1 diabetes, and adding them through a weight-loss program could interfere with your insulin management. Your endocrinologist is the right person to talk with about weight management that's safe for you.`,
   thyroid: () => `You told us you have a personal or family history of medullary thyroid carcinoma or MEN 2. GLP-1 medications carry an FDA boxed warning for exactly this history, so they cannot be safely prescribed to you, and no provider on our platform will make an exception.`,
   pregnancy: () => `You told us you're pregnant, nursing, or planning to become pregnant in the next few months. GLP-1 medications aren't safe during pregnancy or while breastfeeding, and should be stopped at least two months before trying to conceive. Please talk with your OB-GYN; we'd welcome you back when the timing is right for you.`,
+  conditions: () => { const items = (S.dqItems||[]).map(k=>COND_DQ[k]).filter(Boolean); const list = items.length>1 ? items.slice(0,-1).join('; ') + '; and ' + items[items.length-1] : (items[0]||'a condition your provider cannot treat through telehealth'); return `You told us you have ${list}. The licensed providers we work with can't prescribe GLP-1 medication through telehealth in this situation.`; },
   organs: () => `You told us you have a history of pancreatitis or serious kidney problems. GLP-1 medications can trigger pancreatitis and affect kidney function, so licensed providers won't prescribe them through telehealth with this history. Weight management for you should be guided in person by a doctor who can monitor you closely.`
 };
 function renderIneligible(){
@@ -756,6 +901,7 @@ document.getElementById('inelBack').addEventListener('click', ()=>{ window.histo
 const hIn = document.getElementById('hIn');
 for(let i=0;i<12;i++){ const o=document.createElement('option'); o.textContent=i; if(i===10) o.selected=true; hIn.appendChild(o); }
 document.getElementById('wLbs').addEventListener('input',()=>document.getElementById('wField').classList.remove('error'));
+document.getElementById('gwLbs').addEventListener('input',()=>document.getElementById('gwField').classList.remove('error'));
 document.getElementById('bodyNext').addEventListener('click',()=>{
   const w=+document.getElementById('wLbs').value;
   if(!(w>=80 && w<=700)){ document.getElementById('wField').classList.add('error'); document.getElementById('wLbs').focus(); return; }
@@ -763,13 +909,20 @@ document.getElementById('bodyNext').addEventListener('click',()=>{
   const hTot = ft*12+inch;
   S.bmi = +(703*w/(hTot*hTot)).toFixed(1);
   S.answers.weight=w; S.answers.height=hTot;
+  { const gwEl=document.getElementById('gwLbs'); const gw=+gwEl.value; // v34 optional goal weight
+    if(gwEl.value && !(gw>=60 && gw<=700)){ document.getElementById('gwField').classList.add('error'); gwEl.focus(); return; }
+    document.getElementById('gwField').classList.remove('error'); S.answers.goal_weight = gwEl.value ? gw : null; }
   /* v27: no BMI gate — the provider reviews BMI and decides. */
   S.dq = null;
-  next('diabetes');
+  next('comorbid');
 });
 
 /* ---------- state select (always-enabled Continue; validates on click) ---------- */
 const STATES="AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" ");
+/* v34: versions of the documents accepted at the contact step (LS1.2 set, 2026-10-03). Bump when the legal pages change. */
+const LEGAL_VERSIONS = { terms:'v5-LS1.2-2026-10-03', privacy:'v5-LS1.2-2026-10-03', telehealth_consent:'v5-LS1.2-2026-10-03' };
+/* v34: states whose MDI GLP-1 questionnaires require a full-body photo (and an AV video) before approval. */
+const PHOTO_STATES = ['LA','MS'];
 const SERVICE_STATES = STATES.slice(); // states where a licensed provider is available via MDI (all, as of 2026-10-03)
 const sSel=document.getElementById('stateSel');
 STATES.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;sSel.appendChild(o);});
@@ -785,6 +938,8 @@ document.getElementById('stateNext').addEventListener('click',()=>{
      states (+DC), so every option passes today; the filter exists so a state can be switched
      off here without touching the flow. */
   if(!SERVICE_STATES.includes(sSel.value)){ next('unavailable'); return; }
+  if(PHOTO_STATES.includes(sSel.value)){ next('reasons'); return; } // v34: LA/MS record the reasons for consulting
+  S.answers.reasons = null; S.answers.reasons_other = '';
   next('contact');
 });
 
@@ -829,6 +984,7 @@ document.getElementById('seeResults').addEventListener('click',()=>{
   S.answers.dob = dobIn.value.trim();
   S.answers.name=name; S.answers.email=email; S.answers.phone=document.getElementById('phone').value.trim();
   if(S.answers.phone) S.answers.sms_consent = { accepted:true, at:new Date().toISOString(), text:document.getElementById('smsConsent').textContent.trim() }; // zx-sms-consent-20261009: TCPA record stored with the lead
+  S.answers.consent = { accepted:true, at:new Date().toISOString(), docs:LEGAL_VERSIONS, text:document.getElementById('seeResults').parentElement.nextElementSibling.textContent.trim() }; // v34: click-wrap acceptance record (which documents, which versions, when)
   console.log('LEAD_CAPTURED', {...S.answers, bmi:S.bmi, tracking:S.tracking});
   fetch(BACKEND + '/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
     body: JSON.stringify({ name, email, phone: S.answers.phone, state: S.answers.state, bmi: S.bmi, med: S.preMed || S.med || null, answers: S.answers, tracking: S.tracking }) })
@@ -942,8 +1098,25 @@ document.getElementById('identityNext').addEventListener('click', async ()=>{
   } finally { btn.disabled=false; btn.textContent=orig; }
 });
 
+/* v34: injectable compounds (sema/tirz) are "+ Glycine" formulations — disclose and record the patient's agreement
+   to a personalized, provider-adjusted plan (mirrors MDI's intake agreement). Oral tablets: no note. */
+function isInjectable(){ const m = MEDS[S.med]; return !!(m && !m.brand && S.med !== 'oral'); }
+function refreshGlycineNote(){
+  const el = document.getElementById('glycineNote'); if(!el) return;
+  const show = isInjectable();
+  el.style.display = show ? 'block' : 'none';
+  if(show) document.getElementById('glycineMed').textContent = (MEDS[S.med].label || 'medication').toLowerCase();
+}
+function recordGlycineAgreement(){
+  if(!isInjectable()) return;
+  const rec = { accepted:true, at:new Date().toISOString(), med:S.med, text:document.getElementById('glycineNote').textContent.trim() };
+  S.answers.glycine_agreement = rec; saveState();
+  if(S.leadId){ fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'}, keepalive:true,
+    body: JSON.stringify({ leadId:S.leadId, paymentIntent:S.lastPI||null, agreements:{ glycine:rec } }) }).catch(()=>{}); }
+}
 function setupCheckout(pivoted){
   const m = MEDS[S.med];
+  refreshGlycineNote();
   /* BNPL availability + prior-attempt state */
   const finTot = (m.brand ? brandMonthly(m) : m.plans[S.plan].price) + FEES;
   const apBtn = document.querySelector('.bnpl-btn[data-provider="Afterpay"]');
@@ -1101,6 +1274,7 @@ function collectBnplAddr(){
 async function payBnpl(name){
   const p = BNPL.find(x=>x.name===name);
   bnplError('');
+  recordGlycineAgreement(); // v34
   const m = MEDS[S.med];
   const total = financedTotal();
   const ov = document.getElementById('overlay');
@@ -1170,6 +1344,7 @@ document.getElementById('bnplAddrBtn').addEventListener('click',()=>{
 /* ---------- card payment (demo) ---------- */
 function payCard(e){
   e.preventDefault();
+  recordGlycineAgreement(); // v34
   if (STRIPE_PK && payElReady) { payWithStripe(); return false; }
   const num=document.getElementById('ccNum');
   if(num.value.replace(/\s/g,'').length<15){ document.getElementById('ccField').classList.add('error'); return false; }
@@ -1293,11 +1468,16 @@ async function saveAddressIfNeeded(){
      the health save always runs at Submit. */
 function collectHealth(){
   const v=id=>document.getElementById(id).value.trim().slice(0,2000);
-  const h={ allergies:v('hAllergies'), medications:v('hMeds'), conditions:v('hConds') };
+  const h={ allergies:v('hAllergies'), medications:v('hMeds'), conditions:v('hConds'), note:v('hNote') }; // v34 note
   const sex=document.getElementById('hSex').value;
   if(sex) h.sex=sex;
-  return (h.sex||h.allergies||h.medications||h.conditions) ? h : null;
+  const labs=document.getElementById('hLabs').value, nausea=document.getElementById('hNausea').value; // v34
+  if(labs) h.labs_recent=labs;
+  if(nausea) h.nausea_rx=nausea;
+  return (h.sex||h.allergies||h.medications||h.conditions||h.note||h.labs_recent||h.nausea_rx) ? h : null;
 }
+document.getElementById('hLabs').addEventListener('change',()=>{ document.getElementById('hLabsField').classList.remove('error'); document.getElementById('labsReq').style.display = document.getElementById('hLabs').value==='yes' ? 'block' : 'none'; });
+document.getElementById('hNausea').addEventListener('change',()=>document.getElementById('hNauseaField').classList.remove('error'));
 async function saveHealthIfAny(){
   const errEl=document.getElementById('healthError'); errEl.style.display='none';
   const health=collectHealth();
@@ -1330,10 +1510,17 @@ async function submitAll(){
       err.textContent='Please see the note under Health information above.'; err.style.display='block';
       return;
     }
+    { // v34: labs + nausea answers are required (MDI intake parity)
+      let miss=false;
+      if(!document.getElementById('hLabs').value){ document.getElementById('hLabsField').classList.add('error'); miss=true; }
+      if(!document.getElementById('hNausea').value){ document.getElementById('hNauseaField').classList.add('error'); miss=true; }
+      if(miss){ err.textContent='Please answer the two questions under Health information above.'; err.style.display='block'; return; }
+    }
     const healthOk = await saveHealthIfAny();
     if(!healthOk){ err.textContent='Please see the note under Health information above.'; err.style.display='block'; return; }
     if(!S.idDone){ err.textContent="Please upload your driver's license or photo ID."; err.style.display='block'; return; }
     if(videoRequired() && !S.videoDone){ err.textContent='Please upload your verification video — it is required in your state.'; err.style.display='block'; return; }
+    if(photoRequired() && !S.photoDone){ err.textContent='Please upload your full-body photo — it is required in your state.'; err.style.display='block'; return; } // v34
     S.submitted = true;
     btn.textContent='✓ Submitted';
     document.getElementById('confirmModal').classList.add('show');
@@ -1352,7 +1539,9 @@ document.getElementById('confirmClose').addEventListener('click', ()=>document.g
    quiz v28). The 5 "sync" states (DE, KS, MO, MS, WV) are a subset; there the clinician decides
    the modality and initiates any live call themselves — nothing extra for us to collect.
    Re-pull the endpoint if MDI changes the list — edit this const only. */
-const VIDEO_STATES = ['AK','AR','DE','HI','KS','ME','MO','MS','OR','RI','WV'];
+/* v34 (2026-10-09): LA added — not an `is_av_flow` state in MDI's metadata, but every MDI GLP-1 questionnaire carries a
+   clinician rule "AV upload and full body photo required prior to approval" for LA and MS. Mirrored in mdi_config.video_states. */
+const VIDEO_STATES = ['AK','AR','DE','HI','KS','LA','ME','MO','MS','OR','RI','WV'];
 /* The state that governs the video requirement: the SAVED delivery state, else the live
    delivery-state select (so changing it re-evaluates the requirement before submitting),
    else the state given in the quiz. */
@@ -1364,6 +1553,7 @@ function currentPatientState(){
   return S.answers.state || '';
 }
 function videoRequired(){ return VIDEO_STATES.includes(currentPatientState()); }
+function photoRequired(){ return PHOTO_STATES.includes(currentPatientState()); } // v34
 function buildVideoScript(){
   const name = S.answers.name || '[your full name]';
   const st = currentPatientState() || '[your state]';
@@ -1375,6 +1565,9 @@ function refreshVideoReq(){
   if(!el) return;
   el.style.display = vr ? 'block' : 'none';
   if(vr) document.getElementById('videoScript').textContent = buildVideoScript();
+  const pr = document.getElementById('photoReq'); if(pr) pr.style.display = photoRequired() ? 'block' : 'none'; // v34
+  const rx = document.getElementById('rxReq'); if(rx) rx.style.display = S.answers.current==='yes' ? 'block' : 'none'; // v34
+  const lb = document.getElementById('labsReq'); if(lb) lb.style.display = document.getElementById('hLabs').value==='yes' ? 'block' : 'none'; // v34
 }
 document.getElementById('shState').addEventListener('change', refreshVideoReq);
 function setupVerification(preserve){
@@ -1382,6 +1575,9 @@ function setupVerification(preserve){
   const g = id => document.getElementById(id);
   g('videoFile').value = '';
   if(preserve && S.videoDone){ g('videoStatus').style.color='var(--teal)'; g('videoStatus').textContent='✓ Video uploaded'; } else { g('videoStatus').textContent=''; }
+  if(!preserve){ S.photoDone = false; S.rxDone = false; S.labsDone = false; } // v34
+  [['bodyFile','bodyStatus','photoDone','body_photo'],['rxFile','rxStatus','rxDone','rx_photo'],['labsFile','labsStatus','labsDone','labs']].forEach(([f,st,flag,kind])=>{
+    g(f).value=''; if(preserve && S[flag]){ g(st).style.color='var(--teal)'; g(st).textContent=UPLOAD_DONE[kind]; } else { g(st).textContent=''; } });
   g('submitError').style.display = 'none';
   const sb = g('submitAll');
   sb.disabled = !!(preserve && S.submitted);
@@ -1402,6 +1598,8 @@ function updateGate(){
 document.getElementById('homeBtn').addEventListener('click', function(){
   if(!this.classList.contains('locked')) clearProgress();
 });
+const UPLOAD_DONE = { license:'✓ ID uploaded', video:'✓ Video uploaded', body_photo:'✓ Photo uploaded', rx_photo:'✓ Prescription photo uploaded', labs:'✓ Lab results uploaded' }; // v34
+const UPLOAD_FLAG = { license:'idDone', video:'videoDone', body_photo:'photoDone', rx_photo:'rxDone', labs:'labsDone' };
 async function uploadDoc(kind, inputId, statusId){
   const input = document.getElementById(inputId);
   const st = document.getElementById(statusId);
@@ -1423,8 +1621,8 @@ async function uploadDoc(kind, inputId, statusId){
     const cd = await c.json();
     if (!c.ok || !cd.ok) throw new Error('Upload could not be verified — please try again.');
     st.style.color = 'var(--teal)';
-    st.textContent = kind === 'video' ? '✓ Video uploaded' : '✓ ID uploaded';
-    if (kind === 'video') S.videoDone = true; else S.idDone = true;
+    st.textContent = UPLOAD_DONE[kind] || '✓ Uploaded';
+    S[UPLOAD_FLAG[kind] || 'idDone'] = true;
     saveState();
     updateGate();
   } catch (err) {
@@ -1434,11 +1632,15 @@ async function uploadDoc(kind, inputId, statusId){
 }
 document.getElementById('idFile').addEventListener('change', () => uploadDoc('license','idFile','idStatus'));
 document.getElementById('videoFile').addEventListener('change', () => uploadDoc('video','videoFile','videoStatus'));
+document.getElementById('bodyFile').addEventListener('change', () => uploadDoc('body_photo','bodyFile','bodyStatus')); // v34
+document.getElementById('rxFile').addEventListener('change', () => uploadDoc('rx_photo','rxFile','rxStatus'));
+document.getElementById('labsFile').addEventListener('change', () => uploadDoc('labs','labsFile','labsStatus'));
 
 /* ---------- Stripe redirect-method return (Klarna / Affirm / Cash App tabs) ---------- */
 async function handleRedirectReturn(clientSecret){
   try{ window.history.replaceState(null, '', location.pathname); }catch(e){}
   let ctx=null; try{ ctx=JSON.parse(sessionStorage.getItem('zx_checkout')||'null'); }catch(e){}
+  try{ const ls=JSON.parse(localStorage.getItem('zx_progress')||'null'); if(ls && ls.S && ls.S.answers) S.answers = Object.assign({}, ls.S.answers, S.answers); }catch(e){} // v34
   if(ctx){ S.med=ctx.med||S.med; S.plan=ctx.plan||S.plan; S.payMode=ctx.payMode||S.payMode; S.leadId=ctx.leadId||null; S.answers.name=ctx.name||S.answers.name; S.answers.email=ctx.email||S.answers.email; S.answers.state=ctx.state||S.answers.state; S.shipAddr=ctx.shipAddr||null; S.bnplTried=ctx.bnplTried||[]; }
   const isBnpl = !!(ctx && ctx.payMode==='bnpl');
   const attempted = (ctx && ctx.bnplAttempt) || null;
@@ -1485,7 +1687,7 @@ async function handleRedirectReturn(clientSecret){
    hand a reload an EMPTY sessionStorage (purged/restored tabs, webview relaunches), so the
    localStorage mirror is the fallback that keeps mobile reloads on the same screen.
    Cleared on fresh ?med= entries and when the customer leaves via Return Home. */
-const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip','hSex','hAllergies','hMeds','hConds'];
+const ZX_PERSIST_FIELDS = ['wLbs','hFt','hIn','gwLbs','g1Product','g1Dose','g1Last','g1Pref','reasonOther','stateSel','fName','dobIn','email','phone','shName','shLine1','shLine2','shCity','shState','shZip','bnName','bnLine1','bnLine2','bnCity','bnState','bnZip','hSex','hAllergies','hMeds','hConds','hNote','hLabs','hNausea'];
 const ZX_PROGRESS_TTL = 24*60*60*1000; // localStorage fallback valid for 24h
 function clearProgress(){
   try{ sessionStorage.removeItem('zx_progress'); }catch(e){}
@@ -1498,7 +1700,7 @@ function saveState(){
     const snap = JSON.stringify({ t: Date.now(), step: current, S: {
       answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
       leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
-      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, submitted:!!S.submitted, health:S.health||null, dq:S.dq||null, reached:S.reached||0, identity:S.identity||null,
+      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, photoDone:!!S.photoDone, rxDone:!!S.rxDone, labsDone:!!S.labsDone, dqItems:S.dqItems||null, submitted:!!S.submitted, health:S.health||null, dq:S.dq||null, reached:S.reached||0, identity:S.identity||null,
       bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
     }, fields });
     try{ sessionStorage.setItem('zx_progress', snap); }catch(e){}
@@ -1544,6 +1746,8 @@ function restoreProgress(p){
     const fields=p.fields||{};
     for(const id in fields){ const el=document.getElementById(id); if(el && typeof fields[id]==='string') el.value=fields[id]; }
     const step = (p.step && document.querySelector('[data-step="'+p.step+'"]')) ? p.step : 'goal';
+    multiRestore('comorbidOpts', S.answers.comorbidities); multiRestore('condOpts', S.answers.conditions); multiRestore('reasonOpts', S.answers.reasons); // v34
+    if((S.answers.reasons||[]).includes('other')) document.getElementById('reasonOtherField').style.display='block';
     if(step==='results'){ renderResults(); }
     else if(step==='identity'){ renderResults(); renderIdentityRestore(); }
     else if(step==='checkout'){ renderResults(); renderIdentityRestore(); setupCheckout(false); }
