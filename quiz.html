@@ -523,16 +523,10 @@ try{
     <form id="cardForm" onsubmit="return payCard(event)">
       <div id="payElement" style="display:none;margin-bottom:16px"></div>
       <div id="payError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-bottom:12px"></div>
-      <div id="demoCardFields">
-      <div class="field"><label>Name on card</label><input type="text" id="ccName" placeholder="Alex Morgan" autocomplete="cc-name"></div>
-      <div class="field" id="ccField"><label>Card number</label><input type="text" id="ccNum" placeholder="4242 4242 4242 4242" inputmode="numeric" autocomplete="cc-number" maxlength="19"><div class="err">Please enter a valid card number.</div></div>
-      <div class="row2">
-        <div class="field"><label>Expiry</label><input type="text" id="ccExp" placeholder="MM / YY" inputmode="numeric" autocomplete="cc-exp" maxlength="7"></div>
-        <div class="field"><label>CVC</label><input type="text" id="ccCvc" placeholder="123" inputmode="numeric" autocomplete="cc-csc" maxlength="4"></div>
-      </div>
-      </div>
-      <button class="btn gold wide" id="cardPayBtn" type="submit">Pay <span id="cardPayAmt">$1,320</span> Securely</button>
-      <p id="demoNote" style="font:500 11px 'Inter';color:#A39E93;margin-top:12px;text-align:center">Demo build — no real payment is processed. Add your Stripe publishable key to enable live payments.</p>
+      <!-- zx-ls1.8-checkout-20261110: mock card fields and demo note removed — the Stripe Payment Element is the only way to pay -->
+      <div id="payLoading" style="display:none;font:500 13px 'Inter';color:var(--ink-soft);margin-bottom:14px;text-align:center">Loading secure payment form…</div>
+      <div id="payLoadError" style="display:none;border:1px solid var(--cream-deep);border-radius:12px;background:#fff;padding:14px 16px;margin-bottom:14px;font:500 13px/1.55 'Inter';color:var(--ink-soft)"><b style="color:var(--red)">We couldn't load the secure payment form.</b> You have not been charged. Check your connection, turn off any content blocker for this page, and <button type="button" id="payRetry" style="border:none;background:none;padding:0;font:600 13px 'Inter';color:var(--teal);text-decoration:underline;cursor:pointer">try again</button>. Need help? <a href="mailto:support@zeviarx.com" style="color:var(--teal)">support@zeviarx.com</a> &middot; 832-586-1086</div>
+      <button class="btn gold wide" id="cardPayBtn" type="submit" disabled>Pay <span id="cardPayAmt">$1,320</span> Securely</button>
     </form>
     <div class="btn-row"><button class="back" onclick="goBackToPlans()">← Change plan</button></div>
   </section>
@@ -676,22 +670,30 @@ const BACKEND = 'https://zdvbhfykxjbgfdclfmcu.supabase.co/functions/v1';
 const STRIPE_PK = 'pk_test_51SSh0pDSUBVlqIfSsUjTUZYi4uFl2ghkFtTbDqlv2PyViz8ppstQzpJNCpYhPeAvdptKe6d411gcz1wTmtyrkaMc00hVud74Z8'; // test mode — swap to pk_live_ at launch
 let stripe = null, elements = null, payElReady = false;
 const dueCents = () => { const m = MEDS[S.med]; return Math.round(((m.brand ? brandMonthly(m) : m.first) + FEES) * 100); };
-function loadStripeJs(){
-  return new Promise((res, rej) => {
-    if (window.Stripe) return res();
+let stripeJsPromise = null;
+function loadStripeJs(){ // zx-ls1.8-checkout-20261110: one in-flight load, 15 s timeout, failed tag removed so a retry really reloads
+  if (window.Stripe) return Promise.resolve();
+  if (stripeJsPromise) return stripeJsPromise;
+  stripeJsPromise = new Promise((res, rej) => {
     const s = document.createElement('script');
+    const fail = (why) => { clearTimeout(t); s.remove(); stripeJsPromise = null; rej(new Error(why)); };
+    const t = setTimeout(() => fail('stripe_js_timeout'), 15000);
     s.src = 'https://js.stripe.com/v3/';
-    s.onload = res; s.onerror = rej;
+    s.onload = () => { clearTimeout(t); if (window.Stripe) res(); else fail('stripe_js_missing'); };
+    s.onerror = () => fail('stripe_js_load_failed');
     document.head.appendChild(s);
   });
+  return stripeJsPromise;
 }
-async function setupPayElement(){
-  if (!STRIPE_PK || !S.med) return; // demo mode — keep the mock card fields
+async function setupPayElement(){ // zx-ls1.8-checkout-20261110: no mock fallback — on failure show an error + retry and keep Pay disabled
+  if (!S.med) return;
+  const btn = document.getElementById('cardPayBtn'), loadEl = document.getElementById('payLoading'), failEl = document.getElementById('payLoadError');
+  failEl.style.display = 'none';
+  if (!payElReady) { btn.disabled = true; loadEl.style.display = 'block'; }
   try {
+    if (!STRIPE_PK) throw new Error('stripe_not_configured');
     await loadStripeJs();
     if (!stripe) stripe = Stripe(STRIPE_PK, { locale: 'en' });
-    document.getElementById('demoCardFields').style.display = 'none';
-    document.getElementById('demoNote').style.display = 'none';
     const amount = dueCents();
     if (!elements) {
       elements = stripe.elements({ mode: 'payment', amount, currency: 'usd',
@@ -701,9 +703,15 @@ async function setupPayElement(){
       elements.update({ amount });
     }
     document.getElementById('payElement').style.display = 'block';
-    payElReady = true;
-  } catch (e) { console.error('stripe init', e); }
+    payElReady = true; btn.disabled = false; loadEl.style.display = 'none';
+  } catch (e) {
+    console.error('stripe init', e);
+    payElReady = false; elements = null; btn.disabled = true;
+    const pe = document.getElementById('payElement'); pe.innerHTML = ''; pe.style.display = 'none';
+    loadEl.style.display = 'none'; failEl.style.display = 'block';
+  }
 }
+document.getElementById('payRetry').addEventListener('click', () => setupPayElement());
 async function payWithStripe(){
   const errEl = document.getElementById('payError'); errEl.style.display = 'none';
   const btn = document.getElementById('cardPayBtn'); btn.disabled = true;
@@ -1192,7 +1200,6 @@ document.getElementById('mtmOpt').addEventListener('click',()=>{
   S.payMode='mtm';
   setupCheckout(document.getElementById('pivotBanner').classList.contains('show'));
   document.getElementById('cardForm').scrollIntoView({behavior:'smooth',block:'center'});
-  document.getElementById('ccName').focus();
 });
 
 /* ---------- direct card payment option (brand-name monthly) ---------- */
@@ -1200,7 +1207,6 @@ document.getElementById('directOpt').addEventListener('click',()=>{
   S.payMode='direct';
   setupCheckout(document.getElementById('pivotBanner').classList.contains('show'));
   document.getElementById('cardForm').scrollIntoView({behavior:'smooth',block:'center'});
-  document.getElementById('ccName').focus();
 });
 
 /* ---------- BNPL — real financing via Stripe (Klarna / Affirm / Afterpay) + soft pivot ---------- */
@@ -1341,30 +1347,12 @@ document.getElementById('bnplAddrBtn').addEventListener('click',()=>{
   payBnpl(pendingBnpl);
 });
 
-/* ---------- card payment (demo) ---------- */
-function payCard(e){
+/* ---------- card payment (Stripe Payment Element only) ---------- */
+function payCard(e){ // zx-ls1.8-checkout-20261110: no mock/demo path — an order can only be confirmed after Stripe confirms the payment
   e.preventDefault();
+  if (!payElReady) { setupPayElement(); return false; }
   recordGlycineAgreement(); // v34
-  if (STRIPE_PK && payElReady) { payWithStripe(); return false; }
-  const num=document.getElementById('ccNum');
-  if(num.value.replace(/\s/g,'').length<15){ document.getElementById('ccField').classList.add('error'); return false; }
-  document.getElementById('ccField').classList.remove('error');
-  const ov=document.getElementById('overlay');
-  document.getElementById('ovTitle').textContent='Processing payment…';
-  document.getElementById('ovText').textContent='Encrypting and securely submitting your card details.';
-  ov.classList.add('show');
-  setTimeout(()=>{
-    ov.classList.remove('show');
-    const m=MEDS[S.med];
-    let label;
-    if(m.brand){
-      label = `${m.label} — ${fmt(brandMonthly(m)+FEES)} today, then ${fmt(brandMonthly(m))}/mo (membership + medication)`;
-    } else {
-      const p=m.plans[S.plan];
-      label = S.payMode==='mtm' ? `Month-to-Month — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${p.rate}/mo` : `${p.name} — ${fmt(m.first+FEES)} today (${fmt(m.first)} medication cost + shipping & doctor fees), then $${p.rate}/mo`;
-    }
-    finish(label, 'Card ending '+num.value.replace(/\s/g,'').slice(-4));
-  },1800);
+  payWithStripe();
   return false;
 }
 
