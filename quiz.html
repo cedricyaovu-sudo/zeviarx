@@ -634,6 +634,16 @@ try{
   </div>
 </div>
 
+<!-- zx-ls1.11-resume-20261110: notices for reminder links (expired / already submitted / reminders stopped) -->
+<div class="overlay" id="resumeModal">
+  <div class="box">
+    <h3 id="resumeTitle"></h3>
+    <p id="resumeText" style="margin-top:8px"></p>
+    <a class="btn" id="resumeBtn" href="portal.html" style="margin-top:18px;text-decoration:none"></a>
+    <p style="margin-top:16px;font-size:13px">Need help? <a href="mailto:support@zeviarx.com" style="color:var(--teal);font-weight:600">support@zeviarx.com</a> &middot; <a href="tel:+18325861086" style="color:var(--teal);font-weight:600">832-586-1086</a></p>
+  </div>
+</div>
+
 <p class="disclaim">Zevia Rx connects patients with independent licensed providers; a prescription is never guaranteed and all medical decisions are made solely by your provider. If a provider does not prescribe treatment, your medication cost and shipping fee are refunded (the provider consultation fee is non-refundable) — see our <a href="refunds.html" target="_blank" style="color:inherit">Refund &amp; Cancellation Policy</a>. Compounded medications are not FDA-approved and are not commercially manufactured products. Weight loss varies by individual and is not guaranteed.<!-- zx-ls1.5-compound-20261009 --><!-- zx-ls1.6-entity-20261009: entity name corrected to LLC x1 --> Financing subject to eligibility via third-party partners. Support: <a href="mailto:support@zeviarx.com" style="color:inherit">support@zeviarx.com</a> · <a href="terms.html" target="_blank" style="color:inherit">Terms</a> · <a href="privacy.html" target="_blank" style="color:inherit">Privacy Policy</a> · <a href="notice-of-privacy-practices.html" target="_blank" style="color:inherit">Notice of Privacy Practices</a> · <a href="telehealth-consent.html" target="_blank" style="color:inherit">Telehealth Consent</a></p>
 <!-- zx-ls1-disclosures (LegitScript build 2026-10-03). REVERSAL: restore claude/zeviarx-quiz-v28-2026-10-02.html --><!-- zx-ls1.1 (2026-10-03): "board-certified" added to clinical-partner wording after MDI confirmation. REVERSAL: restore the LS1 snapshot of this page. --><!-- zx-ls1.2 (2026-10-03): support phone added. REVERSAL: restore the LS1.1 snapshot of this page. --><!-- zx-ls1.3-consent-20261009 (quiz v35): LEGAL_VERSIONS.telehealth_consent → v6. REVERSAL: restore claude/zeviarx-quiz-v34-mdi-parity-2026-10-09.html --><!-- zx-v34-intake-20261009: MDI intake parity (comorbidities, current GLP-1 details, conditions checklist with hard stops, LA/MS reasons + full-body photo, goal weight, labs/nausea/provider note, consent + glycine records, LA video). REVERSAL: restore claude/zeviarx-quiz-v33-sms-consent-2026-10-09.html -->
 <div class="zx-ls1-disc"><p><b>Clinical partner:</b> Medical consultations, asynchronous clinical evaluations, and prescribing services are facilitated through MD Integrations (MDI) and performed by independent, board-certified healthcare providers licensed in the patient&rsquo;s state of residence.</p><p><b>Dispensing pharmacy:</b> Prescriptions are filled and dispensed by Hallandale Pharmacy, a state-licensed 503A compounding pharmacy located at 2666 SW 36th St, Fort Lauderdale, FL 33312.</p><p><b>Service area:</b> Zevia Rx is available to adults 18 and older residing in the 50 United States and the District of Columbia. It is not available in U.S. territories or outside the United States.</p><!-- zx-ls1.4-service-area-20261009 --><p><b>Emergencies &amp; adverse events:</b> Zevia Rx does not provide emergency medical services. If you are experiencing a medical emergency, call 911 or visit the nearest emergency room immediately. To report an adverse drug event or medication issue, contact our clinical care team at <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> or report directly to the <a href="https://www.fda.gov/safety/medwatch-fda-safety-information-and-adverse-event-reporting-program" target="_blank" rel="noopener">FDA MedWatch program</a>.</p><p><b>Zevia Rx, LLC</b> &middot; 30 N Gould St, Ste R, Sheridan, WY 82801 &middot; <a href="mailto:support@zeviarx.com">support@zeviarx.com</a> &middot; <a href="tel:+18325861086">832-586-1086</a></p></div>
@@ -1790,9 +1800,59 @@ function restoreProgress(p){
   }catch(e){ console.error('restore failed', e); return false; }
 }
 
+/* zx-ls1.11-resume-20261110: reminder links. quiz?r=<token> reopens the post-payment form for a PAID order whose intake is
+   unfinished — on any device; quiz?stop=<token> stops the reminders for that order. The token is exchanged with the
+   intake-reminder function, which returns only what this page needs (payment reference, name, email, state, plan
+   labels, which uploads are on file) — never health answers or an address, so the patient enters those again. */
+const ZX_RESUME_TOKEN = new URLSearchParams(location.search).get('r'), ZX_STOP_TOKEN = new URLSearchParams(location.search).get('stop');
+function resumeNotice(title, text, btnText, btnHref){
+  document.getElementById('resumeTitle').textContent = title;
+  document.getElementById('resumeText').textContent = text;
+  const b = document.getElementById('resumeBtn'); b.textContent = btnText; b.setAttribute('href', btnHref);
+  document.getElementById('resumeModal').classList.add('show');
+}
+async function handleReminderLink(){
+  const tok = ZX_RESUME_TOKEN || ZX_STOP_TOKEN, stopping = !ZX_RESUME_TOKEN;
+  try{ window.history.replaceState(null, '', location.pathname); }catch(e){}
+  let d = null;
+  try{
+    const r = await fetch(BACKEND + '/intake-reminder', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action: stopping ? 'stop' : 'resume', token: tok }) });
+    d = await r.json();
+  }catch(e){}
+  const again = 'quiz.html?r=' + encodeURIComponent(tok);
+  if(stopping){
+    show('goal');
+    if(d && d.ok) resumeNotice('Reminders stopped', "You won't receive any more reminders about this order." + (d.open ? ' Your intake is still unfinished — you can complete it whenever you are ready.' : ''), d.open ? 'Finish my intake' : 'Go to my patient portal', d.open ? again : 'portal.html');
+    else if(d) resumeNotice('This link has expired', 'To stop reminders or get help with your order, please contact us.', 'Go to my patient portal', 'portal.html');
+    else resumeNotice("We couldn't reach our server", 'Please check your connection and open the link from your email again.', 'Try again', 'quiz.html?stop=' + encodeURIComponent(tok));
+    return;
+  }
+  if(d && d.ok && d.order){
+    const o = d.order;
+    /* same device, same order, already at the post-payment step → keep what the patient has typed */
+    let saved = null;
+    try{ saved = JSON.parse(sessionStorage.getItem('zx_progress')||'null'); }catch(e){}
+    if(!saved || !saved.step){ try{ saved = JSON.parse(localStorage.getItem('zx_progress')||'null'); }catch(e){} }
+    if(saved && saved.step==='success' && saved.S && saved.S.lastPI===o.pi && !saved.S.submitted && restoreProgress(saved)) return;
+    clearProgress();
+    const fresh = { step:'success', fields:{}, S:{
+      answers:{ name:o.name||'', email:o.email||'', state:o.state||'' }, bmi:null, med:o.med||null, preMed:null, plan:o.plan||null, payMode:o.pay_mode||'mtm',
+      leadId:o.lead_id||null, lastPI:o.pi||null, shipAddr:null, shipDone:false,
+      idDone:!!o.id_done, videoDone:!!o.video_done, photoDone:!!o.photo_done, rxDone:!!o.rx_done, labsDone:!!o.labs_done,
+      submitted:false, intakeAck:null, health:null, dq:null, dqItems:null, reached:FLOW.indexOf('success'), identity:null, bnplTried:[], tracking:{},
+      finishLabels:{ plan:o.plan_label||'Your plan', pay:'Payment received' } } };
+    if(restoreProgress(fresh)) return;
+  }
+  show('goal');
+  if(d && d.state==='completed') resumeNotice('Your intake is already submitted', 'Nothing more is needed from you. You can follow your order in your patient portal.', 'Go to my patient portal', 'portal.html');
+  else if(d) resumeNotice('This link has expired', 'Sign in to your patient portal to see your order, or contact us for help.', 'Go to my patient portal', 'portal.html');
+  else resumeNotice("We couldn't open your intake", 'Please check your connection and open the link from your reminder again.', 'Try again', again);
+}
 const bootSecret = new URLSearchParams(location.search).get('payment_intent_client_secret');
 if (bootSecret && STRIPE_PK){
   handleRedirectReturn(bootSecret);
+} else if (ZX_RESUME_TOKEN || ZX_STOP_TOKEN){ // zx-ls1.11-resume-20261110
+  handleReminderLink();
 } else {
   if(location.hash){ try{ window.history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash=''; } }
   let resumed = false;
