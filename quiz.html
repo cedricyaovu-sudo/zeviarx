@@ -595,6 +595,11 @@ try{
           <div id="bodyStatus" style="font:600 13px 'Inter';margin-top:6px"></div>
         </div>
       </div>
+      <!-- zx-ls1.9-intake-ack-20261110: ONE required acknowledgement (MDI consent requirements) — after payment, single checkbox, sent to MDI with the intake -->
+      <label id="intakeAckField" for="intakeAck" style="display:flex;gap:12px;align-items:flex-start;margin-top:16px;padding:14px 16px;border:2px solid var(--cream-deep);border-radius:14px;background:#fff;font:500 13.5px/1.55 'Inter';color:var(--ink);cursor:pointer">
+        <input type="checkbox" id="intakeAck" style="flex:0 0 20px;width:20px;height:20px;margin:1px 0 0;accent-color:var(--teal);cursor:pointer">
+        <span id="intakeAckText">I understand this is a medical intake form that a board-certified physician licensed in my state will use to make a medical treatment plan. I confirm that I am the patient, that I am seeking treatment for weight management and consent to be evaluated by a physician for it, that the information I have provided is accurate and complete, and that I understood all the questions I was asked.</span>
+      </label>
       <div id="submitError" style="display:none;font:600 13px 'Inter';color:var(--red);margin-top:12px"></div>
       <button class="btn gold wide" id="submitAll" type="button" style="margin-top:14px">Submit</button>
     </div>
@@ -1472,7 +1477,7 @@ async function saveHealthIfAny(){
   if(!health) return true; // nothing entered — fine
   try{
     const r = await fetch(BACKEND + '/shipping-address', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ paymentIntent:S.lastPI||null, leadId:S.leadId||null, health }) });
+      body: JSON.stringify({ paymentIntent:S.lastPI||null, leadId:S.leadId||null, health, agreements: S.intakeAck ? { intake_ack:S.intakeAck } : undefined }) }); // zx-ls1.9-intake-ack-20261110
     const d = await r.json();
     if(!(r.ok && d && d.ok)) throw new Error('save');
     S.health = health;
@@ -1484,6 +1489,17 @@ async function saveHealthIfAny(){
     return false;
   }
 }
+/* zx-ls1.9-intake-ack-20261110: single intake acknowledgement. The record keeps the exact statement shown, a version and the
+   time the box was ticked; unticking clears it. Sent with the health save in saveHealthIfAny(). */
+const INTAKE_ACK_VERSION = 'intake-ack-v1-2026-11-10';
+function recordIntakeAck(){
+  const box=document.getElementById('intakeAck');
+  if(!box.checked){ S.intakeAck=null; saveState(); return false; }
+  if(!(S.intakeAck && S.intakeAck.accepted && S.intakeAck.version===INTAKE_ACK_VERSION))
+    S.intakeAck={ accepted:true, at:new Date().toISOString(), version:INTAKE_ACK_VERSION, text:document.getElementById('intakeAckText').textContent.trim() };
+  saveState(); return true;
+}
+document.getElementById('intakeAck').addEventListener('change', ()=>{ if(recordIntakeAck()) document.getElementById('intakeAckField').style.borderColor='var(--cream-deep)'; });
 async function submitAll(){
   const btn=document.getElementById('submitAll');
   const err=document.getElementById('submitError'); err.style.display='none';
@@ -1504,12 +1520,17 @@ async function submitAll(){
       if(!document.getElementById('hNausea').value){ document.getElementById('hNauseaField').classList.add('error'); miss=true; }
       if(miss){ err.textContent='Please answer the two questions under Health information above.'; err.style.display='block'; return; }
     }
+    if(!recordIntakeAck()){ // zx-ls1.9-intake-ack-20261110
+      document.getElementById('intakeAckField').style.borderColor='var(--red)';
+      err.textContent='Please tick the confirmation box above to submit your intake.'; err.style.display='block'; return;
+    }
     const healthOk = await saveHealthIfAny();
     if(!healthOk){ err.textContent='Please see the note under Health information above.'; err.style.display='block'; return; }
     if(!S.idDone){ err.textContent="Please upload your driver's license or photo ID."; err.style.display='block'; return; }
     if(videoRequired() && !S.videoDone){ err.textContent='Please upload your verification video — it is required in your state.'; err.style.display='block'; return; }
     if(photoRequired() && !S.photoDone){ err.textContent='Please upload your full-body photo — it is required in your state.'; err.style.display='block'; return; } // v34
     S.submitted = true;
+    document.getElementById('intakeAck').disabled = true; // zx-ls1.9-intake-ack-20261110
     btn.textContent='✓ Submitted';
     document.getElementById('confirmModal').classList.add('show');
     saveState();
@@ -1566,6 +1587,10 @@ function setupVerification(preserve){
   if(!preserve){ S.photoDone = false; S.rxDone = false; S.labsDone = false; } // v34
   [['bodyFile','bodyStatus','photoDone','body_photo'],['rxFile','rxStatus','rxDone','rx_photo'],['labsFile','labsStatus','labsDone','labs']].forEach(([f,st,flag,kind])=>{
     g(f).value=''; if(preserve && S[flag]){ g(st).style.color='var(--teal)'; g(st).textContent=UPLOAD_DONE[kind]; } else { g(st).textContent=''; } });
+  if(!preserve) S.intakeAck = null; // zx-ls1.9-intake-ack-20261110
+  g('intakeAck').checked = !!(preserve && S.intakeAck && S.intakeAck.accepted);
+  g('intakeAck').disabled = !!(preserve && S.submitted);
+  g('intakeAckField').style.borderColor = 'var(--cream-deep)';
   g('submitError').style.display = 'none';
   const sb = g('submitAll');
   sb.disabled = !!(preserve && S.submitted);
@@ -1688,7 +1713,7 @@ function saveState(){
     const snap = JSON.stringify({ t: Date.now(), step: current, S: {
       answers:S.answers, bmi:S.bmi, med:S.med, preMed:S.preMed||null, plan:S.plan, payMode:S.payMode,
       leadId:S.leadId||null, lastPI:S.lastPI||null, shipAddr:S.shipAddr||null,
-      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, photoDone:!!S.photoDone, rxDone:!!S.rxDone, labsDone:!!S.labsDone, dqItems:S.dqItems||null, submitted:!!S.submitted, health:S.health||null, dq:S.dq||null, reached:S.reached||0, identity:S.identity||null,
+      shipDone:!!S.shipDone, idDone:!!S.idDone, videoDone:!!S.videoDone, photoDone:!!S.photoDone, rxDone:!!S.rxDone, labsDone:!!S.labsDone, dqItems:S.dqItems||null, submitted:!!S.submitted, intakeAck:S.intakeAck||null, health:S.health||null, dq:S.dq||null, reached:S.reached||0, identity:S.identity||null,
       bnplTried:S.bnplTried||[], tracking:S.tracking||{}, finishLabels:S.finishLabels||null
     }, fields });
     try{ sessionStorage.setItem('zx_progress', snap); }catch(e){}
