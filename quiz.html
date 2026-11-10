@@ -597,9 +597,11 @@ try{
         </div>
       </div>
       <!-- zx-ls1.9-intake-ack-20261110: ONE required acknowledgement (MDI consent requirements) — after payment, single checkbox, sent to MDI with the intake -->
+      <!-- zx-ls1.12-mdi-terms-20261110: information only — alternatives to treatment + urgent/emergency direction (MDI requirements) -->
+      <p class="hint" id="careNote" style="margin:16px 0 0;font-size:12.5px;line-height:1.55">Treatment here is one option: alternatives include in-person care with your primary care provider or a specialist. For any urgent or emergency medical condition, call 911 or go to an urgent care center or emergency department &mdash; messages to your provider are not for emergencies.</p>
       <label id="intakeAckField" for="intakeAck" style="display:flex;gap:12px;align-items:flex-start;margin-top:16px;padding:14px 16px;border:2px solid var(--cream-deep);border-radius:14px;background:#fff;font:500 13.5px/1.55 'Inter';color:var(--ink);cursor:pointer">
         <input type="checkbox" id="intakeAck" style="flex:0 0 20px;width:20px;height:20px;margin:1px 0 0;accent-color:var(--teal);cursor:pointer">
-        <span id="intakeAckText">I understand this is a medical intake form that a board-certified physician licensed in my state will use to make a medical treatment plan. I confirm that I am the patient, that I am seeking treatment for weight management and consent to be evaluated by a physician for it, that the information I have provided is accurate and complete, and that I understood all the questions I was asked.</span>
+        <span id="intakeAckText">I understand this is a medical intake form that a board-certified physician licensed in my state will use to make a medical treatment plan. I confirm that I am the patient, that I am seeking treatment for weight management and consent to be evaluated by a physician for it, that the information I have provided is accurate and complete, and that I understood all the questions I was asked. I agree not to submit a claim for these telemedicine services to Medicare, any other federal payor, or any state or private payor.</span>
       </label>
       <!-- zx-ls1.10-mdi-intake-20261110: MDI's verbatim LAST intake question — open text, mandatory ("none" allowed) -->
       <div class="field" id="hNoteField" style="margin:18px 0 0"><label for="hNote" style="font-size:14px;line-height:1.5;color:var(--ink)">What else would you like to communicate to the doctor who will be evaluating in addition to the information you have already provided?</label><textarea id="hNote" rows="3" placeholder="Type your answer here"></textarea><p class="hint" style="margin:6px 0 0;font-size:12.5px">Required. If you have nothing to add, type &ldquo;none&rdquo;.</p><div class="err">Please type an answer &mdash; if you have nothing to add, type &ldquo;none&rdquo;.</div></div>
@@ -946,7 +948,7 @@ document.getElementById('bodyNext').addEventListener('click',()=>{
 /* ---------- state select (always-enabled Continue; validates on click) ---------- */
 const STATES="AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" ");
 /* v34: versions of the documents accepted at the contact step (LS1.2 set, 2026-10-03). Bump when the legal pages change. */
-const LEGAL_VERSIONS = { terms:'v9-LS1.10-2026-11-10', privacy:'v8-LS1.6-2026-10-09', telehealth_consent:'v9-LS1.6-2026-10-09' } // zx-ls1.10-mdi-intake-20261110 (terms v9); zx-ls1.6-entity-20261009; // zx-ls1.3-consent-20261009
+const LEGAL_VERSIONS = { terms:'v10-LS1.12-2026-11-10', privacy:'v8-LS1.6-2026-10-09', telehealth_consent:'v9-LS1.6-2026-10-09' } // zx-ls1.12-mdi-terms-20261110 (terms v10); zx-ls1.10-mdi-intake-20261110 (terms v9); zx-ls1.6-entity-20261009; // zx-ls1.3-consent-20261009
 /* v34: states whose MDI GLP-1 questionnaires require a full-body photo (and an AV video) before approval. */
 const PHOTO_STATES = ['LA','MS'];
 const SERVICE_STATES = STATES.slice(); // states where a licensed provider is available via MDI (all, as of 2026-10-03)
@@ -1507,7 +1509,7 @@ async function saveHealthIfAny(){
 }
 /* zx-ls1.9-intake-ack-20261110: single intake acknowledgement. The record keeps the exact statement shown, a version and the
    time the box was ticked; unticking clears it. Sent with the health save in saveHealthIfAny(). */
-const INTAKE_ACK_VERSION = 'intake-ack-v1-2026-11-10';
+const INTAKE_ACK_VERSION = 'intake-ack-v2-2026-11-10'; // zx-ls1.12-mdi-terms-20261110: statement gained the no-insurance-claims clause
 function recordIntakeAck(){
   const box=document.getElementById('intakeAck');
   if(!box.checked){ S.intakeAck=null; saveState(); return false; }
