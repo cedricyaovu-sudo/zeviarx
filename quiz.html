@@ -948,7 +948,7 @@ document.getElementById('bodyNext').addEventListener('click',()=>{
 /* ---------- state select (always-enabled Continue; validates on click) ---------- */
 const STATES="AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" ");
 /* v34: versions of the documents accepted at the contact step (LS1.2 set, 2026-10-03). Bump when the legal pages change. */
-const LEGAL_VERSIONS = { terms:'v10-LS1.12-2026-11-10', privacy:'v8-LS1.6-2026-10-09', telehealth_consent:'v9-LS1.6-2026-10-09' } // zx-ls1.12-mdi-terms-20261110 (terms v10); zx-ls1.10-mdi-intake-20261110 (terms v9); zx-ls1.6-entity-20261009; // zx-ls1.3-consent-20261009
+const LEGAL_VERSIONS = { terms:'v10-LS1.12-2026-11-10', privacy:'v9-LS1.15-2026-11-16', telehealth_consent:'v9-LS1.6-2026-10-09' } // zx-ls1.15-sms-privacy-20261116 (privacy v9); zx-ls1.12-mdi-terms-20261110 (terms v10); zx-ls1.10-mdi-intake-20261110 (terms v9); zx-ls1.6-entity-20261009; // zx-ls1.3-consent-20261009
 /* v34: states whose MDI GLP-1 questionnaires require a full-body photo (and an AV video) before approval. */
 const PHOTO_STATES = ['LA','MS'];
 const SERVICE_STATES = STATES.slice(); // states where a licensed provider is available via MDI (all, as of 2026-10-03)
